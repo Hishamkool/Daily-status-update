@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Daily Log Vonnue</title>
+</head>
+
+<body>
+    <header>
+        <!-- <h1>Daily log calculator</h1> -->
+    </header>
+    <main>
+        <!-- PREVIOUS ENTRY -->
+        <section class="previous-total">
+            <div class="section-title">
+                <h3>Previous Total: </h3>
+                <span class="form-date">
+                    <label for="previous-total-date">Date: </label>
+                    <input type="date" id="previous-total-date" form="previous-total-form" required>
+                </span>
+
+            </div>
+
+            <form id="previous-total-form">
+                <!--   <div class="form-item">
+                    <label class="input-style">Focus: </label>
+                    <span>
+                        <input type="text" id="previous-focus" placeholder="00:00:00"
+                            pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
+                            title="Enter time as HH:MM:SS ( 00–23 : 59 : 59)" required>
+                    </span>
+                </div> -->
+
+                <div class="previous-total-form-items">
+
+                    <div class="form-item">
+                        <label for="previous-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
+                        <input type="time" id="previous-focus-time" name="previous-focus-time" step="1"
+                            onpaste="allowPasting(event)" oninput="validateTimeFormat(this)" placeholder="00:00:00"
+                            title="Use Ctrl+V to paste time" required>
+                    </div>
+
+
+                    <div class="form-item">
+                        <label for="previous-ct" title="Code time in HH:MM:SS">CT:</label>
+                        <input type="time" id="previous-ct" name="previous-ct" step="1" onpaste="allowPasting(event)"
+                            oninput="validateTimeFormat(this)" placeholder="00:00:00" title="Use Ctrl+V to paste time"
+                            required>
+                    </div>
+
+
+                    <div class="form-item">
+                        <label for="previous-act" title="Active Code time in HH:MM:SS">ACT:</label>
+                        <input type="time" id="previous-act" name="previous-act" step="1" onpaste="allowPasting(event)"
+                            oninput="validateTimeFormat(this)" placeholder="00:00:00" title="Use Ctrl+V to paste time"
+                            required>
+                    </div>
+
+
+                    <div class="form-item">
+                        <label for="previous-html">HTML: </label>
+                        <input type="number" id="previous-html" name="previous-html" placeholder="121" value="0" min="0"
+                            title="Total lines of HTML code written">
+                    </div>
+
+
+
+                    <div class="form-item">
+                        <label for="previous-css">CSS: </label>
+                        <input type="number" id="previous-css" name="previous-css" placeholder="121" value="0" min="0"
+                            title="Total lines of CSS code written">
+                    </div>
+
+                    <div class="form-item">
+                        <label for="previous-js">JS: </label>
+                        <input type="number" id="previous-js" name="previous-js" placeholder="121" value="0" min="0"
+                            title="Total lines of CSS code written">
+                    </div>
+
+                    <div class="form-item">
+                        <label for="previous-react">React: </label>
+                        <input type="number" id="previous-react" name="previous-react" placeholder="121" value="0"
+                            min="0" title="Total lines of CSS code written">
+                    </div>
+                    <div class="form-item">
+                        <label>Total: </label>
+                        <span>
+                            <span id="previous-total-today">0</span> / <span id="previous-total-alltime">0</span>
+                        </span>
+                    </div>
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+
+
+        <!-- TODAYS ENTRY -->
+        <section id="todays-entry">
+
+            <div class="section-title">
+                <h3>Todays Entry: </h3>
+                <span class="form-date">
+                    <label for="todays-date">Date: </label>
+                    <input type="date" id="todays-date" form="todays-data-form" required>
+                </span>
+
+            </div>
+
+            <form id="todays-data-form">
+                <div class="previous-total-form-items">
+
+                    <div class="form-item">
+                        <label for="previous-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
+                        <input type="time" id="previous-focus-time" name="previous-focus-time" step="1"
+                            onpaste="allowPasting(event)" oninput="validateTimeFormat(this)" placeholder="00:00:00"
+                            title="Use Ctrl+V to paste time" required>
+                    </div>
+
+
+                    <div class="form-item">
+                        <label for="previous-ct" title="Code time in HH:MM:SS">CT:</label>
+                        <input type="time" id="previous-ct" name="previous-ct" step="1" onpaste="allowPasting(event)"
+                            oninput="validateTimeFormat(this)" placeholder="00:00:00" title="Use Ctrl+V to paste time"
+                            required>
+                    </div>
+
+
+                    <div class="form-item">
+                        <label for="previous-act" title="Active Code time in HH:MM:SS">ACT:</label>
+                        <input type="time" id="previous-act" name="previous-act" step="1" onpaste="allowPasting(event)"
+                            oninput="validateTimeFormat(this)" placeholder="00:00:00" title="Use Ctrl+V to paste time"
+                            required>
+                    </div>
+
+
+                    <div class="form-item">
+                        <label for="previous-html">HTML: </label>
+                        <input type="number" id="previous-html" name="previous-html" placeholder="121" value="0" min="0"
+                            title="Total lines of HTML code written">
+                    </div>
+
+
+
+                    <div class="form-item">
+                        <label for="previous-css">CSS: </label>
+                        <input type="number" id="previous-css" name="previous-css" placeholder="121" value="0" min="0"
+                            title="Total lines of CSS code written">
+                    </div>
+
+                    <div class="form-item">
+                        <label for="previous-js">JS: </label>
+                        <input type="number" id="previous-js" name="previous-js" placeholder="121" value="0" min="0"
+                            title="Total lines of CSS code written">
+                    </div>
+
+                    <div class="form-item">
+                        <label for="previous-react">React: </label>
+                        <input type="number" id="previous-react" name="previous-react" placeholder="121" value="0"
+                            min="0" title="Total lines of CSS code written">
+                    </div>
+                    <div class="form-item">
+                        <label>Total: </label>
+                        <span>
+                            <span id="previous-total-today">0</span> / <span id="previous-total-alltime">0</span>
+                        </span>
+                    </div>
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+
+        </section>
+        <section id="output"></section>
+    </main>
+    <script src="daily_log.js"></script>
+</body>
+
+</html>
