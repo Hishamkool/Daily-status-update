@@ -34,7 +34,7 @@
                     </span>
                 </div> -->
 
-                <div class="previous-total-form-items">
+                <div class="section-form-items">
 
                     <div class="form-item">
                         <label for="previous-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
@@ -88,7 +88,7 @@
                     <div class="form-item">
                         <label>Total: </label>
                         <span>
-                            <span id="previous-total-today">0</span> / <span id="previous-total-alltime">0</span>
+                            <span id="previous-total-loc">0</span> / <span id="previous-total-alltimeloc">0</span>
                         </span>
                     </div>
                 </div>
@@ -103,76 +103,82 @@
             <div class="section-title">
                 <h3>Todays Entry: </h3>
                 <span class="form-date">
-                    <label for="todays-date">Date: </label>
-                    <input type="date" id="todays-date" form="todays-data-form" required>
+                    <label for="todays-entry-date">Date: </label>
+                    <input type="date" id="todays-entry-date" form="todays-data-form" value="2025-10-14"
+                        name="todays-stats-date" required>
                 </span>
-
             </div>
 
-            <form id="todays-data-form">
-                <div class="previous-total-form-items">
+            <form id="todays-data-form" onsubmit="todays_data_submit()" novalidate>
+                <div class="section-form-items">
 
                     <div class="form-item">
-                        <label for="previous-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
-                        <input type="time" id="previous-focus-time" name="previous-focus-time" step="1"
+                        <label for="todays-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
+                        <input type="time" id="todays-focus-time" name="todays-focus-time" step="1"
                             onpaste="allowPasting(event)" oninput="validateTimeFormat(this)" placeholder="00:00:00"
-                            title="Use Ctrl+V to paste time" required>
+                            value="01:02:03" title="Use Ctrl+V to paste time" required>
                     </div>
 
 
                     <div class="form-item">
-                        <label for="previous-ct" title="Code time in HH:MM:SS">CT:</label>
-                        <input type="time" id="previous-ct" name="previous-ct" step="1" onpaste="allowPasting(event)"
+                        <label for="todays-ct" title="Code time in HH:MM:SS">CT:</label>
+                        <input type="time" id="todays-ct" name="todays-ct" step="1" onpaste="allowPasting(event)"
                             oninput="validateTimeFormat(this)" placeholder="00:00:00" title="Use Ctrl+V to paste time"
-                            required>
+                            value="01:02:03" required>
                     </div>
 
 
                     <div class="form-item">
-                        <label for="previous-act" title="Active Code time in HH:MM:SS">ACT:</label>
-                        <input type="time" id="previous-act" name="previous-act" step="1" onpaste="allowPasting(event)"
+                        <label for="todays-act" title="Active Code time in HH:MM:SS">ACT:</label>
+                        <input type="time" id="todays-act" name="todays-act" step="1" onpaste="allowPasting(event)"
                             oninput="validateTimeFormat(this)" placeholder="00:00:00" title="Use Ctrl+V to paste time"
-                            required>
+                            value="01:02:03" required>
                     </div>
 
 
                     <div class="form-item">
-                        <label for="previous-html">HTML: </label>
-                        <input type="number" id="previous-html" name="previous-html" placeholder="121" value="0" min="0"
+                        <label for="todays-html">HTML: </label>
+                        <input type="number" id="todays-html" name="todays-html" placeholder="121" value="0" min="0"
                             title="Total lines of HTML code written">
                     </div>
 
 
 
                     <div class="form-item">
-                        <label for="previous-css">CSS: </label>
-                        <input type="number" id="previous-css" name="previous-css" placeholder="121" value="0" min="0"
+                        <label for="todays-css">CSS: </label>
+                        <input type="number" id="todays-css" name="todays-css" placeholder="121" value="0" min="0"
                             title="Total lines of CSS code written">
                     </div>
 
                     <div class="form-item">
-                        <label for="previous-js">JS: </label>
-                        <input type="number" id="previous-js" name="previous-js" placeholder="121" value="0" min="0"
+                        <label for="todays-js">JS: </label>
+                        <input type="number" id="todays-js" name="todays-js" placeholder="121" value="0" min="0"
                             title="Total lines of CSS code written">
                     </div>
 
                     <div class="form-item">
-                        <label for="previous-react">React: </label>
-                        <input type="number" id="previous-react" name="previous-react" placeholder="121" value="0"
-                            min="0" title="Total lines of CSS code written">
+                        <label for="todays-react">React: </label>
+                        <input type="number" id="todays-react" name="todays-react" placeholder="121" value="0" min="0"
+                            title="Total lines of CSS code written">
                     </div>
                     <div class="form-item">
                         <label>Total: </label>
                         <span>
-                            <span id="previous-total-today">0</span> / <span id="previous-total-alltime">0</span>
+                            <span id="todays-total-loc">0</span>
                         </span>
                     </div>
                 </div>
-                <button type="submit">Submit</button>
+                <button type="submit">Submit</input>
             </form>
 
         </section>
-        <section id="output"></section>
+        <section id="output">
+            <div class="output-box">
+                <button onclick="showOutput()">Show Record</button>
+                <pre class="output-file"></pre>
+
+            </div>
+        </section>
     </main>
     <script src="daily_log.js"></script>
 </body>

@@ -3,7 +3,6 @@
 }
 
 section {
-    border: 1px dashed pink;
     margin-inline: 10px;
     margin-bottom: 20px;
 }
@@ -19,11 +18,11 @@ section {
     justify-content: space-between;
 }
 
-.previous-total-form-items input {
+.section-form-items input {
     width: 100px;
 }
 
-.previous-total-form-items {
+.section-form-items {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     column-gap: 10px;
@@ -31,10 +30,7 @@ section {
     background-color: rgba(252, 217, 189, 0.593);
     padding: 10px;
     border-radius: 10px;
-
 }
-
-
 
 .form-item {
     display: flex;
@@ -42,4 +38,13 @@ section {
     max-width: 180px;
     gap: 10px;
     justify-content: space-between;
+}
+
+/* output */
+.output-box {
+    border: 1px solid black;
+    height: 450px;
+    width: auto;
+    margin: 10px;
+    overflow: auto;
 }
