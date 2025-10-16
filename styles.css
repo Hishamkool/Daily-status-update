@@ -47,4 +47,17 @@ section {
     width: auto;
     margin: 10px;
     overflow: auto;
+
+}
+
+.output-file {
+    display: block; 
+    padding: 10px;
+}
+
+.output-file.no-data {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
