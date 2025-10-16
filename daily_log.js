@@ -36,47 +36,25 @@ function validateTimeFormat(input) {
 /* variables */
 const todaysStatsForm = document.getElementById("todays-data-form");
 const outputFile = document.querySelector(".output-file");
+let dailyLogs = getDailyLogs();
 
 
-
-// function to accept todays stats
-function todays_data_submit() {
-   /*  const dailyLogs = JSON.parse(localStorage.getItem('dailyLogs')) || [];
-    const formData = new FormData(todaysStatsForm);
-    const fromEntries = fromEntries(formData.entries());
-    if (dailyLogs.date == fromEntries.date) {
-        alert("Do you want to overight the data for the date ", fromEntries.date);
-
-    } */
-
+function getDailyLogs() {
+    return JSON.parse(localStorage.getItem('dailyLogs')) || [];
 }
 
-
-
-/* // assigning the funciton as a global variable to access outside of the domcontent loaded
-window.showOutput = showOutput; */
-// submit function for todays stats
+// sumbit event listner on todays stats
 todaysStatsForm.addEventListener("submit", function (event) {
     console.log("todays submit button clicked");
-
     event.preventDefault();
+    // if incase the variable is not updated when clearing the storage
+    dailyLogs = getDailyLogs();
+    const submit_date = document.getElementById("todays-entry-date").value;
+    const existingIndex = dailyLogs.findIndex(item => item.date === submit_date);
+    console.log("matched :", existingIndex);
 
-    // approach one to get json objects for current form data but the data handling might be hard and stroring mutiple objects also can be hard 
-
-    /* const TformData = new FormData(todaysStatsForm);
-    const TformObj = Object.fromEntries(TformData.entries());
-    const TJsonString = JSON.stringify(TformObj);
-    console.log("json string:", TJsonString);
-    const TjsonObj = JSON.parse(TJsonString);
-    console.log("Json object :", TjsonObj); */
-
-    // ===========================================
-
-    let dailyLogs = JSON.parse(localStorage.getItem('dailyLogs')) || [];
-    let count = dailyLogs.length + 1;
-    console.log("all stats: ", dailyLogs);
     const entry = {
-        sl_no: count,
+
         date: document.getElementById("todays-entry-date").value,
         Focus_time: document.getElementById("todays-focus-time").value,
         Code_time: document.getElementById("todays-ct").value,
@@ -86,23 +64,73 @@ todaysStatsForm.addEventListener("submit", function (event) {
         JavaScript: Number(document.getElementById("todays-js").value),
         React: Number(document.getElementById("todays-react").value)
     };
-    console.log("todays stats :", entry);
-
-    dailyLogs.push(entry);
-    localStorage.setItem('dailyLogs', JSON.stringify(dailyLogs));
-    count++;
-    showOutput();
+    // id date matches with output (prestored values)
+    if (existingIndex !== -1) {
+        const replace = confirm(`Data for the ${submit_date} is already added, Do you want to replace ? `);
+        //    if use wants to replace the already available data 
+        if (replace) {
+            //functinality to replace the todays data
+            replaceData(existingIndex, entry);
+        } else {
+            return;
+        }
+    } else {
+        // i.e., exsisting index == -1 means(no entrt found) its a new entry then add
+        addData(entry);
+    }
 });
+// function to replace todays data
+function replaceData(existingIndex, entry) {
+    dailyLogs[existingIndex] = entry;
+    resetIndex();
+    localStorage.setItem('dailyLogs', JSON.stringify(dailyLogs));
+    showOutput();
 
+
+};
+// function to add todays data
+function addData(entry) {
+    dailyLogs.push(entry);
+    resetIndex();
+    localStorage.setItem('dailyLogs', JSON.stringify(dailyLogs));
+
+    showOutput();
+};
+
+// function to reset serial number for the objects 
+function resetIndex() {
+    dailyLogs.forEach((item, index) => {
+        item.sl_no = index + 1;
+    });
+
+}
 // showing todays stats in outputbox
 function showOutput() {
-    const logs = JSON.parse(localStorage.getItem('dailyLogs')) || [];
-    outputFile.textContent = JSON.stringify(logs, null, 2);
+    const logs = getDailyLogs();
+    if (logs.length == 0) {
+        outputFile.classList.add("no-data");
+        outputFile.textContent = 'No Data Found';
+    } else {
+        outputFile.classList.remove("no-data");
+        outputFile.textContent = JSON.stringify(logs, null, 2);
+    }
+    // outputFile.textContent = logs.length === 0 ? "No data found" : JSON.stringify(logs, null, 2);
+    console.log("all stats:", logs);
 };
 
 
 
-
+function clearLoacalStorage() {
+    const deleteAllEntries = confirm("Do you want to clear all your saved entries? CANNOT BE UNDONE !")
+    if (deleteAllEntries) {
+        window.localStorage.removeItem('dailyLogs');
+        console.log("cleared dailyLogs : ", getDailyLogs()); 
+        getDailyLogs();
+        showOutput();
+    } else {
+        return;
+    }
+};
 
 
 
