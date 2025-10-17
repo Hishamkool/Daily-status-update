@@ -91,13 +91,14 @@ todaysStatsForm.addEventListener("submit", function (event) {
 
     const entry = {
         date: todaysDate.value,
-        Focus_time: todaysFocus.value,
-        Code_time: todaysCodeTime.value,
-        Active_code_time: todaysActiveCodeTime.value,
+        Focus_time: todaysFocus.value || "00:00:00",
+        Code_time: todaysCodeTime.value || "00:00:00",
+        Active_code_time: todaysActiveCodeTime.value || "00:00:00",
         HTML: Number(todaysHTML.value) || 0,
         CSS: Number(todaysCSS.value) || 0,
         JavaScript: Number(todaysJS.value) || 0,
-        React: Number(todaysReact.value) || 0
+        React: Number(todaysReact.value) || 0,
+        Total: todaysTotalLoc.value,
     };
 
 
@@ -127,7 +128,6 @@ function replaceData(existingIndex, entry) {
     resetIndex();
     localStorage.setItem('dailyLogs', JSON.stringify(dailyLogs));
     showDailyStats();
-
 
 };
 
@@ -217,23 +217,69 @@ const previousEntry = {
     REACT: totalReact,
 }
 // function to add all the values of previous inputs to the previous entry
-function sumDailyLogs() {
-    const LOCAllTime = dailyLogs.reduce((acc, currnt) => {
-        acc.HTML += currnt.HTML;
-        acc.CSS += currnt.CSS;
-        acc.JS += currnt.JavaScript;
-        acc.REACT += currnt.React;
-
+function dailyLogsTotal() {
+    // calculating total lines of code from daily stats
+    const sumDailyStats = dailyLogs.reduce((acc, currnt) => {
+        if (!acc.latestDate || new Date(currnt.date) > new Date(acc.latestDate)) {
+            acc.latestDate = currnt.date;
+        }
+        acc.focus += time2Seconds(currnt.Focus_time);
+        acc.codetime += time2Seconds(currnt.Code_time);
+        acc.activeCT += time2Seconds(currnt.Active_code_time);
+        acc.html += currnt.HTML || 0;
+        acc.css += currnt.CSS || 0;
+        acc.js += currnt.JavaScript || 0;
+        acc.react += currnt.React || 0;
+        acc.previousTotal += currnt.Total || 0;
         return acc;
-    }, { HTML: 0, JS: 0, CSS: 0, REACT: 0 });
-    console.log(LOCAllTime);
+    }, { latestDate: null, focus: 0, codetime: 0, activeCT: 0, html: 0, css: 0, js: 0, react: 0, previousTotal: 0 });
 
 
+    const dailyLogTotalObj = {
+        LatestDate: sumDailyStats.latestDate,
+        FOCUS: secondsToHMS(sumDailyStats.focus),
+        CODE_TIME: secondsToHMS(sumDailyStats.codetime),
+        ACTIVE_CODE_TIME: secondsToHMS(sumDailyStats.activeCT),
+        HTML: sumDailyStats.html,
+        CSS: sumDailyStats.css,
+        JS: sumDailyStats.js,
+        REACT: sumDailyStats.react,
+        PreviousTotal: sumDailyStats.previousTotal,
+    }
+
+    console.log("daily logs object:", dailyLogTotalObj);
+    localStorage.setItem('dailyLogsSum', JSON.stringify(dailyLogTotalObj));
+    console.log("stored daily logs:");
+    console.log(JSON.parse(localStorage.getItem('dailyLogsSum')));
+};
+
+ 
+// funciton to convert time to seconds
+function time2Seconds(curr) {
+    const value = curr.split(":").map(Number);
+    const hours = Math.floor(value[0] * 60 * 60);
+    const min = Math.floor(value[1] * 60);
+    const sec = Math.floor(value[2]);
+    const totalseconds = hours + min + sec;
+    return totalseconds;
+}
+//  function to convert seconds to HH:MM:SS
+function secondsToHMS(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = Math.floor((totalSeconds % 3600) % 60);
+
+    const hh = String(hours).padStart(2, "0");
+    const mm = String(minutes).padStart(2, "0");
+    const ss = String(seconds).padStart(2, "0");
+    const result = `${hh}:${mm}:${ss}`;
+    console.log("seconds to hh:mm:ss", result);
+    return result;
 }
 // function to add the previous entry into localstorage
 previousTotalsForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    sumDailyLogs();
+    dailyLogsTotal();
 });
 
 const allPreviousInputs = document.querySelectorAll(".previous-input-time");
@@ -244,8 +290,8 @@ allPreviousInputs.forEach((input) => {
         if (validateTime(input.value)) {
             console.log("input ok");
             input.style.borderColor = 'green';
-
             event.target.setCustomValidity("");
+
         } else {
             input.style.borderColor = 'red';
             console.log("input format error");
