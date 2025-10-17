@@ -38,28 +38,28 @@
 
                     <div class="form-item">
                         <label for="previous-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
-                        <input type="text" title="HH:MM:SS" placeholder="hours:min:sec" class="previous-input-time"
+                        <input type="text" title="HHHH:MM:SS" placeholder="43:24:56" class="previous-input-time"
                             id="previous-focus-time" required>
                     </div>
 
 
                     <div class="form-item">
                         <label for="previous-ct" title="Code time in HH:MM:SS">CT:</label>
-                        <input type="text" title="HH:MM:SS" placeholder="hours:min:sec" class="previous-input-time"
+                        <input type="text" title="hours:MM:SS" placeholder="300:28:19" class="previous-input-time"
                             id="previous-ct" required>
                     </div>
 
 
                     <div class="form-item">
                         <label for="previous-act" title="Active Code time in HH:MM:SS">ACT:</label>
-                        <input type="text" title="HH:MM:SS" placeholder="hours:min:sec" class="previous-input-time"
+                        <input type="text" title="hours:MM:SS" placeholder="280:12:47" class="previous-input-time"
                             id="previous-act" required>
                     </div>
 
 
                     <div class="form-item">
                         <label for="previous-html">HTML: </label>
-                        <input type="number" id="previous-html" name="previous-html" placeholder="121"   min="0"
+                        <input type="number" id="previous-html" name="previous-html" placeholder="121" min="0"
                             title="Total lines of HTML code written">
                     </div>
 
@@ -67,20 +67,20 @@
 
                     <div class="form-item">
                         <label for="previous-css">CSS: </label>
-                        <input type="number" id="previous-css" name="previous-css" placeholder="121"   min="0"
+                        <input type="number" id="previous-css" name="previous-css" placeholder="121" min="0"
                             title="Total lines of CSS code written">
                     </div>
 
                     <div class="form-item">
                         <label for="previous-js">JS: </label>
-                        <input type="number" id="previous-js" name="previous-js" placeholder="121"   min="0"
+                        <input type="number" id="previous-js" name="previous-js" placeholder="121" min="0"
                             title="Total lines of CSS code written">
                     </div>
 
                     <div class="form-item">
                         <label for="previous-react">React: </label>
-                        <input type="number" id="previous-react" name="previous-react" placeholder="121"  
-                            min="0" title="Total lines of CSS code written">
+                        <input type="number" id="previous-react" name="previous-react" placeholder="121" min="0"
+                            title="Total lines of CSS code written">
                     </div>
                     <div class="form-item">
                         <label>Total: </label>
@@ -135,7 +135,7 @@
 
                     <div class="form-item">
                         <label for="todays-html">HTML: </label>
-                        <input type="number" id="todays-html" name="todays-html" placeholder="121"   min="0"
+                        <input type="number" id="todays-html" name="todays-html" placeholder="121" min="0"
                             title="Total lines of HTML code written">
                     </div>
 
@@ -143,19 +143,19 @@
 
                     <div class="form-item">
                         <label for="todays-css">CSS: </label>
-                        <input type="number" id="todays-css" name="todays-css" placeholder="121"   min="0"
+                        <input type="number" id="todays-css" name="todays-css" placeholder="121" min="0"
                             title="Total lines of CSS code written">
                     </div>
 
                     <div class="form-item">
                         <label for="todays-js">JS: </label>
-                        <input type="number" id="todays-js" name="todays-js" placeholder="121"   min="0"
+                        <input type="number" id="todays-js" name="todays-js" placeholder="121" min="0"
                             title="Total lines of CSS code written">
                     </div>
 
                     <div class="form-item">
                         <label for="todays-react">React: </label>
-                        <input type="number" id="todays-react" name="todays-react" placeholder="121"   min="0"
+                        <input type="number" id="todays-react" name="todays-react" placeholder="121" min="0"
                             title="Total lines of CSS code written">
                     </div>
                     <div class="form-item">
@@ -173,17 +173,17 @@
         <section id="output">
             <div class="output-box">
                 <div class="output-btns">
-                    <button onclick="showDailyStats()">Show Daily Stats</button>
+                    <button onclick="showStats()">Show Stats</button>
                     <button onclick="clearLoacalStorage()">Clear All</button>
 
                 </div>
                 <div>
-                    <h5>Previous Output:</h5>
-                    <pre class="previous-output"></pre>
+                    <h5>Daily Status Sum:</h5>
+                    <pre class="previous-output output-file-style"></pre>
                 </div>
                 <div>
                     <h5>Daily Stats:</h5>
-                    <pre class="output-file"></pre>
+                    <pre class="output-file output-file-style"></pre>
                 </div>
 
 

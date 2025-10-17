@@ -4,11 +4,13 @@ function allowPasting(event) {
     // prevent browsers ingoring the input    
     event.preventDefault();
     const paste = (event.clipboardData || window.clipboardData).getData('text');
-    console.log("clipboard data :", paste);
-    const match = paste.match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/);
+    const pastedWithoutSpaces = paste.replace(/\s/g, "");
+    console.log("clipboard data :", pastedWithoutSpaces);
+    
+    const match = pastedWithoutSpaces.match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/);
     if (match) {
 
-        let partsOfInput = paste.split(':');
+        let partsOfInput = pastedWithoutSpaces.split(':');
         console.log("parts of input length:", partsOfInput.length);
         if (partsOfInput[0].length === 1) {
             //if hour is single digit then adding 0 before
@@ -38,6 +40,9 @@ function validateTimeFormat(input) {
     }
 }
 /* variables */
+/* todays stats variables */
+let dailyLogs = getDailyLogs();
+let previousTotals = getPreviousTotal();
 const todaysStatsForm = document.getElementById("todays-data-form");
 const todaysDate = document.getElementById("todays-entry-date");
 const todaysFocus = document.getElementById("todays-focus-time");
@@ -48,14 +53,39 @@ const todaysCSS = document.getElementById("todays-css");
 const todaysJS = document.getElementById("todays-js");
 const todaysReact = document.getElementById("todays-react");
 const todaysTotalLoc = document.getElementById("todays-total-loc");
+/* previous stats variables */
+const previousTotalsForm = document.getElementById("previous-total-form");
+const previousDate = document.getElementById("previous-total-date");
+const totalFocus = document.getElementById("previous-focus-time");
+const totalCodeTime = document.getElementById("previous-ct");
+const totalActiveCodeTime = document.getElementById("previous-act");
+const totalHtml = document.getElementById("previous-html");
+const totalCss = document.getElementById("previous-css");
+const totalJS = document.getElementById("previous-js");
+const totalReact = document.getElementById("previous-react");
+const totalLOCAllTime = document.getElementById("previous-total-alltimeloc");
+const previousOutput = document.querySelector(".previous-output");
+const previousEntry = {
+    date: dailyLogs,
+    total_focus: totalFocus,
+    total_CT: totalCodeTime,
+    total_ACT: totalActiveCodeTime,
+    HTML: totalHtml,
+    CSS: totalCss,
+    JS: totalJS,
+    REACT: totalReact,
+}
+
 
 const outputFile = document.querySelector(".output-file");
-let dailyLogs = getDailyLogs();
-let previousTotals = getPreviousTotal();
 
-/* functions to execute as page loads  */
-showDailyStats();
+
+
+/* INITIAL loading functions  */
 setTodaysTotalLOCD();
+showStats();
+
+
 
 // function to get the stored previous totals
 function getPreviousTotal() {
@@ -66,12 +96,14 @@ function getDailyLogs() {
     return JSON.parse(localStorage.getItem('dailyLogs')) || [];
 }
 
+
+
 // even listners for total lines of code as user typeinput 
 [todaysHTML, todaysCSS, todaysJS, todaysReact].forEach(input => {
     input.addEventListener("input", setTodaysTotalLOCD);
 });
 
-// function to add and set todays total lines of code
+// function to add and set todays total lines of code for todays entry
 function setTodaysTotalLOCD() {
     let total = (Number(todaysHTML.value) || 0) + (Number(todaysCSS.value) || 0) + (Number(todaysJS.value) || 0) + (Number(todaysReact.value) || 0);
     console.log("total count :", total);
@@ -118,11 +150,13 @@ todaysStatsForm.addEventListener("submit", function (event) {
     }
     // remove this [debug]
     setRandomValuesToLinesOfCode();
+    dailyLogsTotal();
+    showDailyStatsSum();
 
 });
 
 
-// function to replace todays data
+// function to replace todays data for a particular date
 function replaceData(existingIndex, entry) {
     dailyLogs[existingIndex] = entry;
     resetIndex();
@@ -168,25 +202,32 @@ function resetIndex() {
 function showDailyStats() {
     const logs = getDailyLogs();
     if (logs.length == 0) {
-        outputFile.classList.add("no-data");
+        outputFile.style.textAlign = "center";
         outputFile.textContent = 'Daily Stats Empty';
     } else {
-        outputFile.classList.remove("no-data");
+        outputFile.style.textAlign = "start";
         outputFile.textContent = JSON.stringify(logs, null, 2);
     }
-    // outputFile.textContent = logs.length === 0 ? "No data found" : JSON.stringify(logs, null, 2);
-    console.log("all stats:", logs);
+    console.log("Daily Stats Array", logs);
 };
 
 
+// function to display Output
+function showStats() {
+    showDailyStats();
+    showDailyStatsSum();
+}
 
 function clearLoacalStorage() {
     const deleteAllEntries = confirm("Do you want to clear all your saved entries? CANNOT BE UNDONE !")
     if (deleteAllEntries) {
         window.localStorage.removeItem('dailyLogs');
+        localStorage.removeItem('dailyLogsSum');
         console.log("cleared dailyLogs : ", getDailyLogs());
-        getDailyLogs();
-        showDailyStats();
+        console.log("cleared dailyLogs sum : ", getDailyLogsSum());
+
+
+        showStats();
     } else {
         return;
     }
@@ -195,27 +236,7 @@ function clearLoacalStorage() {
 
 
 /* _________________working of previous total form_________________________________________________ */
-const previousTotalsForm = document.getElementById("previous-total-form");
-const previousDate = document.getElementById("previous-total-date");
-const totalFocus = document.getElementById("previous-focus-time");
-const totalCodeTime = document.getElementById("previous-ct");
-const totalActiveCodeTime = document.getElementById("previous-act");
-const totalHtml = document.getElementById("previous-html");
-const totalCss = document.getElementById("previous-css");
-const totalJS = document.getElementById("previous-js");
-const totalReact = document.getElementById("previous-react");
-const totalLOCAllTime = document.getElementById("previous-total-alltimeloc");
 
-const previousEntry = {
-    date: dailyLogs,
-    total_focus: totalFocus,
-    total_CT: totalCodeTime,
-    total_ACT: totalActiveCodeTime,
-    HTML: totalHtml,
-    CSS: totalCss,
-    JS: totalJS,
-    REACT: totalReact,
-}
 // function to add all the values of previous inputs to the previous entry
 function dailyLogsTotal() {
     // calculating total lines of code from daily stats
@@ -253,7 +274,7 @@ function dailyLogsTotal() {
     console.log(JSON.parse(localStorage.getItem('dailyLogsSum')));
 };
 
- 
+
 // funciton to convert time to seconds
 function time2Seconds(curr) {
     const value = curr.split(":").map(Number);
@@ -276,6 +297,26 @@ function secondsToHMS(totalSeconds) {
     console.log("seconds to hh:mm:ss", result);
     return result;
 }
+// function to get the stored daily log sum
+function getDailyLogsSum() {
+    return JSON.parse(localStorage.getItem('dailyLogsSum')) || [];
+}
+
+// function to display sum of dailyLogsSum
+function showDailyStatsSum() {
+    let dailySum = getDailyLogsSum();
+    if (dailySum.length == 0) {
+        previousOutput.style.textAlign = "center";
+        previousOutput.textContent = 'Previous Stats Empty';
+
+    } else {
+        previousOutput.style.textAlign = "start";
+        previousOutput.textContent = JSON.stringify(dailySum, null, 2);
+    }
+    console.log("Sum of all daily stats:", dailySum);
+
+}
+
 // function to add the previous entry into localstorage
 previousTotalsForm.addEventListener("submit", (event) => {
     event.preventDefault();

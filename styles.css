@@ -50,14 +50,9 @@ section {
 
 }
 
-.output-file {
-    display: block; 
+.output-file-style {
+    display: block;
+    text-align: start;
     padding: 10px;
 }
 
-.output-file.no-data {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
