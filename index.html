@@ -174,15 +174,21 @@
             <div class="output-box">
                 <div class="output-btns">
                     <button onclick="showStats()">Show Stats</button>
-                    <button onclick="clearLoacalStorage()">Clear All</button>
+                    <button title="clear all the recorded daily stats from todats stats window"
+                        onclick="clearDailyStats()">Clear Daily Stats</button>
+                    <button title="clear previous totals" onclick="clearPreviousTotal()">Clear Previous Total</button>
 
                 </div>
                 <div>
-                    <h5>Daily Status Sum:</h5>
+                    <h5 class="output-title">Previous total:</h5>
                     <pre class="previous-output output-file-style"></pre>
                 </div>
                 <div>
-                    <h5>Daily Stats:</h5>
+                    <h5 class="output-title">Daily Status Sum:</h5>
+                    <pre class="daily-stats-sum output-file-style"></pre>
+                </div>
+                <div>
+                    <h5 class="output-title">Daily Stats:</h5>
                     <pre class="output-file output-file-style"></pre>
                 </div>
 
