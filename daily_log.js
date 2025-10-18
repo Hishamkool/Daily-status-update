@@ -1,49 +1,10 @@
 
-// allow pasting time to input type time
-function allowPasting(event) {
-    // prevent browsers ingoring the input    
-    event.preventDefault();
-    const paste = (event.clipboardData || window.clipboardData).getData('text');
-    const pastedWithoutSpaces = paste.replace(/\s/g, "");
-    console.log("clipboard data :", pastedWithoutSpaces);
-
-    const match = pastedWithoutSpaces.match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/);
-    if (match) {
-
-        let partsOfInput = pastedWithoutSpaces.split(':');
-        console.log("parts of input length:", partsOfInput.length);
-        if (partsOfInput[0].length === 1) {
-            //if hour is single digit then adding 0 before
-            partsOfInput[0] = '0' + partsOfInput[0];
-        }
-        if (partsOfInput.length === 2) {
-
-            // if time is hh:mm then adding 00 as seconds
-            partsOfInput.push('00');
-        }
-        event.target.value = partsOfInput.join(':');
-
-    } else {
-        event.target.setCustomValidity("Paste time as HH:MM or HH:MM:SS");
-        event.target.reportValidity();
-    }
-}
-// validating input while copy pasting into the time input fields
-function validateTimeFormat(input) {
-    const val = input.value;
-    const valid = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/.test(val);
-    if (!valid && val !== "") {
-        //value not empty to work only when 
-        input.setCustomValidity("Enter time as HH:MM or HH:MM:SS");
-    } else {
-        input.setCustomValidity("");
-    }
-}
 /* variables */
 /* storage keys for local storage */
 const storage_key_daily_log = 'dailyLogs';
 const storage_key_daily_logs_sum = 'dailyLogsSum';
 const storage_key_previous_total = 'previousTotalObj';
+const storage_key_previous_plus_daily = 'previousPlusDaily';
 /* todays stats variables */
 
 const todaysStatsForm = document.getElementById("todays-data-form");
@@ -71,6 +32,7 @@ const totalLOCAllTime = document.getElementById("previous-total-alltimeloc");
 const outputFile = document.querySelector(".output-file");
 const dailyStatsSum = document.querySelector(".daily-stats-sum");
 const previousOutput = document.querySelector(".previous-output");
+const previousPlusDailyStats = document.querySelector(".previous-plus-dailystats");
 /* get stats */
 let dailyLogs = getDailyLogs();
 
@@ -93,16 +55,20 @@ function getDailyLogs() {
 
 
 // even listners for total lines of code as user typeinput 
-[todaysHTML, todaysCSS, todaysJS, todaysReact].forEach(input => {
+[todaysHTML, todaysCSS, todaysJS, todaysReact, totalHtml, totalCss, totalJS, totalReact].forEach(input => {
     input.addEventListener("input", setTodaysTotalLOCD);
 });
 
 // function to add and set todays total lines of code for todays entry
 function setTodaysTotalLOCD() {
-    let total = (Number(todaysHTML.value) || 0) + (Number(todaysCSS.value) || 0) + (Number(todaysJS.value) || 0) + (Number(todaysReact.value) || 0);
-    console.log("total count :", total);
-    todaysTotalLoc.value = total;
-    todaysTotalLoc.textContent = total;
+    // todays fields total
+    let todaysTotal = (Number(todaysHTML.value) || 0) + (Number(todaysCSS.value) || 0) + (Number(todaysJS.value) || 0) + (Number(todaysReact.value) || 0);
+    todaysTotalLoc.value = todaysTotal;
+    todaysTotalLoc.textContent = todaysTotal;
+    // previous fields total
+    let previousTotal = (Number(totalHtml.value) || 0) + (Number(totalCss.value) || 0) + (Number(totalJS.value) || 0) + (Number(totalReact.value) || 0);
+    totalLOCAllTime.value = previousTotal;
+    totalLOCAllTime.textContent = previousTotal;
 }
 
 // sumbit event listner on todays stats
@@ -202,7 +168,7 @@ function showDailyStats() {
         outputFile.style.textAlign = "start";
         outputFile.textContent = JSON.stringify(logs, null, 2);
     }
-    console.log("Daily Stats Array", logs);
+    console.log("DailyStats:", logs);
 };
 
 
@@ -211,6 +177,8 @@ function showStats() {
     showDailyStats();
     showDailyStatsSum();
     showPreviousTotal();
+    showPreviousTotalSum();
+
 }
 // function to delete daily stats from the local storage
 function clearDailyStats() {
@@ -230,7 +198,7 @@ function clearPreviousTotal() {
     const deletePreviousTotals = confirm("Do you want to delete previous totals? Cannot be undone!");
     if (deletePreviousTotals) {
         localStorage.removeItem(storage_key_previous_total);
-        console.log("cleared previous totals:", fetchPreviousTotal());
+        console.log("cleared PreviousTotal:", fetchPreviousTotal());
         showStats();
     } else {
         return;
@@ -271,9 +239,9 @@ function dailyLogsTotal() {
         PreviousTotal: sumDailyStats.previousTotal,
     }
 
-    console.log("daily logs object:", dailyLogTotalObj);
+    // console.log("daily logs object:", dailyLogTotalObj);
     localStorage.setItem(storage_key_daily_logs_sum, JSON.stringify(dailyLogTotalObj));
-    console.log("stored daily logs:");
+    console.log("DailyLogs:");
     console.log(JSON.parse(localStorage.getItem(storage_key_daily_logs_sum)));
 };
 
@@ -297,7 +265,7 @@ function secondsToHMS(totalSeconds) {
     const mm = String(minutes).padStart(2, "0");
     const ss = String(seconds).padStart(2, "0");
     const result = `${hh}:${mm}:${ss}`;
-    console.log("seconds to hh:mm:ss", result);
+    // console.log("seconds to hh:mm:ss", result);
     return result;
 }
 // function to get the stored daily log sum
@@ -316,7 +284,7 @@ function showDailyStatsSum() {
         dailyStatsSum.style.textAlign = "start";
         dailyStatsSum.textContent = JSON.stringify(dailySum, null, 2);
     }
-    console.log("Sum of all daily stats:", dailySum);
+    console.log("DailyStatsSum:", dailySum);
 
 }
 
@@ -326,7 +294,6 @@ previousTotalsForm.addEventListener("submit", (event) => {
 
     event.preventDefault();
     dailyLogsTotal();
-
     let previousTotalObj = {
         date: previousDate.value,
         total_focus: totalFocus.value || "00:00:00",
@@ -338,10 +305,41 @@ previousTotalsForm.addEventListener("submit", (event) => {
         REACT: Number(totalReact.value) || 0,
     };
 
+
     localStorage.setItem(storage_key_previous_total, JSON.stringify(previousTotalObj));
     let storedPreviousTotal = localStorage.getItem(storage_key_previous_total);
-    console.log("stored previous total:", JSON.parse(storedPreviousTotal));
+    console.log("stored PreviousTotal:", JSON.parse(storedPreviousTotal));
+
+
+    add_dailyStats_PreviousTotal();
+    showStats();
 });
+// function to add previous totals input and daily logs sum
+function add_dailyStats_PreviousTotal() {
+    let dailyLogsSum = getDailyLogsSum();
+    let previousTotal = fetchPreviousTotal();
+    let sumPreviousDailyObj = {
+        date: dailyLogsSum.LatestDate,
+        focus: secondsToHMS(time2Seconds(previousTotal.total_focus) +
+            time2Seconds(dailyLogsSum.FOCUS)),
+        code_time: secondsToHMS(time2Seconds(previousTotal.total_CT) + time2Seconds(dailyLogsSum.CODE_TIME)),
+        active_CT: secondsToHMS(time2Seconds(previousTotal.total_ACT) + time2Seconds(dailyLogsSum.ACTIVE_CODE_TIME)),
+        html: previousTotal.HTML + dailyLogsSum.HTML,
+        css: previousTotal.CSS + dailyLogsSum.CSS,
+        js: previousTotal.JS + dailyLogsSum.JS,
+        react: previousTotal.REACT + dailyLogsSum.REACT,
+
+    };
+    localStorage.setItem(storage_key_previous_plus_daily, JSON.stringify(sumPreviousDailyObj));
+    let st_previousPlusDaily = localStorage.getItem(storage_key_previous_plus_daily);
+    console.log("PreviousTotal + DailyLogSum:", st_previousPlusDaily);
+    showPreviousTotalSum();
+}
+// function to retrieve the sum of daily logs plus previous total input values 
+function fetchPreviousTotalSum() {
+    return JSON.parse(localStorage.getItem(storage_key_previous_plus_daily)) || [];
+}
+
 // function fetch previous total 
 function fetchPreviousTotal() {
     return JSON.parse(localStorage.getItem(storage_key_previous_total)) || [];
@@ -358,9 +356,33 @@ function showPreviousTotal() {
         previousOutput.style.textAlign = "start";
         previousOutput.textContent = value;
     }
-    console.log("previous totals:", previousTotals);
+    console.log("PreviousTotal:", previousTotals);
 }
-
+// function display previous total 
+function showPreviousTotalSum() {
+    let previousTotalSum = fetchPreviousTotalSum();
+    let value = JSON.stringify(previousTotalSum, null, 2);
+    if (previousTotalSum.length == 0) {
+        previousPlusDailyStats.style.textAlign = "center";
+        previousPlusDailyStats.textContent = "Previous Sum Stats Empty";
+    } else {
+        previousPlusDailyStats.style.textAlign = "start";
+        previousPlusDailyStats.textContent = value;
+    }
+    console.log("PreviousTotalSum:", previousTotalSum);
+}
+/* // general outputFormt for stats
+function showOutput(arrayy, element) {
+    let value = JSON.stringify(arrayy, null, 2);
+    if (arrayy.length == 0) {
+        arrayy.style.textAlign = "center";
+        element.textContent = `${element} is Empty`;
+    } else {
+        element.textContent = value;
+    }
+    console.log(element);
+    console.log(`${JSON.stringify(arrayy)}`);
+} */
 
 const allPreviousInputs = document.querySelectorAll(".previous-input-time");
 const previousTimeFormat = /^([0-9]+):([0-5][0-9])(:[0-5][0-9])?$/;
@@ -369,7 +391,7 @@ allPreviousInputs.forEach((input) => {
         const value = input.value.trim();
 
         if (/[^0-9:]/.test(value)) {
-            input.setCustomValidity("only nymbers and ':' are allowed (eg 10:12:14 )");
+            input.setCustomValidity("only nymbers and ':' are allowed (eg 36:12:14 )");
             input.reportValidity();
         }
         else if (validateTime(value)) {
@@ -394,14 +416,72 @@ function validateTime(value) {
     return previousTimeFormat.test(value);
 }
 
+// allow pasting time to input type time
+function allowPasting(event) {
+    // prevent browsers ingoring the input    
+    event.preventDefault();
+    const paste = (event.clipboardData || window.clipboardData).getData('text');
+    const pastedWithoutSpaces = paste.replace(/\s/g, "");
+    console.log("clipboard data :", pastedWithoutSpaces);
+
+    const match = pastedWithoutSpaces.match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/);
+    if (match) {
+
+        let partsOfInput = pastedWithoutSpaces.split(':');
+        console.log("parts of input length:", partsOfInput.length);
+        if (partsOfInput[0].length === 1) {
+            //if hour is single digit then adding 0 before
+            partsOfInput[0] = '0' + partsOfInput[0];
+        }
+        if (partsOfInput.length === 2) {
+
+            // if time is hh:mm then adding 00 as seconds
+            partsOfInput.push('00');
+        }
+        event.target.value = partsOfInput.join(':');
+
+    } else {
+        event.target.setCustomValidity("Paste time as HH:MM or HH:MM:SS");
+        event.target.reportValidity();
+    }
+}
+// validating input while copy pasting into the time input fields
+function validateTimeFormat(input) {
+    const val = input.value;
+    const valid = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/.test(val);
+    if (!valid && val !== "") {
+        //value not empty to work only when 
+        input.setCustomValidity("Enter time as HH:MM or HH:MM:SS");
+    } else {
+        input.setCustomValidity("");
+    }
+}
+
+function allowCopying(event) {
+    event.preventDefault();
+    const input = event.target.value.trim();
+
+    if (!input) {
+        console.log("Nothing to copy");
+        return;
+    } else {
+        navigator.clipboard.writeText(input)
+        console.log("copied to clipboard:", input);
+    }
+}
+
+document.querySelectorAll('#todays-data-form input[type="time"]').forEach(input => {
+    input.addEventListener("copy", allowCopying);
+});
 /* Conditions
-1. for a new user :
     a. he dosent have previous records :
         he starts fresh by entering todays stats it gets summed to daily stats sum 
         previous total = 0+ dailystatssum;
     b. He has daily previous records :
         he enters previous records , then enteres todays stas
         previous total = previous total + daily stats.
-        c. He modified previous totals in between :
-            
+        1. He modified previous totals in between :
+            daily logs should be cleared(else there will be a missmatch between previous total and daily stats)
+            previous totals shoudl be updated 
+            previous total = previous total + daily stats.        
 */
