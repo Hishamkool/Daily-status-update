@@ -3,7 +3,7 @@
 /* storage keys for local storage */
 const storage_key_daily_log = 'dailyLogs';
 const storage_key_daily_logs_sum = 'dailyLogsSum';
-const storage_key_previous_total = 'previousTotalObj';
+const storage_key_previous_total_input = 'previousTotalObj';
 const storage_key_previous_plus_daily = 'previousPlusDaily';
 /* todays stats variables */
 
@@ -71,7 +71,7 @@ function setTodaysTotalLOCD() {
     totalLOCAllTime.textContent = previousTotal;
 }
 
-// sumbit event listner on todays stats
+// sumbit event listner on todays stats - todays submit
 todaysStatsForm.addEventListener("submit", function (event) {
     console.log("todays submit button clicked");
     event.preventDefault();
@@ -81,7 +81,7 @@ todaysStatsForm.addEventListener("submit", function (event) {
     const existingIndex = dailyLogs.findIndex(item => item.date === submit_date);
     console.log("matched :", existingIndex);
 
-    const entry = {
+    let daily_logs_input_obj = {
         date: todaysDate.value,
         Focus_time: todaysFocus.value || "00:00:00",
         Code_time: todaysCodeTime.value || "00:00:00",
@@ -100,18 +100,20 @@ todaysStatsForm.addEventListener("submit", function (event) {
         //    if use wants to replace the already available data 
         if (replace) {
             //functinality to replace the todays data
-            replaceData(existingIndex, entry);
+            replaceData(existingIndex, daily_logs_input_obj);
         } else {
             return;
         }
     } else {
         // i.e., exsisting index == -1 means(no entrt found) its a new entry then add
-        addData(entry);
+        addData(daily_logs_input_obj);
     }
-    // remove this [debug]
+    // remove this [debug] - to set random numbers to the lines of code
     setRandomValuesToLinesOfCode();
+    // function call to calculate the dailyLogsTotal
     dailyLogsTotal();
     showDailyStatsSum();
+
 
 });
 
@@ -171,7 +173,7 @@ function showDailyStats() {
     console.log("DailyStats:", logs);
 };
 
-
+/* OUTPUT FIELD BUTTONS */
 // function to display Output
 function showStats() {
     showDailyStats();
@@ -184,8 +186,10 @@ function showStats() {
 function clearDailyStats() {
     const deleteAllEntries = confirm("Do you want to clear all your saved entries? CANNOT BE UNDONE !")
     if (deleteAllEntries) {
+        dailyLogs = [];
         localStorage.removeItem(storage_key_daily_log);
         localStorage.removeItem(storage_key_daily_logs_sum);
+
         console.log("cleared dailyLogs : ", getDailyLogs());
         console.log("cleared dailyLogs sum : ", getDailyLogsSum());
         showStats();
@@ -197,7 +201,7 @@ function clearDailyStats() {
 function clearPreviousTotal() {
     const deletePreviousTotals = confirm("Do you want to delete previous totals? Cannot be undone!");
     if (deletePreviousTotals) {
-        localStorage.removeItem(storage_key_previous_total);
+        localStorage.removeItem(storage_key_previous_total_input);
         console.log("cleared PreviousTotal:", fetchPreviousTotal());
         showStats();
     } else {
@@ -208,7 +212,7 @@ function clearPreviousTotal() {
 
 /* _________________working of previous total form_________________________________________________ */
 
-// function to add all the values of previous inputs to the previous entry
+// function to add all the values of previous inputs or daily stats
 function dailyLogsTotal() {
     // calculating total lines of code from daily stats
     const sumDailyStats = dailyLogs.reduce((acc, currnt) => {
@@ -227,7 +231,7 @@ function dailyLogsTotal() {
     }, { latestDate: null, focus: 0, codetime: 0, activeCT: 0, html: 0, css: 0, js: 0, react: 0, previousTotal: 0 });
 
 
-    const dailyLogTotalObj = {
+    let daily_logs_total_obj = {
         LatestDate: sumDailyStats.latestDate,
         FOCUS: secondsToHMS(sumDailyStats.focus),
         CODE_TIME: secondsToHMS(sumDailyStats.codetime),
@@ -240,9 +244,12 @@ function dailyLogsTotal() {
     }
 
     // console.log("daily logs object:", dailyLogTotalObj);
-    localStorage.setItem(storage_key_daily_logs_sum, JSON.stringify(dailyLogTotalObj));
+    localStorage.setItem(storage_key_daily_logs_sum, JSON.stringify(daily_logs_total_obj));
     console.log("DailyLogs:");
     console.log(JSON.parse(localStorage.getItem(storage_key_daily_logs_sum)));
+    // adding dailylogs total with previous total input form values
+    add_dailyStats_PreviousTotal();
+    showStats();
 };
 
 
@@ -288,13 +295,14 @@ function showDailyStatsSum() {
 
 }
 
-// function to add the previous entry into localstorage
+// function to add the previous total entries into localstorage
 previousTotalsForm.addEventListener("submit", (event) => {
     console.log("previous total submit button clicked");
 
     event.preventDefault();
     dailyLogsTotal();
-    let previousTotalObj = {
+    // object for the previous total input fields
+    let previous_total_inputs_obj = {
         date: previousDate.value,
         total_focus: totalFocus.value || "00:00:00",
         total_CT: totalCodeTime.value || "00:00:00",
@@ -306,10 +314,9 @@ previousTotalsForm.addEventListener("submit", (event) => {
     };
 
 
-    localStorage.setItem(storage_key_previous_total, JSON.stringify(previousTotalObj));
-    let storedPreviousTotal = localStorage.getItem(storage_key_previous_total);
+    localStorage.setItem(storage_key_previous_total_input, JSON.stringify(previous_total_inputs_obj));
+    let storedPreviousTotal = localStorage.getItem(storage_key_previous_total_input);
     console.log("stored PreviousTotal:", JSON.parse(storedPreviousTotal));
-
 
     add_dailyStats_PreviousTotal();
     showStats();
@@ -318,7 +325,9 @@ previousTotalsForm.addEventListener("submit", (event) => {
 function add_dailyStats_PreviousTotal() {
     let dailyLogsSum = getDailyLogsSum();
     let previousTotal = fetchPreviousTotal();
-    let sumPreviousDailyObj = {
+
+
+    let previous_plus_daily_obj = {
         date: dailyLogsSum.LatestDate,
         focus: secondsToHMS(time2Seconds(previousTotal.total_focus) +
             time2Seconds(dailyLogsSum.FOCUS)),
@@ -330,7 +339,7 @@ function add_dailyStats_PreviousTotal() {
         react: previousTotal.REACT + dailyLogsSum.REACT,
 
     };
-    localStorage.setItem(storage_key_previous_plus_daily, JSON.stringify(sumPreviousDailyObj));
+    localStorage.setItem(storage_key_previous_plus_daily, JSON.stringify(previous_plus_daily_obj));
     let st_previousPlusDaily = localStorage.getItem(storage_key_previous_plus_daily);
     console.log("PreviousTotal + DailyLogSum:", st_previousPlusDaily);
     showPreviousTotalSum();
@@ -342,7 +351,17 @@ function fetchPreviousTotalSum() {
 
 // function fetch previous total 
 function fetchPreviousTotal() {
-    return JSON.parse(localStorage.getItem(storage_key_previous_total)) || [];
+    return JSON.parse(localStorage.getItem(storage_key_previous_total_input))
+        ||
+    {
+        total_focus: "00:00:00",
+        total_CT: "00:00:00",
+        total_ACT: "00:00:00",
+        HTML: 0,
+        CSS: 0,
+        JS: 0,
+        REACT: 0,
+    };
 }
 
 // function display previous total 
@@ -473,6 +492,15 @@ function allowCopying(event) {
 document.querySelectorAll('#todays-data-form input[type="time"]').forEach(input => {
     input.addEventListener("copy", allowCopying);
 });
+
+// function to print all the values in the localStorage
+function localStorageData() {
+    for (let index = 0; index < localStorage.length; index++) {
+        const key = localStorage.key(index);
+        const value = localStorage.getItem(key);
+        console.log(`${key}:${value}`);
+    }
+}
 /* Conditions
     a. he dosent have previous records :
         he starts fresh by entering todays stats it gets summed to daily stats sum 
