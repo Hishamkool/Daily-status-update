@@ -66,3 +66,61 @@ section {
     border: 1px solid grey;
     padding: 10px;
 }
+
+/* popup styles */
+.popups {
+    position: fixed;
+    border: 1px solid lightblue;
+    background-color: white;
+    inset: 0;
+    height: max-content;
+    border-radius: 15px;
+    /* width: clamp(, 300px); */
+    width: clamp(250px, 300px, 40vw);
+    padding: 5px 10px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.popup-title {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#confirm-message {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    text-align: start;
+}
+
+#confirm-note {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color: red;
+    font-size: 12px;
+}
+
+.popup-btns-cnt {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 5px;
+}
+
+.popup-btns {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background: linear-gradient(to right, #eaf4fcf3, #dbecfaf3);
+    border: none;
+    font-weight: 500;
+
+
+    /* font-size: 16px; */
+    border-radius: 15px;
+    padding: 5px 20px;
+}
+
+:popover-open::backdrop {
+    -webkit-backdrop-filter: blur(1.2px);
+    /* background-color: rgb(0 0 0 / 50%); */
+    backdrop-filter: blur(1.2px);
+
+}

@@ -38,8 +38,8 @@ const previousOutput = document.querySelector(".previous-output");
 const previousPlusDailyStats = document.querySelector(".previous-plus-dailystats");
 /* get stats */
 let dailyLogs = fetchDailyLogs();
-
-
+/* Popups */
+const confirmationPopup = document.getElementById("ConfirmationBox");
 /* INITIAL loading functions  */
 showStats();
 calculateTotalLinesOfCode();
@@ -273,36 +273,10 @@ function copyDailyLogToClipboard() {
         console.log("Clipboard Data : ", statsForTheDayFormated);
         navigator.clipboard.writeText(statsForTheDayFormated).then(() => console.log(`stats for ${selectedDate} copied`)).catch((err) => console.log(`error copying data ${err}`));
 
+        alert(`Stats for '${selectedDate}' copied`);
     }
 
-    // get data for the particular date or current date 
-    // get total count for each key from  final previous total i.e., daily logs sum + previous total input.
-    // merge the data into required format and save to a variable or localstorage
-    // copy the contents to the clipboard
-    // required format example : 
-    /* 
-    Typing   : [63wpm][99%]
-    Focus    : [12hr 04min][736hr 30min]
-    CT       : [7hr 35min][494hr 48min]
-    ACT      : [06hr 57min][428hr 25min]
-    HTML     : [0][5854]
-    CSS      : [271][10421]
-    Js       : [2][6014]
-    json     : [0][2702]
-    React    : [107[2884]
-    Total    : [389][26,243]
-    */
-    /* details for the required format:
-    Typing : [63 wpm] [75%] (Typing speed and percentage of keyboard usage completed)
-Focus : [8 hr 33 min] [4293 hr 29 min] ([Focus time from yesterday] [Total focus time up to yesterday])
-CT : [4 hr 39 min] (Code time from yesterday)
-ACT : [1 hr 20 min] [1958 hr 48 min] ([Active code time from yesterday] [Total active code time up to yesterday])
-HTML : [00] [15789] ([Lines of HTML code written excluding empty lines from yesterday] [Total lines of HTML code written up to yesterday])
-CSS : [00] [25731] ([Lines of CSS code written excluding empty lines from yesterday] [Total lines of CSS code written up to yesterday])
-JS : [67] [81275] ([Lines of JS code written excluding empty lines from yesterday] [Total lines of JS code written up to yesterday])
-Total : [67] [123931] ([Total lines of code from yesterday] [Total lines of code written up to yesterday])
-#days : 675 (Number of consecutive days code has been pushed to GitHub or GitLab; if a day is skipped, the count resets to zero)F
-    */
+
 }
 
 
@@ -667,8 +641,11 @@ window.showlocalStorageData = function showlocalStorageData() {
     }
 };
 
+// confirmationPopup.showPopover();
+/* popup functions */
+ function toogleConfirmationPopup(message){
 
-
+}
 
 /* Conditions
     a. he dosent have previous records :
