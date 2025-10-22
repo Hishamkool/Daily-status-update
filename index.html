@@ -93,7 +93,7 @@
             </form>
         </section>
 
-        
+
         <!-- TODAYS ENTRY -->
         <section id="todays-entry">
 
@@ -106,7 +106,7 @@
                 </span>
             </div>
 
-            <form id="todays-data-form" >
+            <form id="todays-data-form">
                 <div class="section-form-items">
 
                     <div class="form-item">
@@ -163,12 +163,31 @@
                         </span>
                     </div>
                 </div>
-                <button type="submit">Submit</input>
+                <button type="submit">Submit</button>
+
+
             </form>
 
         </section>
+        <section class="copy-stats-section">
+            <h4>Choose a date to copy the daily stats to the clipboard.</h4>
+            <label for="copy-stats-date">Date: </label>
+            <input type="date" name="copy-stats-date" id="copy-stats-date">
+            <button type="button" id="copy_stats" title="e.g.,  
+        Typing   : [63wpm][99%]
+    Focus    : [12hr 04min][736hr 30min]
+    CT       : [7hr 35min][494hr 48min]
+    ACT      : [06hr 57min][428hr 25min]
+    HTML     : [0][5854]
+    CSS      : [271][10421]
+    Js       : [2][6014]
+    json     : [0][2702]
+    React    : [107[2884]
+    Total    : [389][26,243]" onclick="copyDailyLogToClipboard()">Copy Stats</button>
+        </section>
 
         <section id="output">
+            <h4>Output:</h4>
             <div class="output-box">
                 <div class="output-btns">
                     <button onclick="showStats()">Show Stats</button>

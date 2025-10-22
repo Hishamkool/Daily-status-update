@@ -7,8 +7,8 @@ const storage_key_daily_log = 'dailyLogs';
 const storage_key_daily_logs_sum = 'dailyLogsSum';
 const storage_key_previous_total_input = 'previousTotalObj';
 const storage_key_previous_plus_daily = 'previousPlusDaily';
-/* todays stats variables */
 
+/* todays stats variables */
 const todaysStatsForm = document.getElementById("todays-data-form");
 const todaysDate = document.getElementById("todays-entry-date");
 const todaysFocus = document.getElementById("todays-focus-time");
@@ -19,6 +19,7 @@ const todaysCSS = document.getElementById("todays-css");
 const todaysJS = document.getElementById("todays-js");
 const todaysReact = document.getElementById("todays-react");
 const todaysTotalLoc = document.getElementById("todays-total-loc");
+const copyStatsBtn = document.getElementById("copy_stats");
 /* previous stats variables */
 const previousTotalsForm = document.getElementById("previous-total-form");
 const previousDate = document.getElementById("previous-total-date");
@@ -36,7 +37,7 @@ const dailyStatsSum = document.querySelector(".daily-stats-sum");
 const previousOutput = document.querySelector(".previous-output");
 const previousPlusDailyStats = document.querySelector(".previous-plus-dailystats");
 /* get stats */
-let dailyLogs = getDailyLogs();
+let dailyLogs = fetchDailyLogs();
 
 
 /* INITIAL loading functions  */
@@ -48,7 +49,7 @@ setPreviousInputsValues();
 
 
 // funtion to get the stored daily log file
-function getDailyLogs() {
+function fetchDailyLogs() {
     return JSON.parse(localStorage.getItem(storage_key_daily_log)) || [];
 }
 
@@ -76,7 +77,7 @@ todaysStatsForm.addEventListener("submit", function (event) {
     debug && console.log("todays submit button clicked");
     event.preventDefault();
     // if incase the variable is not updated when clearing the storage
-    dailyLogs = getDailyLogs();
+    dailyLogs = fetchDailyLogs();
     const submit_date = document.getElementById("todays-entry-date").value;
     const existingIndex = dailyLogs.findIndex(item => item.date === submit_date);
     debug && console.log("matched :", existingIndex);
@@ -162,7 +163,7 @@ function resetIndex() {
 }
 // showing todays stats in outputbox
 function showDailyStats() {
-    const logs = getDailyLogs();
+    const logs = fetchDailyLogs();
     if (logs.length == 0) {
         outputFile.style.textAlign = "center";
         outputFile.textContent = 'Daily Stats Empty';
@@ -192,7 +193,7 @@ function clearDailyStats() {
         localStorage.removeItem(storage_key_daily_log);
         localStorage.removeItem(storage_key_daily_logs_sum);
 
-        debug && console.log("cleared dailyLogs : ", getDailyLogs());
+        debug && console.log("cleared dailyLogs : ", fetchDailyLogs());
         debug && console.log("cleared dailyLogs sum : ", fetchDailyLogsSum());
         showStats();
     } else {
@@ -219,6 +220,89 @@ window.clearLocalStorage = function clearLocalStorage() {
         showStats();
         return `local storage cleared successfully : ${showlocalStorageData()}`
     }
+}
+
+/* Copying the data in the format of the slack */
+function copyDailyLogToClipboard() {
+    let selectedDate = document.getElementById("copy-stats-date").value;
+
+    const dailyLogs = fetchDailyLogs();
+    const logForTheDate = dailyLogs.find(stats => stats.date === selectedDate);
+    if (!dailyLogs || Object.keys(dailyLogs).length === 0) {
+        debug && console.log("Daily Logs has not been added");
+        alert("Daily Logs not found");
+        return;
+    } else if (!logForTheDate) {
+        debug && console.log("Logs for the selected date is missing");
+        alert("logs for selected date is missing");
+        return;
+    } else {
+        let previousPlusDaily = fetchPreviousPlusDaily();
+        // format time hr , min and sec
+        const formatOutputTime = (hms) => {
+            if (!hms) {
+                return "0hr 0min";
+            } else {
+                const parts = hms.split(":").map(Number);
+                const [h = 0, m = 0, s = 0] = parts;
+                if (s == 0) return `${h}hr ${m}min`;
+                return `${h}hr ${m}min ${s}sec`;
+            }
+        };
+
+        const totalForTheDate = logForTheDate.Total;
+        //    need to change total all time to  total all time till date and fetch it 
+        const totalForAllTime = previousPlusDaily.Total;
+
+        const StatsForTheDay = `
+        Focus    : [${formatOutputTime(logForTheDate.Focus_time)}] [${formatOutputTime(previousPlusDaily.focus)}]
+        CT       : [${formatOutputTime(logForTheDate.Code_time)}] [${formatOutputTime(previousPlusDaily.code_time)}]
+        ACT      : [${formatOutputTime(logForTheDate.Active_code_time)}] [${formatOutputTime(previousPlusDaily.active_CT)}]
+        HTML     : [${logForTheDate.HTML || 0}] [${previousPlusDaily.html || 0}]
+        CSS      : [${logForTheDate.CSS || 0}] [${previousPlusDaily.css || 0}]
+        JS       : [${logForTheDate.JavaScript || 0}] [${previousPlusDaily.js || 0}]
+        React    : [${logForTheDate.React || 0}] [${previousPlusDaily.react || 0}]
+        Total    : [${totalForTheDate}] [${totalForAllTime}]
+        `;
+        // formating the stats to remove the spaces in the starting and ending of the line
+        const statsForTheDayFormated = StatsForTheDay.split('\n')
+            .map(eachLine => eachLine.trim())
+            .filter(eachLine => eachLine)
+            .join('\n');
+        console.log("Clipboard Data : ", StatsForTheDay);
+        console.log("Clipboard Data : ", statsForTheDayFormated);
+        navigator.clipboard.writeText(statsForTheDayFormated).then(() => console.log(`stats for ${selectedDate} copied`)).catch((err) => console.log(`error copying data ${err}`));
+
+    }
+
+    // get data for the particular date or current date 
+    // get total count for each key from  final previous total i.e., daily logs sum + previous total input.
+    // merge the data into required format and save to a variable or localstorage
+    // copy the contents to the clipboard
+    // required format example : 
+    /* 
+    Typing   : [63wpm][99%]
+    Focus    : [12hr 04min][736hr 30min]
+    CT       : [7hr 35min][494hr 48min]
+    ACT      : [06hr 57min][428hr 25min]
+    HTML     : [0][5854]
+    CSS      : [271][10421]
+    Js       : [2][6014]
+    json     : [0][2702]
+    React    : [107[2884]
+    Total    : [389][26,243]
+    */
+    /* details for the required format:
+    Typing : [63 wpm] [75%] (Typing speed and percentage of keyboard usage completed)
+Focus : [8 hr 33 min] [4293 hr 29 min] ([Focus time from yesterday] [Total focus time up to yesterday])
+CT : [4 hr 39 min] (Code time from yesterday)
+ACT : [1 hr 20 min] [1958 hr 48 min] ([Active code time from yesterday] [Total active code time up to yesterday])
+HTML : [00] [15789] ([Lines of HTML code written excluding empty lines from yesterday] [Total lines of HTML code written up to yesterday])
+CSS : [00] [25731] ([Lines of CSS code written excluding empty lines from yesterday] [Total lines of CSS code written up to yesterday])
+JS : [67] [81275] ([Lines of JS code written excluding empty lines from yesterday] [Total lines of JS code written up to yesterday])
+Total : [67] [123931] ([Total lines of code from yesterday] [Total lines of code written up to yesterday])
+#days : 675 (Number of consecutive days code has been pushed to GitHub or GitLab; if a day is skipped, the count resets to zero)F
+    */
 }
 
 
@@ -371,6 +455,10 @@ function add_dailyStatsTotal_and_PreviousInput() {
         css: previousTotal.CSS + dailyLogsSum.CSS,
         js: previousTotal.JS + dailyLogsSum.JS,
         react: previousTotal.REACT + dailyLogsSum.REACT,
+        Total: (previousTotal.HTML + dailyLogsSum.HTML) +
+            (previousTotal.CSS + dailyLogsSum.CSS) +
+            (previousTotal.JS + dailyLogsSum.JS) +
+            (previousTotal.REACT + dailyLogsSum.REACT),
 
     };
     localStorage.setItem(storage_key_previous_plus_daily, JSON.stringify(previous_plus_daily_obj));
