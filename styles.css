@@ -49,14 +49,20 @@ section {
     overflow: auto;
 
 }
-.output-title{
+
+.output-title {
     padding-left: 10px;
-    text-decoration: underline ;
+    text-decoration: underline;
     text-underline-offset: 2px;
 }
+
 .output-file-style {
     display: block;
     text-align: start;
     padding: 10px;
 }
 
+.copy-stats-section {
+    border: 1px solid grey;
+    padding: 10px;
+}
