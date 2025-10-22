@@ -13,6 +13,16 @@
         <!-- <h1>Daily log calculator</h1> -->
     </header>
     <main>
+        <!-- popups -->
+        <div id="ConfirmationBox" popover="hint" class="popups">
+            <div class="popup-title">Are You Sure?</div>
+            <div id="confirm-message">This will delete all the data stored in the localstorage</div>
+            <div id="confirm-note">Note: This action cannot be undone!</div>
+            <div class="popup-btns-cnt">
+                <button id="confirm-no" class="popup-btns">NO</button>
+                <button id="confirm-yes" class="popup-btns">YES</button>
+            </div>
+        </div>
         <!-- PREVIOUS ENTRY -->
         <section class="previous-total">
             <div class="section-title">
