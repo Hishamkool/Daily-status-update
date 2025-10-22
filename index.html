@@ -39,21 +39,21 @@
                     <div class="form-item">
                         <label for="previous-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
                         <input type="text" title="HHHH:MM:SS" placeholder="43:24:56" class="previous-input-time"
-                            id="previous-focus-time" required>
+                            id="previous-focus-time" value="01:00:00" required>
                     </div>
 
 
                     <div class="form-item">
                         <label for="previous-ct" title="Code time in HH:MM:SS">CT:</label>
                         <input type="text" title="hours:MM:SS" placeholder="300:28:19" class="previous-input-time"
-                            id="previous-ct" required>
+                            id="previous-ct" value="01:00:00" required>
                     </div>
 
 
                     <div class="form-item">
                         <label for="previous-act" title="Active Code time in HH:MM:SS">ACT:</label>
                         <input type="text" title="hours:MM:SS" placeholder="280:12:47" class="previous-input-time"
-                            id="previous-act" required>
+                            id="previous-act" value="01:00:00" required>
                     </div>
 
 
@@ -113,7 +113,7 @@
                         <label for="todays-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
                         <input type="time" id="todays-focus-time" name="todays-focus-time" step="1"
                             onpaste="allowPasting(event)" oninput="validateTimeFormat(this)" placeholder="00:00:00"
-                            value="03:58:19" title="Use Ctrl+V to paste time" required>
+                            title="Use Ctrl+V to paste time" required>
                     </div>
 
 
@@ -121,7 +121,7 @@
                         <label for="todays-ct" title="Code time in HH:MM:SS">CT:</label>
                         <input type="time" id="todays-ct" name="todays-ct" step="1" onpaste="allowPasting(event)"
                             oninput="validateTimeFormat(this)" placeholder="00:00:00" title="Use Ctrl+V to paste time"
-                            value="01:02:03" required>
+                            required>
                     </div>
 
 
@@ -137,7 +137,7 @@
                         <label for="todays-html">HTML: </label>
                         <input type="number" id="todays-html" name="todays-html" placeholder="121" min="0"
                             title="Total lines of HTML code written">
-                    </div> 
+                    </div>
 
                     <div class="form-item">
                         <label for="todays-css">CSS: </label>
@@ -173,8 +173,10 @@
                 <div class="output-btns">
                     <button onclick="showStats()">Show Stats</button>
                     <button title="clear all the recorded daily stats from todats stats window"
-                        onclick="clearDailyStats()">Clear Daily Stats</button>
-                    <button title="clear previous totals" onclick="clearPreviousTotal()">Clear Previous Total</button>
+                        onclick="clearDailyStats()">Clear Daily Stats and Daily Stats Sum</button>
+                    <button title="clear previous totals" onclick="clearPreviousTotal()">Clear previous plus </button>
+                    <button title="Clear complete local storage" onclick="clearLocalStorage()">Clear complete local
+                        storage</button>
 
                 </div>
                 <div>
@@ -182,7 +184,7 @@
                     <pre class="previous-plus-dailystats output-file-style"></pre>
                 </div>
                 <div>
-                    <h5 class="output-title">Previous total:</h5>
+                    <h5 class="output-title">Previous Input:</h5>
                     <pre class="previous-output output-file-style"></pre>
                 </div>
                 <div>
