@@ -39,12 +39,10 @@ const previousPlusDailyStats = document.querySelector(".previous-plus-dailystats
 let dailyLogs = getDailyLogs();
 
 
-
-
-
 /* INITIAL loading functions  */
-setTodaysTotalLOCD();
 showStats();
+calculateTotalLinesOfCode();
+setPreviousInputsValues();
 
 
 
@@ -56,13 +54,13 @@ function getDailyLogs() {
 
 
 
-// even listners for total lines of code as user typeinput 
+// even listners for total lines of code as user inputs data 
 [todaysHTML, todaysCSS, todaysJS, todaysReact, totalHtml, totalCss, totalJS, totalReact].forEach(input => {
-    input.addEventListener("input", setTodaysTotalLOCD);
+    input.addEventListener("input", calculateTotalLinesOfCode);
 });
 
-// function to add and set todays total lines of code for todays entry
-function setTodaysTotalLOCD() {
+// function to add and set todays total lines of code for todays entry and previous total
+function calculateTotalLinesOfCode() {
     // todays fields total
     let todaysTotal = (Number(todaysHTML.value) || 0) + (Number(todaysCSS.value) || 0) + (Number(todaysJS.value) || 0) + (Number(todaysReact.value) || 0);
     todaysTotalLoc.value = todaysTotal;
@@ -142,7 +140,7 @@ function setRandomValuesToLinesOfCode() {
     react.value = Math.floor(Math.random() * (600 - 50 + 1)) + 50;
 
 
-    setTodaysTotalLOCD();
+    calculateTotalLinesOfCode();
 }
 /* -------------------------------------------------------- */
 
@@ -184,6 +182,8 @@ function showStats() {
     showPreviousPlusDaily();
 
 }
+
+/* Delete data buttons */
 // function to delete daily stats from the local storage
 function clearDailyStats() {
     const deleteAllEntries = confirm("Do you want to clear all your saved entries? CANNOT BE UNDONE !")
@@ -210,6 +210,16 @@ function clearPreviousTotal() {
         return;
     }
 };
+// function to clear all values in the local storage
+window.clearLocalStorage = function clearLocalStorage() {
+    const clear = confirm("Do you want to reset all the data stored in the browser? Cannot be undone!");
+
+    if (clear) {
+        localStorage.clear();
+        showStats();
+        return `local storage cleared successfully : ${showlocalStorageData()}`
+    }
+}
 
 
 /* _________________working of previous total form_________________________________________________ */
@@ -303,7 +313,7 @@ function showDailyLogsTotal() {
 // function to add the previous total entries into localstorage
 previousTotalsForm.addEventListener("submit", (event) => {
     debug && console.log("previous total submit button clicked");
-    calculateDailyLogsTotal();
+
     event.preventDefault();
     const deleteAllDailyLogs = confirm("Setting previous total would clear all of the saved daily logs and start fresh, do you want to continue? THIS CANNOT BE UNDONE!!!");
     if (deleteAllDailyLogs) {
@@ -323,8 +333,11 @@ previousTotalsForm.addEventListener("submit", (event) => {
         let storedPreviousTotal = localStorage.getItem(storage_key_previous_total_input);
    /*  debug &&  */console.log("PreviousTotal Input:", JSON.parse(storedPreviousTotal));
     }
-    add_dailyStatsTotal_and_PreviousInput();
+
+
     showStats();
+    calculateDailyLogsTotal();
+    add_dailyStatsTotal_and_PreviousInput();
 
 });
 // function to add previous totals input and daily logs sum
@@ -361,16 +374,15 @@ function add_dailyStatsTotal_and_PreviousInput() {
 
     };
     localStorage.setItem(storage_key_previous_plus_daily, JSON.stringify(previous_plus_daily_obj));
-    let st_previousPlusDaily = localStorage.getItem(storage_key_previous_plus_daily);
-    debug && console.log("PreviousTotal + DailyLogSum:", st_previousPlusDaily);
+
     //show final previous total in output box
     showPreviousPlusDaily();
     // set final previous total in previous total input box
-    // setPreviousInputsValues();
+    setPreviousInputsValues();
 }
-
+setPreviousInputsValues();
 // function to set the input values at previous total field
-/* function setPreviousInputsValues() {
+function setPreviousInputsValues() {
     let previousPlusDaily = fetchPreviousPlusDaily();
     if (!previousPlusDaily || Object.keys(previousPlusDaily).length == 0) {
         return;
@@ -385,10 +397,19 @@ function add_dailyStatsTotal_and_PreviousInput() {
     totalReact.value = previousPlusDaily.react || 0;
     totalLOCAllTime.textContent = previousPlusDaily.html + previousPlusDaily.css + previousPlusDaily.js + previousPlusDaily.react;
 
-} */
+}
 // function to retrieve the sum of daily logs plus previous total input values 
 function fetchPreviousPlusDaily() {
-    return JSON.parse(localStorage.getItem(storage_key_previous_plus_daily)) || [];
+    let previousPlusDaily = [];
+    try {
+        let data = localStorage.getItem(storage_key_previous_plus_daily);
+        previousPlusDaily = data ? JSON.parse(data) : [];
+
+    } catch (error) {
+        previousPlusDaily = [];
+    }
+    console.log(`PreviousPlusDaily:${previousPlusDaily}`);
+    return previousPlusDaily;
 }
 
 // function fetch previous total 
@@ -442,8 +463,17 @@ const previousTimeFormat = /^([0-9]+):([0-5][0-9])(:[0-5][0-9])?$/;
 allPreviousInputs.forEach((input) => {
     input.addEventListener("input", (event) => {
         const value = input.value.trim();
+        /*  const valueSplit = value.split(":");
+         const hours = valueSplit[0];
+         const minutes = valueSplit[1];
+         const seconds = valueSplit[2]; */
 
-        if (/[^0-9:]/.test(value)) {
+        if (!value) {
+            input.setCustomValidity("");
+            input.style.borderColor = '';
+            return;
+        }
+        else if (/[^0-9:]/.test(value)) {
             input.setCustomValidity("only nymbers and ':' are allowed (eg 36:12:14 )");
             input.reportValidity();
         }
@@ -452,11 +482,18 @@ allPreviousInputs.forEach((input) => {
             input.style.borderColor = 'green';
             input.setCustomValidity("");
 
-        } else if ((value).includes(':')) {
+        }
+        else if (!value.includes(':') && value !== "") {
+            input.setCustomValidity("Time must include ':' (use HH:MM or HH:MM:SS)");
+            input.reportValidity();
             input.style.borderColor = 'red';
-            debug && console.log("input format error");
+        }
+
+        else if ((value).includes(':')) {
             input.setCustomValidity("Use this format HH:MM:SS or HH:MM");
             input.reportValidity();
+            input.style.borderColor = 'red';
+            debug && console.log("input format error");
         } else {
             input.style.borderColor = "";
             input.setCustomValidity("");
@@ -542,12 +579,7 @@ window.showlocalStorageData = function showlocalStorageData() {
     }
 };
 
-// function to clear all values in the local storage
-window.clearLocalStorage = function clearLocalStorage() {
-    localStorage.clear();
-    showStats();
-    return `local storage cleared successfully : ${showlocalStorageData()}`
-}
+
 
 
 /* Conditions
