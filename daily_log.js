@@ -82,46 +82,53 @@ function calculateTotalLinesOfCode() {
 
 // sumbit event listner on todays stats - todays submit
 todaysStatsForm.addEventListener("submit", async function (event) {
-    debug && console.log("todays submit button clicked");
+
     event.preventDefault();
-    // if incase the variable is not updated when clearing the storage
     dailyLogs = fetchDailyLogs();
     const submit_date = document.getElementById("todays-entry-date").value;
     const existingIndex = dailyLogs.findIndex(item => item.date === submit_date);
     debug && console.log("matched :", existingIndex);
+    // showing submit confirmation if its not a existing data 
+    const sure2submit = existingIndex === -1 ? true : await toggleConfiramtionPopup("Submit Data ?", false);
+    if (sure2submit) {
 
-    let daily_logs_input_obj = {
-        date: todaysDate.value,
-        Focus_time: todaysFocus.value || "00:00:00",
-        Code_time: todaysCodeTime.value || "00:00:00",
-        Active_code_time: todaysActiveCodeTime.value || "00:00:00",
-        HTML: Number(todaysHTML.value) || 0,
-        CSS: Number(todaysCSS.value) || 0,
-        JavaScript: Number(todaysJS.value) || 0,
-        React: Number(todaysReact.value) || 0,
-        Total: todaysTotalLoc.value,
-    };
+        let daily_logs_input_obj = {
+            date: todaysDate.value,
+            Focus_time: todaysFocus.value || "00:00:00",
+            Code_time: todaysCodeTime.value || "00:00:00",
+            Active_code_time: todaysActiveCodeTime.value || "00:00:00",
+            HTML: Number(todaysHTML.value) || 0,
+            CSS: Number(todaysCSS.value) || 0,
+            JavaScript: Number(todaysJS.value) || 0,
+            React: Number(todaysReact.value) || 0,
+            Total: todaysTotalLoc.value,
+        };
 
 
-    // id date matches with output (prestored values)
-    if (existingIndex !== -1) {
-        const replace = await toggleConfiramtionPopup(`Data for ${submit_date} is already added, Do you want to replace ?`);
-        //    if use wants to replace the already available data 
-        if (replace) {
-            //functinality to replace the todays data
-            replaceData(existingIndex, daily_logs_input_obj);
+        // id date matches with output (prestored values)
+        if (existingIndex !== -1) {
+            const replace = await toggleConfiramtionPopup(`Data for ${submit_date} is already added, Do you want to replace ?`);
+            //    if use wants to replace the already available data 
+            if (replace) {
+                //functinality to replace the todays data
+                replaceData(existingIndex, daily_logs_input_obj);
+            } else {
+                return;
+            }
         } else {
-            return;
+            // i.e., exsisting index == -1 means(no entrt found) its a new entry then add
+            addData(daily_logs_input_obj);
         }
-    } else {
-        // i.e., exsisting index == -1 means(no entrt found) its a new entry then add
-        addData(daily_logs_input_obj);
+        // remove this [debug] - to set random numbers to the lines of code
+        debug && setRandomValuesToLinesOfCode();
+        // function call to calculate the dailyLogsTotal
+        calculateDailyLogsTotal();
+        showDailyLogsTotal();
+        showSnackBar("Data Set", undefined, 1000);
     }
-    // remove this [debug] - to set random numbers to the lines of code
-    debug && setRandomValuesToLinesOfCode();
-    // function call to calculate the dailyLogsTotal
-    calculateDailyLogsTotal();
-    showDailyLogsTotal();
+
+
+
 
 
 });
@@ -339,12 +346,15 @@ function time2Seconds(curr) {
         console.log("The value for time conversion is undefined or not a string");
         return 0;
     }
-    const value = curr.split(":").map(Number);
-    const hours = Math.floor(value[0] * 60 * 60);
-    const min = Math.floor(value[1] * 60);
-    const sec = Math.floor(value[2]);
-    const totalseconds = hours + min + sec;
-    return totalseconds;
+    /*   const value = curr.split(":").map(Number);
+      const hours = Math.floor(value[0] * 60 * 60);
+      const min = Math.floor(value[1] * 60);
+      const sec = Math.floor(value[2]);
+      const totalseconds = hours + min + sec; */
+
+    const [h = 0, m = 0, s = 0] = curr.split(":").map(Number);
+    const totalSeconds = (h * 3600) + (m * 60) + s;
+    return totalSeconds;
 }
 //  function to convert seconds to HH:MM:SS
 function secondsToHMS(totalSeconds) {
@@ -400,14 +410,15 @@ previousTotalsForm.addEventListener("submit", async (event) => {
         };
         localStorage.setItem(storage_key_previous_total_input, JSON.stringify(previous_total_inputs_obj));
         let storedPreviousTotal = localStorage.getItem(storage_key_previous_total_input);
-   /*  debug &&  */console.log("PreviousTotal Input:", JSON.parse(storedPreviousTotal));
+        /*  debug &&  */console.log("PreviousTotal Input:", JSON.parse(storedPreviousTotal));
+        //    put this inside if so that only show send if user accepts delete logs
+        showSnackBar("Data Set", undefined, 1000);
     }
 
 
     showStats();
     calculateDailyLogsTotal();
     add_dailyStatsTotal_and_PreviousInput();
-    showSnackBar("Data Set", undefined, 1000);
 
 });
 // function to add previous totals input and daily logs sum
@@ -582,11 +593,16 @@ function validateTime(value) {
 
 // allow pasting time to input type time
 function allowPasting(event) {
-    // prevent browsers ingoring the input    
     event.preventDefault();
+
     const paste = (event.clipboardData || window.clipboardData).getData('text');
-    const pastedWithoutSpaces = paste.replace(/\s/g, "");
+    let pastedWithoutSpaces = paste.replace(/\s/g, "");
+    // still not able to paste text from input field have to check why :10:10:10
+    pastedWithoutSpaces.replace(/\uFF1A/g, ":")       // replace fullwidth colon with normal colon
+        .replace(/\u200B|\u200F/g, ""); // remove invisible unicode chars
+
     debug && console.log("clipboard data :", pastedWithoutSpaces);
+    debug && console.log(`clipboard data : '${pastedWithoutSpaces}'`);
 
     const match = pastedWithoutSpaces.match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/);
     if (match) {
@@ -628,7 +644,8 @@ function allowCopying(event) {
         debug && console.log("Nothing to copy");
         return;
     } else {
-        navigator.clipboard.writeText(input)
+        navigator.clipboard.writeText(input);
+        showSnackBar("copied");
         debug && console.log("copied to clipboard:", input);
     }
 }

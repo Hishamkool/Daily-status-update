@@ -151,7 +151,7 @@
      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
      visibility: hidden;
      opacity: 0;
-     transition: transform 0.3s ease-in, opacity 0.3s ease;
+     transition: transform 0.4s ease, opacity 0.3s ease;
      text-align: center;
      width: max-content;
      max-width: 80vw;
