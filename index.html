@@ -182,6 +182,7 @@
             </form>
 
         </section>
+        <!-- copy stats in the format required for slack submission -->
         <section class="copy-stats-section">
             <h4>Choose a date to copy the daily stats to the clipboard.</h4>
             <label for="copy-stats-date">Date: </label>
@@ -199,6 +200,14 @@
     Total    : [389][26,243]" onclick="copyDailyLogToClipboard()">Copy Stats</button>
         </section>
 
+        <!-- section to export the daily logs to csv or excel files -->
+        <section class="export-section">
+            <h5>Click to Export all the Daily logs.</h5>
+            <button id="download-csv" title="download all daily logs in csv format">Download CSV</button>
+            <button id="download-excel" title="download all daily logs in excel format">Download Excel</button>
+        </section>
+
+        <!-- show output section -->
         <section id="output">
             <h4>Output:</h4>
             <div class="output-box">
@@ -232,6 +241,7 @@
             </div>
         </section>
     </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
     <script src="daily_log.js"></script>
 </body>
 
