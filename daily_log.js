@@ -20,7 +20,6 @@ const todaysCSS = document.getElementById("todays-css");
 const todaysJS = document.getElementById("todays-js");
 const todaysReact = document.getElementById("todays-react");
 const todaysTotalLoc = document.getElementById("todays-total-loc");
-const copyStatsBtn = document.getElementById("copy_stats");
 /* previous stats variables */
 const previousTotalsForm = document.getElementById("previous-total-form");
 const previousDate = document.getElementById("previous-total-date");
@@ -32,6 +31,11 @@ const totalCss = document.getElementById("previous-css");
 const totalJS = document.getElementById("previous-js");
 const totalReact = document.getElementById("previous-react");
 const totalLOCAllTime = document.getElementById("previous-total-alltimeloc");
+/* Copy stats to clipboard */
+const copyStatsBtn = document.getElementById("copy_stats");
+/* export secion */
+const downloadCsv = document.getElementById("download-csv");
+const downloadExcel = document.getElementById("download-excel");
 /* output */
 const outputFile = document.querySelector(".output-file");
 const dailyStatsSum = document.querySelector(".daily-stats-sum");
@@ -89,7 +93,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
     const existingIndex = dailyLogs.findIndex(item => item.date === submit_date);
     debug && console.log("matched :", existingIndex);
     // showing submit confirmation if its not a existing data 
-    const sure2submit = existingIndex === -1 ? true : await toggleConfiramtionPopup("Submit Data ?", false);
+    const sure2submit = existingIndex === -1 ? await toggleConfiramtionPopup("Submit Data ?", false) : true;
     if (sure2submit) {
 
         let daily_logs_input_obj = {
@@ -594,11 +598,11 @@ function validateTime(value) {
 // allow pasting time to input type time
 function allowPasting(event) {
     event.preventDefault();
-
+    event.target.value = "";
     const paste = (event.clipboardData || window.clipboardData).getData('text');
     let pastedWithoutSpaces = paste.replace(/\s/g, "");
     // still not able to paste text from input field have to check why :10:10:10
-    pastedWithoutSpaces.replace(/\uFF1A/g, ":")       // replace fullwidth colon with normal colon
+    pastedWithoutSpaces = pastedWithoutSpaces.replace(/\uFF1A/g, ":")       // replace fullwidth colon with normal colon
         .replace(/\u200B|\u200F/g, ""); // remove invisible unicode chars
 
     debug && console.log("clipboard data :", pastedWithoutSpaces);
@@ -606,9 +610,9 @@ function allowPasting(event) {
 
     const match = pastedWithoutSpaces.match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/);
     if (match) {
-
+        event.target.setCustomValidity("");
         let partsOfInput = pastedWithoutSpaces.split(':');
-        debug && console.log("parts of input length:", partsOfInput.length);
+
         if (partsOfInput[0].length === 1) {
             //if hour is single digit then adding 0 before
             partsOfInput[0] = '0' + partsOfInput[0];
@@ -618,10 +622,12 @@ function allowPasting(event) {
             partsOfInput.push('00');
         }
         event.target.value = partsOfInput.join(':');
+        showSnackBar("pasted");
 
     } else {
         event.target.setCustomValidity("Paste time as HH:MM or HH:MM:SS");
         event.target.reportValidity();
+        showSnackBar("couldnt paste", true);
     }
 }
 // validating input while copy pasting into the time input fields
@@ -722,8 +728,43 @@ function showSnackBar(message, isError = false, duration = 3000) {
         snackBar.classList.remove("showSnack");
     }, duration);
 }
+// event listeners to download csv file
+downloadCsv.addEventListener("click", () => {
+    const dailyLogs = fetchDailyLogs();
+    // if we have not stored any daily logs yet
+    if (!dailyLogs.length) {
+        showSnackBar("No daily Logs found to download", true);
+        return;
+    }
+    const headers = Object.keys(dailyLogs[0]).join(",");
+    const rows = dailyLogs.map(rowItems => Object.values(rowItems).join(",")).join("\n");
+    const csvData = headers + "\n" + rows;
 
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" }); // creating a binary object file to store our file
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);  // creating a url for our file
+    link.download = "dailyLogs.csv"; //naming downld
+    link.click();
+    showSnackBar("file downloading...", undefined, 1200);
+});
 
+downloadExcel.addEventListener("click", () => {
+    const dailyLogs = fetchDailyLogs();
+    // if we have not stored any daily logs yet
+    if (!dailyLogs.length) {
+        showSnackBar("No daily Logs found to download", true);
+        return;
+    }
+    // created a worksheed like sheet 1
+    const worksheet = XLSX.utils.json_to_sheet(dailyLogs);
+    // created a new workbook or excel file
+    const workbook = XLSX.utils.book_new();
+    // now i need to add the data to the file
+    XLSX.utils.book_append_sheet(workbook, worksheet, "All daily logs");
+    // name and download it
+    XLSX.writeFile(workbook, "DailyStats.xlsx");
+    showSnackBar("file downloading...", undefined, 1200);
+});
 /* Conditions
     a. he dosent have previous records :
         he starts fresh by entering todays stats it gets summed to daily stats sum 
