@@ -2,6 +2,7 @@
 /* variables */
 /* debug status */
 const debug = true;
+// make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = 'dailyLogs';
 const storage_key_daily_logs_sum = 'dailyLogsSum';
@@ -43,6 +44,10 @@ const confirmationPopup = document.getElementById("ConfirmationBox");
 const confirmYes = document.getElementById("confirm-yes");
 const confirmNo = document.getElementById("confirm-no");
 const confirmMessage = document.getElementById("confirm-message");
+const confirmNote = document.getElementById("confirm-note");
+/* snackbar */
+const snackBar = document.getElementById("snack-bar");
+const snackBarData = document.getElementById("snack-bar-data");
 /* INITIAL loading functions  */
 showStats();
 calculateTotalLinesOfCode();
@@ -76,7 +81,7 @@ function calculateTotalLinesOfCode() {
 }
 
 // sumbit event listner on todays stats - todays submit
-todaysStatsForm.addEventListener("submit", function (event) {
+todaysStatsForm.addEventListener("submit", async function (event) {
     debug && console.log("todays submit button clicked");
     event.preventDefault();
     // if incase the variable is not updated when clearing the storage
@@ -100,7 +105,7 @@ todaysStatsForm.addEventListener("submit", function (event) {
 
     // id date matches with output (prestored values)
     if (existingIndex !== -1) {
-        const replace = confirm(`Data for the ${submit_date} is already added, Do you want to replace ? `);
+        const replace = await toggleConfiramtionPopup(`Data for ${submit_date} is already added, Do you want to replace ?`);
         //    if use wants to replace the already available data 
         if (replace) {
             //functinality to replace the todays data
@@ -189,8 +194,8 @@ function showStats() {
 
 /* Delete data buttons */
 // function to delete daily stats from the local storage
-function clearDailyStats() {
-    // const deleteAllEntries = confirm("Do you want to clear all your saved entries? CANNOT BE UNDONE !")
+function clearDailyStats(deleteAllEntries) {
+
     if (deleteAllEntries) {
         dailyLogs = [];
         localStorage.removeItem(storage_key_daily_log);
@@ -200,12 +205,13 @@ function clearDailyStats() {
         debug && console.log("cleared dailyLogs sum : ", fetchDailyLogsSum());
         showStats();
     } else {
+        showSnackBar(`Could NOT Delete!\n Parameter not passed: ${deleteAllEntries}`, true);
         return;
     }
 };
 // function to delete previus stats from the local storage
-function clearPreviousTotal() {
-    const deletePreviousTotals = confirm("Do you want to delete previous totals? Cannot be undone!");
+async function clearPreviousTotal() {
+    const deletePreviousTotals = await toggleConfiramtionPopup("Do you want to delete previous totals? Cannot be undone!");
     if (deletePreviousTotals) {
         localStorage.removeItem(storage_key_previous_plus_daily);
         debug && console.log("cleared PreviousTotalSum:", fetchPreviousPlusDaily());
@@ -215,8 +221,8 @@ function clearPreviousTotal() {
     }
 };
 // function to clear all values in the local storage
-window.clearLocalStorage = function clearLocalStorage() {
-    const clear = confirm("Do you want to reset all the data stored in the browser? Cannot be undone!");
+window.clearLocalStorage = async function clearLocalStorage() {
+    const clear = await toggleConfiramtionPopup("Do you want to reset all the data stored in the browser? ");
 
     if (clear) {
         localStorage.clear();
@@ -233,11 +239,13 @@ function copyDailyLogToClipboard() {
     const logForTheDate = dailyLogs.find(stats => stats.date === selectedDate);
     if (!dailyLogs || Object.keys(dailyLogs).length === 0) {
         debug && console.log("Daily Logs has not been added");
-        alert("Daily Logs not found");
+        showSnackBar("Daily Logs not found", true);
         return;
+    } else if (!selectedDate) {
+        showSnackBar("Select a date", true);
     } else if (!logForTheDate) {
         debug && console.log("Logs for the selected date is missing");
-        alert("logs for selected date is missing");
+        showSnackBar("logs for selected date is missing", true);
         return;
     } else {
         let previousPlusDaily = fetchPreviousPlusDaily();
@@ -276,7 +284,7 @@ function copyDailyLogToClipboard() {
         console.log("Clipboard Data : ", statsForTheDayFormated);
         navigator.clipboard.writeText(statsForTheDayFormated).then(() => console.log(`stats for ${selectedDate} copied`)).catch((err) => console.log(`error copying data ${err}`));
 
-        alert(`Stats for '${selectedDate}' copied`);
+        showSnackBar(`Stats for ${selectedDate} copied`);
     }
 
 
@@ -372,13 +380,13 @@ function showDailyLogsTotal() {
 }
 
 // function to add the previous total entries into localstorage
-previousTotalsForm.addEventListener("submit", (event) => {
+previousTotalsForm.addEventListener("submit", async (event) => {
     debug && console.log("previous total submit button clicked");
 
     event.preventDefault();
-    const deleteAllDailyLogs = toggleConfiramtionPopup("Setting previous total would clear all of the saved daily logs and start fresh, do you want to continue?");
+    const deleteAllDailyLogs = await toggleConfiramtionPopup("Setting previous total would clear all of the saved daily logs and start fresh, do you want to continue?");
     if (deleteAllDailyLogs) {
-        clearDailyStats();
+        clearDailyStats(deleteAllDailyLogs);
         // object for the previous total input fields
         let previous_total_inputs_obj = {
             date: previousDate.value,
@@ -399,6 +407,7 @@ previousTotalsForm.addEventListener("submit", (event) => {
     showStats();
     calculateDailyLogsTotal();
     add_dailyStatsTotal_and_PreviousInput();
+    showSnackBar("Data Set", undefined, 1000);
 
 });
 // function to add previous totals input and daily logs sum
@@ -643,12 +652,18 @@ window.showlocalStorageData = function showlocalStorageData() {
         console.log(`(${key}):`, parsedValue);
     }
 };
-
+/* popup */
 // function to handle confirmation messages 
-async function toggleConfiramtionPopup(message, anchorElement) {
+// note this is an asysc function so while calling it its an await call else you will always get true
+async function toggleConfiramtionPopup(message, shouldDisplyNote = true, anchorElement) {
 
     return new Promise((resolve) => {
         confirmMessage.textContent = message;
+        if (shouldDisplyNote == false) {
+            confirmNote.style.display = "none";
+        } else {
+            confirmNote.style.display = "block";
+        }
         const onYes = () => {
             cleanup();
             resolve(true);
@@ -674,7 +689,22 @@ async function toggleConfiramtionPopup(message, anchorElement) {
     });
 }
 
-/* popup functions */
+/* snackbar */
+function showSnackBar(message, isError = false, duration = 3000) {
+    snackBar.textContent = message;
+    if (isError == true) {
+        snackBar.style.backgroundColor = "red";
+        snackBar.style.color = "white";
+    } else {
+        snackBar.style.backgroundColor = "lightgreen";
+        snackBar.style.color = "black";
+
+    }
+    snackBar.classList.add("showSnack");
+    setTimeout(() => {
+        snackBar.classList.remove("showSnack");
+    }, duration);
+}
 
 
 /* Conditions

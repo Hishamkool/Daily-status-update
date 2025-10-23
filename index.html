@@ -14,7 +14,7 @@
     </header>
     <main>
         <!-- popups -->
-      <!--   <button popovertarget="ConfirmationBox">test</button> -->
+        <!--   <button popovertarget="ConfirmationBox">test</button> -->
         <div id="ConfirmationBox" class="popups" popover="auto">
             <div class="popup-title">Are You Sure?</div>
             <div id="confirm-message">This will delete all the data stored in the localstorage</div>
@@ -23,6 +23,10 @@
                 <button id="confirm-no" class="popup-btns">NO</button>
                 <button id="confirm-yes" class="popup-btns">YES</button>
             </div>
+        </div>
+        <!-- snackbars -->
+        <div id="snack-bar">
+            <span id="snack-bar-data">Data Submitted</span>
         </div>
         <!-- PREVIOUS ENTRY -->
         <section class="previous-total">
@@ -35,7 +39,7 @@
 
             </div>
             <!-- debug remove no validation -->
-            <form id="previous-total-form" novalidate>
+            <form id="previous-total-form">
                 <!--   <div class="form-item">
                     <label class="input-style">Focus: </label>
                     <span>
