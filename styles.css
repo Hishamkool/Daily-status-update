@@ -68,7 +68,7 @@ section {
 }
 
 /* popup styles */
-.popups {
+.popups:popover-open {
     position: fixed;
     border: 1px solid lightblue;
     background-color: white;
@@ -82,6 +82,11 @@ section {
     display: flex;
     flex-direction: column;
     gap: 10px;
+
+}
+
+.popups:popover-close {
+    display: none;
 }
 
 .popup-title {
@@ -111,7 +116,7 @@ section {
     background: linear-gradient(to right, #eaf4fcf3, #dbecfaf3);
     border: none;
     font-weight: 500;
-
+    cursor: pointer;
 
     /* font-size: 16px; */
     border-radius: 15px;

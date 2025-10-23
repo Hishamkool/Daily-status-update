@@ -40,6 +40,9 @@ const previousPlusDailyStats = document.querySelector(".previous-plus-dailystats
 let dailyLogs = fetchDailyLogs();
 /* Popups */
 const confirmationPopup = document.getElementById("ConfirmationBox");
+const confirmYes = document.getElementById("confirm-yes");
+const confirmNo = document.getElementById("confirm-no");
+const confirmMessage = document.getElementById("confirm-message");
 /* INITIAL loading functions  */
 showStats();
 calculateTotalLinesOfCode();
@@ -187,7 +190,7 @@ function showStats() {
 /* Delete data buttons */
 // function to delete daily stats from the local storage
 function clearDailyStats() {
-    const deleteAllEntries = confirm("Do you want to clear all your saved entries? CANNOT BE UNDONE !")
+    // const deleteAllEntries = confirm("Do you want to clear all your saved entries? CANNOT BE UNDONE !")
     if (deleteAllEntries) {
         dailyLogs = [];
         localStorage.removeItem(storage_key_daily_log);
@@ -373,7 +376,7 @@ previousTotalsForm.addEventListener("submit", (event) => {
     debug && console.log("previous total submit button clicked");
 
     event.preventDefault();
-    const deleteAllDailyLogs = confirm("Setting previous total would clear all of the saved daily logs and start fresh, do you want to continue? THIS CANNOT BE UNDONE!!!");
+    const deleteAllDailyLogs = toggleConfiramtionPopup("Setting previous total would clear all of the saved daily logs and start fresh, do you want to continue?");
     if (deleteAllDailyLogs) {
         clearDailyStats();
         // object for the previous total input fields
@@ -641,11 +644,38 @@ window.showlocalStorageData = function showlocalStorageData() {
     }
 };
 
-// confirmationPopup.showPopover();
-/* popup functions */
- function toogleConfirmationPopup(message){
+// function to handle confirmation messages 
+async function toggleConfiramtionPopup(message, anchorElement) {
 
+    return new Promise((resolve) => {
+        confirmMessage.textContent = message;
+        const onYes = () => {
+            cleanup();
+            resolve(true);
+        };
+        const onNo = () => {
+            cleanup();
+            resolve(false);
+        };
+        const cleanup = () => {
+            //we use cleanup to remove the event listners so that if user clicks on the smae popupu mutiple times there would be multiple event listeners on the buttons which when fired will execute all the eventlisteners actions one after teh other which might cause data loss or memory loss when the same action is performed multiple times and also lot of memory loss for accumulating the same event listeneres on the for teh same button
+            confirmYes.removeEventListener("click", onYes);
+            confirmNo.removeEventListener("click", onNo);
+            confirmationPopup.hidePopover();
+        };
+        confirmYes.addEventListener("click", onYes);
+        confirmNo.addEventListener("click", onNo);
+        // show popover anchored to the elemt if passeed to function
+        if (anchorElement) {
+            confirmationPopup.showPopover(anchorElement);
+        } else {
+            confirmationPopup.showPopover();
+        }
+    });
 }
+
+/* popup functions */
+
 
 /* Conditions
     a. he dosent have previous records :
