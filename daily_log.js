@@ -731,14 +731,40 @@ function showSnackBar(message, isError = false, duration = 3000) {
 // event listeners to download csv file
 downloadCsv.addEventListener("click", () => {
     const dailyLogs = fetchDailyLogs();
+    const dailyLogsSum = fetchDailyLogsSum();
     // if we have not stored any daily logs yet
     if (!dailyLogs.length) {
         showSnackBar("No daily Logs found to download", true);
         return;
     }
+
     const headers = Object.keys(dailyLogs[0]).join(",");
-    const rows = dailyLogs.map(rowItems => Object.values(rowItems).join(",")).join("\n");
-    const csvData = headers + "\n" + rows;
+    const rows = dailyLogs.map(rowItems => Object.values(rowItems).join(",")); // mow row is an array
+    if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
+        // const latestDay = dailyLogsSum.LatestDate ? new Date(dailyLogsSum.LatestDate).getDate() : ""
+        const totalObject = [
+
+            `Total till ${dailyLogsSum.LatestDate}`,
+            dailyLogsSum.FOCUS,
+            dailyLogsSum.CODE_TIME,
+            dailyLogsSum.ACTIVE_CODE_TIME,
+            dailyLogsSum.HTML,
+            dailyLogsSum.CSS,
+            dailyLogsSum.JS,
+            dailyLogsSum.REACT,
+            dailyLogsSum.PreviousTotal
+
+
+
+        ].join(",");
+        rows.push(totalObject);
+    }
+
+    // const rows = dailyLogs.map(rowItems => Object.values(rowItems).join(",")).join("\n"); // mow row is a string because of join("\n")
+    // const totalRow = Object.values(dailyLogsSum).join(","); // one way of adding totals at the end
+    // const csvData = headers + "\n" + rows + "\n" + totalRow;
+    const csvData = headers + "\n" + rows.join("\n");
+
 
     const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" }); // creating a binary object file to store our file
     const link = document.createElement("a");
@@ -750,13 +776,32 @@ downloadCsv.addEventListener("click", () => {
 
 downloadExcel.addEventListener("click", () => {
     const dailyLogs = fetchDailyLogs();
+    const dailyLogsSum = fetchDailyLogsSum();
     // if we have not stored any daily logs yet
     if (!dailyLogs.length) {
         showSnackBar("No daily Logs found to download", true);
         return;
     }
+    // creating a copy for not altering the original file
+    const logsForExcel = [...dailyLogs];
+    if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
+
+        logsForExcel.push({
+            date: `Total till ${dailyLogsSum.LatestDate}`,
+            Focus_time: dailyLogsSum.FOCUS,
+            Code_time: dailyLogsSum.CODE_TIME,
+            Active_code_time: dailyLogsSum.ACTIVE_CODE_TIME,
+            HTML: dailyLogsSum.HTML,
+            CSS: dailyLogsSum.CSS,
+            JavaScript: dailyLogsSum.JS,
+            React: dailyLogsSum.REACT,
+            Total: dailyLogsSum.PreviousTotal,
+        });
+    }
+
+
     // created a worksheed like sheet 1
-    const worksheet = XLSX.utils.json_to_sheet(dailyLogs);
+    const worksheet = XLSX.utils.json_to_sheet(logsForExcel);
     // created a new workbook or excel file
     const workbook = XLSX.utils.book_new();
     // now i need to add the data to the file
