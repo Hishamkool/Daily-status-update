@@ -744,7 +744,7 @@ downloadCsv.addEventListener("click", () => {
         // const latestDay = dailyLogsSum.LatestDate ? new Date(dailyLogsSum.LatestDate).getDate() : ""
         const totalObject = [
 
-            `Total till ${dailyLogsSum.LatestDate}`,
+            "Total",
             dailyLogsSum.FOCUS,
             dailyLogsSum.CODE_TIME,
             dailyLogsSum.ACTIVE_CODE_TIME,
@@ -752,8 +752,8 @@ downloadCsv.addEventListener("click", () => {
             dailyLogsSum.CSS,
             dailyLogsSum.JS,
             dailyLogsSum.REACT,
-            dailyLogsSum.PreviousTotal
-
+            dailyLogsSum.PreviousTotal,
+            dailyLogsSum.LatestDate,
 
 
         ].join(",");
@@ -787,7 +787,7 @@ downloadExcel.addEventListener("click", () => {
     if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
 
         logsForExcel.push({
-            date: `Total till ${dailyLogsSum.LatestDate}`,
+            date: "Total",
             Focus_time: dailyLogsSum.FOCUS,
             Code_time: dailyLogsSum.CODE_TIME,
             Active_code_time: dailyLogsSum.ACTIVE_CODE_TIME,
@@ -796,6 +796,7 @@ downloadExcel.addEventListener("click", () => {
             JavaScript: dailyLogsSum.JS,
             React: dailyLogsSum.REACT,
             Total: dailyLogsSum.PreviousTotal,
+            sl_no: dailyLogsSum.LatestDate
         });
     }
 
