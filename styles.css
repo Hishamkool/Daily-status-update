@@ -3,6 +3,13 @@
 
  * {
      box-sizing: border-box;
+     padding: none;
+     margin: none;
+ }
+
+ :root {
+     /* font sizes */
+     --font-size-subheading: 17px;
  }
 
  section {
@@ -18,7 +25,7 @@
  .developed-by {
      font-size: 14px;
      position: fixed;
-     color: rgba(211, 211, 211,0.2);
+     color: rgba(211, 211, 211, 0.2);
      top: 0;
      right: 0;
 
@@ -32,6 +39,16 @@
 
  .section-form-items input {
      width: 100px;
+ }
+
+ .typing-speed-content {
+     width: 100px;
+     font-size: 12px;
+     text-align: start;
+ }
+
+ .typing-fields {
+     max-width: 25px;
  }
 
  .section-form-items {
@@ -57,9 +74,16 @@
      border: 1px solid black;
      height: 450px;
      width: auto;
-     margin: 10px;
+     margin-block: 10px;
      overflow: auto;
 
+ }
+
+ .output-items-visibility {
+     display: none;
+ }
+ .output-items-visibility.visible{
+    display: block;
  }
 
  .output-title {
@@ -74,9 +98,18 @@
      padding: 10px;
  }
 
+ /* copy stats secion */
  .copy-stats-section {
      border: 1px solid grey;
      padding: 10px;
+ }
+
+ .section-title {
+     font-weight: bold;
+     font-size: var(--font-size-subheading);
+ }
+ .section-subtitle{
+    color: grey;
  }
 
  /* popup styles */

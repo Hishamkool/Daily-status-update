@@ -125,6 +125,22 @@
                 <div class="section-form-items">
 
                     <div class="form-item">
+                        <label for="" title="Enter typing speeds in wpm">Typing :</label>
+                        <div class="typing-speed-content">
+                            <span>
+                                <input type="number" class="typing-fields" id="typing-wpm" name="typing-wpm"
+                                    placeholder="50">
+                                <label for="typing-wpm">wpm</label>
+                            </span>
+                            <span>
+                                <input type="number" class="typing-fields" id="typing-accuracy" name="typing-accuracy"
+                                    placeholder="97">
+                                <label for="typing-accuracy">%</label>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-item">
                         <label for="todays-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
                         <input type="time" id="todays-focus-time" name="todays-focus-time" step="1"
                             onpaste="allowPasting(event)" oninput="validateTimeFormat(this)" placeholder="00:00:00"
@@ -185,8 +201,10 @@
 
         </section>
         <!-- copy stats in the format required for slack submission -->
+
         <section class="copy-stats-section">
-            <h4>Choose a date to copy the daily stats to the clipboard.</h4>
+            <span class="section-title">Copy To Slack:</span>
+            <p class="section-subtitle">Choose a date to copy the daily stats to the clipboard.</p>
             <label for="copy-stats-date">Date: </label>
             <input type="date" name="copy-stats-date" id="copy-stats-date">
             <button type="button" id="copy_stats" title="e.g.,  
@@ -204,33 +222,34 @@
 
         <!-- section to export the daily logs to csv or excel files -->
         <section class="export-section">
-            <h5>Click to Export all the Daily logs.</h5>
+            <span class="section-title">Click To Export:</span>
+            <p class="section-subtitle">Click to Export all the Daily logs.</p>
             <button id="download-csv" title="download all daily logs in csv format">Download CSV</button>
             <button id="download-excel" title="download all daily logs in excel format">Download Excel</button>
         </section>
 
         <!-- show output section -->
         <section id="output">
-            <h4>Output:</h4>
+            <span class="section-title">Output:</span>
             <div class="output-box">
                 <div class="output-btns">
-                    <button onclick="showStats()">Show Stats</button>
+                    <button onclick="showStats()" title="show all output">Refresh Output</button>
                     <button title="clear all the recorded daily stats from todats stats window"
-                        onclick="clearDailyStats()">Clear Daily Stats and Daily Stats Sum</button>
-                    <button title="clear previous totals" onclick="clearPreviousTotal()">Clear previous plus </button>
-                    <button title="Clear complete local storage" onclick="clearLocalStorage()">Clear complete local
-                        storage</button>
+                        onclick="clearDailyStats()">Clear Daily Stats</button>
+                    <button title="clear previous totals" onclick="clearPreviousTotal()">Clear Previous Stats </button>
+                    <button title="Clear complete local storage" onclick="clearLocalStorage()">Clear All Data</button>
 
                 </div>
                 <div>
-                    <h5 class="output-title">Previous total Sum:</h5>
+                    <h5 class="output-title">Previous total:</h5>
                     <pre class="previous-plus-dailystats output-file-style"></pre>
                 </div>
-                <div>
+                <!-- too debug previous input values -->
+                <div class="output-items-visibility">
                     <h5 class="output-title">Previous Input:</h5>
                     <pre class="previous-output output-file-style"></pre>
                 </div>
-                <div>
+                <div class="output-items-visibility">
                     <h5 class="output-title">Daily Status Sum:</h5>
                     <pre class="daily-stats-sum output-file-style"></pre>
                 </div>

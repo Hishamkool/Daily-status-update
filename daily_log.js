@@ -1,7 +1,7 @@
 
 /* variables */
 /* debug status */
-const debug = true;
+const debug = false;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = 'dailyLogs';
@@ -12,6 +12,8 @@ const storage_key_previous_plus_daily = 'previousPlusDaily';
 /* CONSTANT KEY NAMES FOR OBJECTS */
 // ====== DAILY STATS KEYS ======
 const DATE = "date";
+const TYPING_SPEED = "typing_speed";
+const TYPING_ACCURACY = "typing_accuracy";
 const FOCUS_TIME = "focus_time";
 const CODE_TIME = "code_time";
 const ACTIVE_CODE_TIME = "active_code_time";
@@ -39,6 +41,8 @@ const ALL_TIME_TOTAL = "all_time_total";
 /* todays stats variables */
 const todaysStatsForm = document.getElementById("todays-data-form");
 const todaysDate = document.getElementById("todays-entry-date");
+const typingSpeed = document.getElementById("typing-wpm");
+const typingAccuracy = document.getElementById("typing-accuracy");
 const todaysFocus = document.getElementById("todays-focus-time");
 const todaysCodeTime = document.getElementById("todays-ct");
 const todaysActiveCodeTime = document.getElementById("todays-act");
@@ -64,6 +68,7 @@ const copyStatsBtn = document.getElementById("copy_stats");
 const downloadCsv = document.getElementById("download-csv");
 const downloadExcel = document.getElementById("download-excel");
 /* output */
+const outputItemsVisibility = document.querySelectorAll(".output-items-visibility");
 const outputFile = document.querySelector(".output-file");
 const dailyStatsSum = document.querySelector(".daily-stats-sum");
 const previousOutput = document.querySelector(".previous-output");
@@ -85,8 +90,15 @@ calculateTotalLinesOfCode();
 setPreviousInputsValues();
 
 
-
-
+if (debug) {
+    outputItemsVisibility.forEach(outputItem => {
+        outputItem.classList.add("visible");
+    })
+} else {
+    outputItemsVisibility.forEach(outputItem => {
+        outputItem.classList.remove("visible");
+    })
+}
 // funtion to get the stored daily log file
 function fetchDailyLogs() {
     return JSON.parse(localStorage.getItem(storage_key_daily_log)) || [];
@@ -125,6 +137,8 @@ todaysStatsForm.addEventListener("submit", async function (event) {
 
         let daily_logs_input_obj = {
             [DATE]: todaysDate.value,
+            [TYPING_SPEED]: typingSpeed.value,
+            [TYPING_ACCURACY]: typingAccuracy.value,
             [FOCUS_TIME]: todaysFocus.value || "00:00:00",
             [CODE_TIME]: todaysCodeTime.value || "00:00:00",
             [ACTIVE_CODE_TIME]: todaysActiveCodeTime.value || "00:00:00",
@@ -155,7 +169,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
         // function call to calculate the dailyLogsTotal
         calculateDailyLogsTotal();
         showDailyLogsTotal();
-        showSnackBar("Data Set", undefined, 1000);
+        showSnackBar("Data Submitted", undefined, 1000);
     }
 
 
@@ -223,6 +237,7 @@ function showDailyStats() {
 /* OUTPUT FIELD BUTTONS */
 // function to display Output
 function showStats() {
+    showSnackBar("Updating output...", undefined, 1000);
     showDailyStats();
     showDailyLogsTotal();
     showPreviousInput();
@@ -254,7 +269,9 @@ async function clearDailyStats(deleteAllEntries) {
 async function clearPreviousTotal() {
     const deletePreviousTotals = await toggleConfiramtionPopup("Do you want to delete previous totals?");
     if (deletePreviousTotals) {
+        localStorage.removeItem(storage_key_previous_total_input);
         localStorage.removeItem(storage_key_previous_plus_daily);
+
         debug && console.log("cleared PreviousTotalSum:", fetchPreviousPlusDaily());
         showStats();
     } else {
@@ -301,9 +318,10 @@ function copyDailyLogToClipboard() {
                 return `${h}hr ${m}min ${s}sec`;
             }
         };
- 
+
 
         const StatsForTheDay = `
+        Typing   : [${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]
         Focus    : [${formatOutputTime(logForTheDate[FOCUS_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_FOCUS])}]
         CT       : [${formatOutputTime(logForTheDate[CODE_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_CODE_TIME])}]
         ACT      : [${formatOutputTime(logForTheDate[ACTIVE_CODE_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_ACTIVE_CODE_TIME])}]
@@ -437,7 +455,7 @@ previousTotalsForm.addEventListener("submit", async (event) => {
         let storedPreviousTotal = localStorage.getItem(storage_key_previous_total_input);
         /*  debug &&  */console.log("PreviousTotal Input:", JSON.parse(storedPreviousTotal));
         //    put this inside if so that only show send if user accepts delete logs
-        showSnackBar("Data Set", undefined, 1000);
+        showSnackBar("Data Submitted", undefined, 1000);
     }
 
 
