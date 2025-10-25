@@ -26,7 +26,7 @@ const SL_NO = "sl_no";
 
 // ====== DAILY STATS SUM ======
 const LATEST_DATE = "latest_date";
-
+const TOTAL_COLUMN = "Total"
 // ====== PREVIOUS TOTALS & ALL-TIME KEYS ======
 const TOTAL_FOCUS = "total_focus";
 const TOTAL_CODE_TIME = "total_code_time";
@@ -323,9 +323,9 @@ function copyDailyLogToClipboard() {
             }
         };
 
-
+        let hasEnterdTypingStats = logForTheDate[TYPING_SPEED] && logForTheDate[TYPING_ACCURACY] ? true : false;
         const StatsForTheDay = `
-        Typing   : [${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]
+        ${hasEnterdTypingStats ? `Typing   : [${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]` : ""} 
         Focus    : [${formatOutputTime(logForTheDate[FOCUS_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_FOCUS])}]
         CT       : [${formatOutputTime(logForTheDate[CODE_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_CODE_TIME])}]
         ACT      : [${formatOutputTime(logForTheDate[ACTIVE_CODE_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_ACTIVE_CODE_TIME])}]
@@ -767,11 +767,14 @@ downloadCsv.addEventListener("click", () => {
         showSnackBar("No daily Logs found to download", true);
         return;
     }
+    showSnackBar("file downloading...", undefined, 1200);
 
     const logsForCsv = [...dailyLogs];
+
+
     if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
         logsForCsv.push({
-            [DATE]: "TOTAL:",
+            [DATE]: dailyLogsSum[LATEST_DATE],
             [FOCUS_TIME]: dailyLogsSum[FOCUS_TIME],
             [CODE_TIME]: dailyLogsSum[CODE_TIME],
             [ACTIVE_CODE_TIME]: dailyLogsSum[ACTIVE_CODE_TIME],
@@ -780,39 +783,59 @@ downloadCsv.addEventListener("click", () => {
             [JAVASCRIPT]: dailyLogsSum[JAVASCRIPT],
             [REACT]: dailyLogsSum[REACT],
             [DAILY_TOTAL]: dailyLogsSum[DAILY_TOTAL],
-            [SL_NO]: dailyLogsSum[LATEST_DATE]
+
+
         });
     }
 
-    const headers = Object.keys(logsForCsv[0]).join(",");
-    const rows = logsForCsv.map(obj =>
-        Object.keys(logsForCsv[0]).map(value => obj[value]).join(",")
-    );
-    const csvData = headers + "\n" + rows.join("\n");
+    // Create CSV
+    const headers = [String([TOTAL_COLUMN]), "Date", "Focus Time", "Code Time", "Active Code Time", "HTML", "CSS", "JS", "React", "DailyTotal", "Typing Speed", "Typing Accuracy"];
+    const rows = logsForCsv.map(obj => [
+        obj[SL_NO] ?? "TOTAL",
+        obj[DATE],
+        obj[FOCUS_TIME],
+        obj[CODE_TIME],
+        obj[ACTIVE_CODE_TIME],
+        obj[HTML],
+        obj[KEY_CSS],
+        obj[JAVASCRIPT],
+        obj[REACT],
+        obj[DAILY_TOTAL],
+        obj[TYPING_SPEED] ? obj[TYPING_SPEED] + " wpm" : "",
+        obj[TYPING_ACCURACY] ? obj[TYPING_ACCURACY] + "%" : ""
+    ].join(","));
 
+    const csvData = headers.join(",") + "\n" + rows.join("\n");
+    console.log("csv file :", csvData);
 
-    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" }); // creating a binary object file to store our file
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);  // creating a url for our file
-    link.download = "dailyLogs.csv"; //naming downld
+    link.href = URL.createObjectURL(blob);
+    link.download = "dailyLogs.csv";
     link.click();
-    showSnackBar("file downloading...", undefined, 1200);
+
+
 });
 
+
 downloadExcel.addEventListener("click", () => {
+
     const dailyLogs = fetchDailyLogs();
     const dailyLogsSum = fetchDailyLogsSum();
-    // if we have not stored any daily logs yet
+
     if (!dailyLogs.length) {
         showSnackBar("No daily Logs found to download", true);
         return;
     }
-    // creating a copy for not altering the original file
-    const logsForExcel = [...dailyLogs];
-    if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
+    showSnackBar("file downloading...", undefined, 1200);
 
+    const logsForExcel = [...dailyLogs];
+
+    // Add total row at the end
+    if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
         logsForExcel.push({
-            [DATE]: "Total",
+            [TOTAL_COLUMN]: "TOTAL:", // first column
+            [DATE]: dailyLogsSum[LATEST_DATE],
             [FOCUS_TIME]: dailyLogsSum[FOCUS_TIME],
             [CODE_TIME]: dailyLogsSum[CODE_TIME],
             [ACTIVE_CODE_TIME]: dailyLogsSum[ACTIVE_CODE_TIME],
@@ -821,21 +844,21 @@ downloadExcel.addEventListener("click", () => {
             [JAVASCRIPT]: dailyLogsSum[JAVASCRIPT],
             [REACT]: dailyLogsSum[REACT],
             [DAILY_TOTAL]: dailyLogsSum[DAILY_TOTAL],
-            [SL_NO]: dailyLogsSum[LATEST_DATE]
         });
     }
 
+    // Adding headers so that i can add total column at the beginning
+    // const headers = [String([TOTAL_COLUMN]), String([[DATE]]), String([FOCUS_TIME]), String([CODE_TIME]), String([ACTIVE_CODE_TIME]), String([HTML]), String([KEY_CSS]), String([JAVASCRIPT]), String([REACT]), String([DAILY_TOTAL])];
+    const headers = [TOTAL_COLUMN];
 
-    // created a worksheed like sheet 1
-    const worksheet = XLSX.utils.json_to_sheet(logsForExcel);
-    // created a new workbook or excel file
+    const worksheet = XLSX.utils.json_to_sheet(logsForExcel, { header: headers });
+    // console.log(worksheet);
     const workbook = XLSX.utils.book_new();
-    // now i need to add the data to the file
     XLSX.utils.book_append_sheet(workbook, worksheet, "All daily logs");
-    // name and download it
     XLSX.writeFile(workbook, "DailyStats.xlsx");
-    showSnackBar("file downloading...", undefined, 1200);
+
 });
+
 
 
 /* Conditions or work flow
