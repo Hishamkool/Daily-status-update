@@ -6,4 +6,4 @@ HTML : [00] [15789] ([Lines of HTML code written excluding empty lines from yest
 CSS : [00] [25731] ([Lines of CSS code written excluding empty lines from yesterday] [Total lines of CSS code written up to yesterday])
 JS : [67] [81275] ([Lines of JS code written excluding empty lines from yesterday] [Total lines of JS code written up to yesterday])
 Total : [67] [123931] ([Total lines of code from yesterday] [Total lines of code written up to yesterday])
-#days : 675 (Number of consecutive days code has been pushed to GitHub or GitLab; if a day is skipped, the count resets to zero)F
+#days : 675 (Number of consecutive days code has been pushed to GitHub or GitLab; if a day is skipped, the count resets to zero)
