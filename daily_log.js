@@ -460,7 +460,7 @@ previousTotalsForm.addEventListener("submit", async (event) => {
     localStorage.setItem(storage_key_previous_total_input, JSON.stringify(previous_total_inputs_obj));
     let storedPreviousTotal = localStorage.getItem(storage_key_previous_total_input);
     /*  debug &&  */console.log("PreviousTotal Input:", JSON.parse(storedPreviousTotal));
-    
+
     showSnackBar("Data Submitted", undefined, 1000);
     showStats();
     calculateDailyLogsTotal();
@@ -768,30 +768,26 @@ downloadCsv.addEventListener("click", () => {
         return;
     }
 
-    const headers = Object.keys(dailyLogs[0]).join(",");
-    const rows = dailyLogs.map(rowItems => Object.values(rowItems).join(",")); // mow row is an array
+    const logsForCsv = [...dailyLogs];
     if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
-        // const latestDay = dailyLogsSum.LatestDate ? new Date(dailyLogsSum.LatestDate).getDate() : ""
-        const totalObject = [
-
-            "Total",
-            dailyLogsSum[FOCUS_TIME],
-            dailyLogsSum[CODE_TIME],
-            dailyLogsSum[ACTIVE_CODE_TIME],
-            dailyLogsSum[HTML],
-            dailyLogsSum[KEY_CSS],
-            dailyLogsSum[JAVASCRIPT],
-            dailyLogsSum[REACT],
-            dailyLogsSum[DAILY_TOTAL],
-            dailyLogsSum[LATEST_DATE],
-
-        ].join(",");
-        rows.push(totalObject);
+        logsForCsv.push({
+            [DATE]: "TOTAL:",
+            [FOCUS_TIME]: dailyLogsSum[FOCUS_TIME],
+            [CODE_TIME]: dailyLogsSum[CODE_TIME],
+            [ACTIVE_CODE_TIME]: dailyLogsSum[ACTIVE_CODE_TIME],
+            [HTML]: dailyLogsSum[HTML],
+            [KEY_CSS]: dailyLogsSum[KEY_CSS],
+            [JAVASCRIPT]: dailyLogsSum[JAVASCRIPT],
+            [REACT]: dailyLogsSum[REACT],
+            [DAILY_TOTAL]: dailyLogsSum[DAILY_TOTAL],
+            [SL_NO]: dailyLogsSum[LATEST_DATE]
+        });
     }
 
-    // const rows = dailyLogs.map(rowItems => Object.values(rowItems).join(",")).join("\n"); // mow row is a string because of join("\n")
-    // const totalRow = Object.values(dailyLogsSum).join(","); // one way of adding totals at the end
-    // const csvData = headers + "\n" + rows + "\n" + totalRow;
+    const headers = Object.keys(logsForCsv[0]).join(",");
+    const rows = logsForCsv.map(obj =>
+        Object.keys(logsForCsv[0]).map(value => obj[value]).join(",")
+    );
     const csvData = headers + "\n" + rows.join("\n");
 
 
