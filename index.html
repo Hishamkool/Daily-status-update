@@ -28,7 +28,7 @@
         </div>
         <!-- snackbars -->
         <div id="snack-bar">
-            <span id="snack-bar-data">Data Submitted</span>
+
         </div>
         <!-- PREVIOUS ENTRY -->
         <section class="previous-total">
@@ -36,7 +36,7 @@
                 <h3>Previous Total: </h3>
                 <span class="form-date">
                     <label for="previous-total-date">Date: </label>
-                    <input type="date" id="previous-total-date" form="previous-total-form" value="2025-10-15" required>
+                    <input type="date" id="previous-total-date" form="previous-total-form" required>
                 </span>
 
             </div>
@@ -56,21 +56,21 @@
                     <div class="form-item">
                         <label for="previous-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
                         <input type="text" title="HHHH:MM:SS" placeholder="43:24:56" class="previous-input-time"
-                            id="previous-focus-time" value="01:00:00" required>
+                            id="previous-focus-time" required>
                     </div>
 
 
                     <div class="form-item">
                         <label for="previous-ct" title="Code time in HH:MM:SS">CT:</label>
                         <input type="text" title="hours:MM:SS" placeholder="300:28:19" class="previous-input-time"
-                            id="previous-ct" value="01:00:00" required>
+                            id="previous-ct" required>
                     </div>
 
 
                     <div class="form-item">
                         <label for="previous-act" title="Active Code time in HH:MM:SS">ACT:</label>
                         <input type="text" title="hours:MM:SS" placeholder="280:12:47" class="previous-input-time"
-                            id="previous-act" value="01:00:00" required>
+                            id="previous-act" required>
                     </div>
 
 
@@ -104,7 +104,7 @@
                         </span>
                     </div>
                 </div>
-                <button type="submit">Submit</button>
+                <div class="submit-btn-cnt"><button type="submit" class="submit-btn">Submit</button></div>
             </form>
         </section>
 
@@ -116,8 +116,8 @@
                 <h3>Todays Entry: </h3>
                 <span class="form-date">
                     <label for="todays-entry-date">Date: </label>
-                    <input type="date" id="todays-entry-date" form="todays-data-form" value="2025-10-14"
-                        name="todays-stats-date" required>
+                    <input type="date" id="todays-entry-date" form="todays-data-form" s name="todays-stats-date"
+                        required>
                 </span>
             </div>
 
@@ -194,7 +194,7 @@
                         </span>
                     </div>
                 </div>
-                <button type="submit">Submit</button>
+                <div class="submit-btn-cnt"><button type="submit" class="submit-btn">Submit</button></div>
 
 
             </form>
@@ -207,7 +207,7 @@
             <p class="section-subtitle">Choose a date to copy the daily stats to the clipboard.</p>
             <label for="copy-stats-date">Date: </label>
             <input type="date" name="copy-stats-date" id="copy-stats-date">
-            <button type="button" id="copy_stats" title="e.g.,  
+            <button class="copy-stats-btn" type="button" id="copy_stats" title="e.g.,  
         Typing   : [63wpm][99%]
     Focus    : [12hr 04min][736hr 30min]
     CT       : [7hr 35min][494hr 48min]
@@ -223,21 +223,31 @@
         <!-- section to export the daily logs to csv or excel files -->
         <section class="export-section">
             <span class="section-title">Click To Export:</span>
-            <p class="section-subtitle">Click to Export all the Daily logs.</p>
-            <button id="download-csv" title="download all daily logs in csv format">Download CSV</button>
-            <button id="download-excel" title="download all daily logs in excel format">Download Excel</button>
+            <p class="section-subtitle">Click to download all the Daily logs.</p>
+            <div class="buttons-continer">
+                <button id="download-csv" title="download all daily logs in csv format" class="download-buttons">
+                    <img class="download-btn-logo" src="assets/svg/csv-logo.svg" alt="download in csv format icon">
+                    <div class="download-btn-text">Export CSV</div>
+                </button>
+                <button id="download-excel" title="download all daily logs in excel format" class="download-buttons">
+                    <img class="download-btn-logo" src="assets/svg/excel-logo1.svg" alt="download in excel format icon">
+                    <div class="download-btn-text">Export Excel</div>
+                </button>
+            </div>
         </section>
 
         <!-- show output section -->
         <section id="output">
             <span class="section-title">Output:</span>
             <div class="output-box">
-                <div class="output-btns">
-                    <button onclick="showStats()" title="show all output">Refresh Output</button>
-                    <button title="clear all the recorded daily stats from todats stats window"
+                <div class="output-btns-cnt">
+                    <button class="output-btns" onclick="showStats()" title="show all output">Refresh Output</button>
+                    <button class="output-btns" title="clear all the recorded daily stats from todats stats window"
                         onclick="clearDailyStats()">Clear Daily Stats</button>
-                    <button title="clear previous totals" onclick="clearPreviousTotal()">Clear Previous Stats </button>
-                    <button title="Clear complete local storage" onclick="clearLocalStorage()">Clear All Data</button>
+                    <button class="output-btns" title="clear previous totals" onclick="clearPreviousTotal()">Reset
+                        Previous Stats </button>
+                    <button class="output-btns" title="Clear complete local storage" onclick="clearLocalStorage()">Clear
+                        All Data</button>
 
                 </div>
                 <div>
