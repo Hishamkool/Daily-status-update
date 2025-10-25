@@ -9,6 +9,33 @@ const storage_key_daily_logs_sum = 'dailyLogsSum';
 const storage_key_previous_total_input = 'previousTotalObj';
 const storage_key_previous_plus_daily = 'previousPlusDaily';
 
+/* CONSTANT KEY NAMES FOR OBJECTS */
+// ====== DAILY STATS KEYS ======
+const DATE = "date";
+const FOCUS_TIME = "focus_time";
+const CODE_TIME = "code_time";
+const ACTIVE_CODE_TIME = "active_code_time";
+const HTML = "html";
+const KEY_CSS = "css";
+const JAVASCRIPT = "javascript";
+const REACT = "react";
+const DAILY_TOTAL = "daily_total";
+const SL_NO = "sl_no";
+
+// ====== DAILY STATS SUM ======
+const LATEST_DATE = "latest_date";
+
+// ====== PREVIOUS TOTALS & ALL-TIME KEYS ======
+const TOTAL_FOCUS = "total_focus";
+const TOTAL_CODE_TIME = "total_code_time";
+const TOTAL_ACTIVE_CODE_TIME = "total_active_code_time";
+const TOTAL_HTML = "total_html";
+const TOTAL_CSS = "total_css";
+const TOTAL_JS = "total_js";
+const TOTAL_REACT = "total_react";
+const ALL_TIME_TOTAL = "all_time_total";
+
+
 /* todays stats variables */
 const todaysStatsForm = document.getElementById("todays-data-form");
 const todaysDate = document.getElementById("todays-entry-date");
@@ -97,15 +124,15 @@ todaysStatsForm.addEventListener("submit", async function (event) {
     if (sure2submit) {
 
         let daily_logs_input_obj = {
-            date: todaysDate.value,
-            Focus_time: todaysFocus.value || "00:00:00",
-            Code_time: todaysCodeTime.value || "00:00:00",
-            Active_code_time: todaysActiveCodeTime.value || "00:00:00",
-            HTML: Number(todaysHTML.value) || 0,
-            CSS: Number(todaysCSS.value) || 0,
-            JavaScript: Number(todaysJS.value) || 0,
-            React: Number(todaysReact.value) || 0,
-            Total: todaysTotalLoc.value,
+            [DATE]: todaysDate.value,
+            [FOCUS_TIME]: todaysFocus.value || "00:00:00",
+            [CODE_TIME]: todaysCodeTime.value || "00:00:00",
+            [ACTIVE_CODE_TIME]: todaysActiveCodeTime.value || "00:00:00",
+            [HTML]: Number(todaysHTML.value) || 0,
+            [KEY_CSS]: Number(todaysCSS.value) || 0,
+            [JAVASCRIPT]: Number(todaysJS.value) || 0,
+            [REACT]: Number(todaysReact.value) || 0,
+            [DAILY_TOTAL]: todaysTotalLoc.value,
         };
 
 
@@ -123,7 +150,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
             // i.e., exsisting index == -1 means(no entrt found) its a new entry then add
             addData(daily_logs_input_obj);
         }
-        // remove this [debug] - to set random numbers to the lines of code
+        // remove this [debug] - to set random numbers to the lines of code for testing
         debug && setRandomValuesToLinesOfCode();
         // function call to calculate the dailyLogsTotal
         calculateDailyLogsTotal();
@@ -205,8 +232,11 @@ function showStats() {
 
 /* Delete data buttons */
 // function to delete daily stats from the local storage
-function clearDailyStats(deleteAllEntries) {
-
+async function clearDailyStats(deleteAllEntries) {
+    if (!deleteAllEntries) {
+        // if there is no passed bool we show popup
+        deleteAllEntries = await toggleConfiramtionPopup("Delete all daily stats?");
+    }
     if (deleteAllEntries) {
         dailyLogs = [];
         localStorage.removeItem(storage_key_daily_log);
@@ -222,7 +252,7 @@ function clearDailyStats(deleteAllEntries) {
 };
 // function to delete previus stats from the local storage
 async function clearPreviousTotal() {
-    const deletePreviousTotals = await toggleConfiramtionPopup("Do you want to delete previous totals? Cannot be undone!");
+    const deletePreviousTotals = await toggleConfiramtionPopup("Do you want to delete previous totals?");
     if (deletePreviousTotals) {
         localStorage.removeItem(storage_key_previous_plus_daily);
         debug && console.log("cleared PreviousTotalSum:", fetchPreviousPlusDaily());
@@ -247,7 +277,7 @@ function copyDailyLogToClipboard() {
     let selectedDate = document.getElementById("copy-stats-date").value;
 
     const dailyLogs = fetchDailyLogs();
-    const logForTheDate = dailyLogs.find(stats => stats.date === selectedDate);
+    const logForTheDate = dailyLogs.find(stats => stats[DATE] === selectedDate);
     if (!dailyLogs || Object.keys(dailyLogs).length === 0) {
         debug && console.log("Daily Logs has not been added");
         showSnackBar("Daily Logs not found", true);
@@ -271,20 +301,17 @@ function copyDailyLogToClipboard() {
                 return `${h}hr ${m}min ${s}sec`;
             }
         };
-
-        const totalForTheDate = logForTheDate.Total;
-        //    need to change total all time to  total all time till date and fetch it 
-        const totalForAllTime = previousPlusDaily.Total;
+ 
 
         const StatsForTheDay = `
-        Focus    : [${formatOutputTime(logForTheDate.Focus_time)}] [${formatOutputTime(previousPlusDaily.focus)}]
-        CT       : [${formatOutputTime(logForTheDate.Code_time)}] [${formatOutputTime(previousPlusDaily.code_time)}]
-        ACT      : [${formatOutputTime(logForTheDate.Active_code_time)}] [${formatOutputTime(previousPlusDaily.active_CT)}]
-        HTML     : [${logForTheDate.HTML || 0}] [${previousPlusDaily.html || 0}]
-        CSS      : [${logForTheDate.CSS || 0}] [${previousPlusDaily.css || 0}]
-        JS       : [${logForTheDate.JavaScript || 0}] [${previousPlusDaily.js || 0}]
-        React    : [${logForTheDate.React || 0}] [${previousPlusDaily.react || 0}]
-        Total    : [${totalForTheDate}] [${totalForAllTime}]
+        Focus    : [${formatOutputTime(logForTheDate[FOCUS_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_FOCUS])}]
+        CT       : [${formatOutputTime(logForTheDate[CODE_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_CODE_TIME])}]
+        ACT      : [${formatOutputTime(logForTheDate[ACTIVE_CODE_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_ACTIVE_CODE_TIME])}]
+        HTML     : [${logForTheDate[HTML] || 0}] [${previousPlusDaily[TOTAL_HTML] || 0}]
+        CSS      : [${logForTheDate[KEY_CSS] || 0}] [${previousPlusDaily[TOTAL_CSS] || 0}]
+        JS       : [${logForTheDate[JAVASCRIPT] || 0}] [${previousPlusDaily[TOTAL_JS] || 0}]
+        React    : [${logForTheDate[REACT] || 0}] [${previousPlusDaily[TOTAL_REACT] || 0}]
+        Total    : [${logForTheDate[DAILY_TOTAL]}] [${previousPlusDaily[ALL_TIME_TOTAL]}]
         `;
         // formating the stats to remove the spaces in the starting and ending of the line
         const statsForTheDayFormated = StatsForTheDay.split('\n')
@@ -311,28 +338,28 @@ function calculateDailyLogsTotal() {
         if (!acc.latestDate || new Date(currnt.date) > new Date(acc.latestDate)) {
             acc.latestDate = currnt.date;
         }
-        acc.focus += time2Seconds(currnt.Focus_time);
-        acc.codetime += time2Seconds(currnt.Code_time);
-        acc.activeCT += time2Seconds(currnt.Active_code_time);
-        acc.html += currnt.HTML || 0;
-        acc.css += currnt.CSS || 0;
-        acc.js += currnt.JavaScript || 0;
-        acc.react += currnt.React || 0;
-        acc.previousTotal += currnt.Total || 0;
+        acc.focus += time2Seconds(currnt[FOCUS_TIME]);
+        acc.codetime += time2Seconds(currnt[CODE_TIME]);
+        acc.activeCT += time2Seconds(currnt[ACTIVE_CODE_TIME]);
+        acc.html += currnt[HTML] || 0;
+        acc.css += currnt[KEY_CSS] || 0;
+        acc.js += currnt[JAVASCRIPT] || 0;
+        acc.react += currnt[REACT] || 0;
+        acc.previousTotal += currnt[DAILY_TOTAL] || 0;
         return acc;
     }, { latestDate: null, focus: 0, codetime: 0, activeCT: 0, html: 0, css: 0, js: 0, react: 0, previousTotal: 0 });
 
 
     let daily_logs_total_obj = {
-        LatestDate: sumDailyStats.latestDate,
-        FOCUS: secondsToHMS(sumDailyStats.focus),
-        CODE_TIME: secondsToHMS(sumDailyStats.codetime),
-        ACTIVE_CODE_TIME: secondsToHMS(sumDailyStats.activeCT),
-        HTML: sumDailyStats.html,
-        CSS: sumDailyStats.css,
-        JS: sumDailyStats.js,
-        REACT: sumDailyStats.react,
-        PreviousTotal: sumDailyStats.previousTotal,
+        [LATEST_DATE]: sumDailyStats.latestDate,
+        [FOCUS_TIME]: secondsToHMS(sumDailyStats.focus),
+        [CODE_TIME]: secondsToHMS(sumDailyStats.codetime),
+        [ACTIVE_CODE_TIME]: secondsToHMS(sumDailyStats.activeCT),
+        [HTML]: sumDailyStats.html,
+        [KEY_CSS]: sumDailyStats.css,
+        [JAVASCRIPT]: sumDailyStats.js,
+        [REACT]: sumDailyStats.react,
+        [DAILY_TOTAL]: sumDailyStats.previousTotal,
     }
 
     // debug && console.log("daily logs object:", dailyLogTotalObj);
@@ -350,12 +377,6 @@ function time2Seconds(curr) {
         console.log("The value for time conversion is undefined or not a string");
         return 0;
     }
-    /*   const value = curr.split(":").map(Number);
-      const hours = Math.floor(value[0] * 60 * 60);
-      const min = Math.floor(value[1] * 60);
-      const sec = Math.floor(value[2]);
-      const totalseconds = hours + min + sec; */
-
     const [h = 0, m = 0, s = 0] = curr.split(":").map(Number);
     const totalSeconds = (h * 3600) + (m * 60) + s;
     return totalSeconds;
@@ -400,17 +421,17 @@ previousTotalsForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const deleteAllDailyLogs = await toggleConfiramtionPopup("Setting previous total would clear all of the saved daily logs and start fresh, do you want to continue?");
     if (deleteAllDailyLogs) {
-        clearDailyStats(deleteAllDailyLogs);
+        await clearDailyStats(deleteAllDailyLogs);
         // object for the previous total input fields
         let previous_total_inputs_obj = {
-            date: previousDate.value,
-            total_focus: totalFocus.value || "00:00:00",
-            total_CT: totalCodeTime.value || "00:00:00",
-            total_ACT: totalActiveCodeTime.value || "00:00:00",
-            HTML: Number(totalHtml.value) || 0,
-            CSS: Number(totalCss.value) || 0,
-            JS: Number(totalJS.value) || 0,
-            REACT: Number(totalReact.value) || 0,
+            [DATE]: previousDate.value,
+            [TOTAL_FOCUS]: totalFocus.value || "00:00:00",
+            [TOTAL_CODE_TIME]: totalCodeTime.value || "00:00:00",
+            [TOTAL_ACTIVE_CODE_TIME]: totalActiveCodeTime.value || "00:00:00",
+            [TOTAL_HTML]: Number(totalHtml.value) || 0,
+            [TOTAL_CSS]: Number(totalCss.value) || 0,
+            [TOTAL_JS]: Number(totalJS.value) || 0,
+            [TOTAL_REACT]: Number(totalReact.value) || 0,
         };
         localStorage.setItem(storage_key_previous_total_input, JSON.stringify(previous_total_inputs_obj));
         let storedPreviousTotal = localStorage.getItem(storage_key_previous_total_input);
@@ -434,32 +455,32 @@ function add_dailyStatsTotal_and_PreviousInput() {
     if (!previousTotal || Object.keys(previousTotal).length === 0) {
         previousTotal =
         {
-            total_focus: "00:00:00",
-            total_CT: "00:00:00",
-            total_ACT: "00:00:00",
-            HTML: 0,
-            CSS: 0,
-            JS: 0,
-            REACT: 0,
+            [TOTAL_FOCUS]: "00:00:00",
+            [TOTAL_CODE_TIME]: "00:00:00",
+            [TOTAL_ACTIVE_CODE_TIME]: "00:00:00",
+            [TOTAL_HTML]: 0,
+            [TOTAL_CSS]: 0,
+            [TOTAL_JS]: 0,
+            [TOTAL_REACT]: 0,
         };
         localStorage.setItem(storage_key_previous_total_input, JSON.stringify(previousTotal));
 
     };
 
     let previous_plus_daily_obj = {
-        date: dailyLogsSum.LatestDate || previousDate.value,
-        focus: secondsToHMS(time2Seconds(previousTotal.total_focus) +
-            time2Seconds(dailyLogsSum.FOCUS)),
-        code_time: secondsToHMS(time2Seconds(previousTotal.total_CT) + time2Seconds(dailyLogsSum.CODE_TIME)),
-        active_CT: secondsToHMS(time2Seconds(previousTotal.total_ACT) + time2Seconds(dailyLogsSum.ACTIVE_CODE_TIME)),
-        html: previousTotal.HTML + dailyLogsSum.HTML,
-        css: previousTotal.CSS + dailyLogsSum.CSS,
-        js: previousTotal.JS + dailyLogsSum.JS,
-        react: previousTotal.REACT + dailyLogsSum.REACT,
-        Total: (previousTotal.HTML + dailyLogsSum.HTML) +
-            (previousTotal.CSS + dailyLogsSum.CSS) +
-            (previousTotal.JS + dailyLogsSum.JS) +
-            (previousTotal.REACT + dailyLogsSum.REACT),
+        [DATE]: dailyLogsSum[LATEST_DATE] || previousDate.value,
+        [TOTAL_FOCUS]: secondsToHMS(time2Seconds(previousTotal[TOTAL_FOCUS]) +
+            time2Seconds(dailyLogsSum[FOCUS_TIME])),
+        [TOTAL_CODE_TIME]: secondsToHMS(time2Seconds(previousTotal[TOTAL_CODE_TIME]) + time2Seconds(dailyLogsSum[CODE_TIME])),
+        [TOTAL_ACTIVE_CODE_TIME]: secondsToHMS(time2Seconds(previousTotal[TOTAL_ACTIVE_CODE_TIME]) + time2Seconds(dailyLogsSum[ACTIVE_CODE_TIME])),
+        [TOTAL_HTML]: previousTotal[TOTAL_HTML] + dailyLogsSum[HTML],
+        [TOTAL_CSS]: previousTotal[TOTAL_CSS] + dailyLogsSum[KEY_CSS],
+        [TOTAL_JS]: previousTotal[TOTAL_JS] + dailyLogsSum[JAVASCRIPT],
+        [TOTAL_REACT]: previousTotal[TOTAL_REACT] + dailyLogsSum[REACT],
+        [ALL_TIME_TOTAL]: (previousTotal[TOTAL_HTML] + dailyLogsSum[HTML]) +
+            (previousTotal[TOTAL_CSS] + dailyLogsSum[KEY_CSS]) +
+            (previousTotal[TOTAL_JS] + dailyLogsSum[JAVASCRIPT]) +
+            (previousTotal[TOTAL_REACT] + dailyLogsSum[REACT]),
 
     };
     localStorage.setItem(storage_key_previous_plus_daily, JSON.stringify(previous_plus_daily_obj));
@@ -476,15 +497,15 @@ function setPreviousInputsValues() {
     if (!previousPlusDaily || Object.keys(previousPlusDaily).length == 0) {
         return;
     }
-    previousDate.value = previousPlusDaily.date || null;
-    totalFocus.value = previousPlusDaily.focus || '00:00:00';
-    totalCodeTime.value = previousPlusDaily.code_time || '00:00:00';;
-    totalActiveCodeTime.value = previousPlusDaily.active_CT || '00:00:00';;
-    totalHtml.value = previousPlusDaily.html || 0;
-    totalCss.value = previousPlusDaily.css || 0;
-    totalJS.value = previousPlusDaily.js || 0;
-    totalReact.value = previousPlusDaily.react || 0;
-    totalLOCAllTime.textContent = previousPlusDaily.html + previousPlusDaily.css + previousPlusDaily.js + previousPlusDaily.react;
+    previousDate.value = previousPlusDaily[DATE] || null;
+    totalFocus.value = previousPlusDaily[TOTAL_FOCUS] || '00:00:00';
+    totalCodeTime.value = previousPlusDaily[TOTAL_CODE_TIME] || '00:00:00';;
+    totalActiveCodeTime.value = previousPlusDaily[TOTAL_ACTIVE_CODE_TIME] || '00:00:00';;
+    totalHtml.value = previousPlusDaily[TOTAL_HTML] || 0;
+    totalCss.value = previousPlusDaily[TOTAL_CSS] || 0;
+    totalJS.value = previousPlusDaily[TOTAL_JS] || 0;
+    totalReact.value = previousPlusDaily[TOTAL_REACT] || 0;
+    totalLOCAllTime.textContent = previousPlusDaily[TOTAL_HTML] + previousPlusDaily[TOTAL_CSS] + previousPlusDaily[TOTAL_JS] + previousPlusDaily[TOTAL_REACT];
 
 }
 // function to retrieve the sum of daily logs plus previous total input values 
@@ -534,28 +555,14 @@ function showPreviousPlusDaily() {
     }
     debug && console.log("PreviousTotalSum:", previousTotalSum);
 }
-/* // general outputFormt for stats
-function showOutput(arrayy, element) {
-    let value = JSON.stringify(arrayy, null, 2);
-    if (arrayy.length == 0) {
-        arrayy.style.textAlign = "center";
-        element.textContent = `${element} is Empty`;
-    } else {
-        element.textContent = value;
-    }
-    debug && console.log(element);
-    debug && console.log(`${JSON.stringify(arrayy)}`);
-} */
 
+/* VALIDATIONS */
+// previous inputs validations
 const allPreviousInputs = document.querySelectorAll(".previous-input-time");
 const previousTimeFormat = /^([0-9]+):([0-5][0-9])(:[0-5][0-9])?$/;
 allPreviousInputs.forEach((input) => {
     input.addEventListener("input", (event) => {
         const value = input.value.trim();
-        /*  const valueSplit = value.split(":");
-         const hours = valueSplit[0];
-         const minutes = valueSplit[1];
-         const seconds = valueSplit[2]; */
 
         if (!value) {
             input.setCustomValidity("");
@@ -589,7 +596,7 @@ allPreviousInputs.forEach((input) => {
         }
     });
 });
-
+// todays input validations
 // validate time format for previous input
 function validateTime(value) {
     return previousTimeFormat.test(value);
@@ -675,7 +682,7 @@ window.showlocalStorageData = function showlocalStorageData() {
         console.log(`(${key}):`, parsedValue);
     }
 };
-/* popup */
+/* popups */
 // function to handle confirmation messages 
 // note this is an asysc function so while calling it its an await call else you will always get true
 async function toggleConfiramtionPopup(message, shouldDisplyNote = true, anchorElement) {
@@ -712,7 +719,7 @@ async function toggleConfiramtionPopup(message, shouldDisplyNote = true, anchorE
     });
 }
 
-/* snackbar */
+/* SNACKBARS */
 function showSnackBar(message, isError = false, duration = 3000) {
     snackBar.textContent = message;
     if (isError == true) {
@@ -728,6 +735,8 @@ function showSnackBar(message, isError = false, duration = 3000) {
         snackBar.classList.remove("showSnack");
     }, duration);
 }
+
+/* DOWNLOAD SECTION */
 // event listeners to download csv file
 downloadCsv.addEventListener("click", () => {
     const dailyLogs = fetchDailyLogs();
@@ -745,16 +754,15 @@ downloadCsv.addEventListener("click", () => {
         const totalObject = [
 
             "Total",
-            dailyLogsSum.FOCUS,
-            dailyLogsSum.CODE_TIME,
-            dailyLogsSum.ACTIVE_CODE_TIME,
-            dailyLogsSum.HTML,
-            dailyLogsSum.CSS,
-            dailyLogsSum.JS,
-            dailyLogsSum.REACT,
-            dailyLogsSum.PreviousTotal,
-            dailyLogsSum.LatestDate,
-
+            dailyLogsSum[FOCUS_TIME],
+            dailyLogsSum[CODE_TIME],
+            dailyLogsSum[ACTIVE_CODE_TIME],
+            dailyLogsSum[HTML],
+            dailyLogsSum[KEY_CSS],
+            dailyLogsSum[JAVASCRIPT],
+            dailyLogsSum[REACT],
+            dailyLogsSum[DAILY_TOTAL],
+            dailyLogsSum[LATEST_DATE],
 
         ].join(",");
         rows.push(totalObject);
@@ -787,16 +795,16 @@ downloadExcel.addEventListener("click", () => {
     if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
 
         logsForExcel.push({
-            date: "Total",
-            Focus_time: dailyLogsSum.FOCUS,
-            Code_time: dailyLogsSum.CODE_TIME,
-            Active_code_time: dailyLogsSum.ACTIVE_CODE_TIME,
-            HTML: dailyLogsSum.HTML,
-            CSS: dailyLogsSum.CSS,
-            JavaScript: dailyLogsSum.JS,
-            React: dailyLogsSum.REACT,
-            Total: dailyLogsSum.PreviousTotal,
-            sl_no: dailyLogsSum.LatestDate
+            [DATE]: "Total",
+            [FOCUS_TIME]: dailyLogsSum[FOCUS_TIME],
+            [CODE_TIME]: dailyLogsSum[CODE_TIME],
+            [ACTIVE_CODE_TIME]: dailyLogsSum[ACTIVE_CODE_TIME],
+            [HTML]: dailyLogsSum[HTML],
+            [KEY_CSS]: dailyLogsSum[KEY_CSS],
+            [JAVASCRIPT]: dailyLogsSum[JAVASCRIPT],
+            [REACT]: dailyLogsSum[REACT],
+            [DAILY_TOTAL]: dailyLogsSum[DAILY_TOTAL],
+            [SL_NO]: dailyLogsSum[LATEST_DATE]
         });
     }
 
@@ -811,7 +819,9 @@ downloadExcel.addEventListener("click", () => {
     XLSX.writeFile(workbook, "DailyStats.xlsx");
     showSnackBar("file downloading...", undefined, 1200);
 });
-/* Conditions
+
+
+/* Conditions or work flow
     a. he dosent have previous records :
         he starts fresh by entering todays stats it gets summed to daily stats sum 
         previous total = 0+ dailystatssum;
