@@ -396,7 +396,7 @@ function secondsToHMS(totalSeconds) {
 }
 // function to get the stored daily log sum
 function fetchDailyLogsSum() {
-    return JSON.parse(localStorage.getItem(storage_key_daily_logs_sum)) || [];
+    return JSON.parse(localStorage.getItem(storage_key_daily_logs_sum)) || {};
 }
 
 // function to display sum of dailyLogsSum
