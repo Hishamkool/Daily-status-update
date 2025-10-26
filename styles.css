@@ -29,6 +29,12 @@
      margin-bottom: 20px;
  }
 
+ input[type=number]::-webkit-inner-spin-button,
+ input[type=number]::-webkit-outer-spin-button {
+     -webkit-appearance: none;
+     margin: 0;
+ }
+
 
  .label-style {
      font-size: 12px;
@@ -74,7 +80,7 @@
      /* color: white; */
      padding: 10px;
      border-radius: 10px;
-    
+
  }
 
  .form-item {
@@ -161,9 +167,12 @@
 
  }
 
- .download-buttons:hover {
-     transform: scale(1.2);
+ @media(hover: hover) {
+     .download-buttons:hover {
+         transform: scale(1.2);
+     }
  }
+
 
 
 

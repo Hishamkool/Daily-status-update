@@ -37,6 +37,8 @@ const TOTAL_JS = "total_js";
 const TOTAL_REACT = "total_react";
 const ALL_TIME_TOTAL = "all_time_total";
 
+/* constant export file name */
+const exportFileName = "DailyLogs";
 
 /* todays stats variables */
 const todaysStatsForm = document.getElementById("todays-data-form");
@@ -62,7 +64,8 @@ const totalCss = document.getElementById("previous-css");
 const totalJS = document.getElementById("previous-js");
 const totalReact = document.getElementById("previous-react");
 const totalLOCAllTime = document.getElementById("previous-total-alltimeloc");
-/* Copy stats to clipboard */
+/* Copy stats to clipboard or slack*/
+let copyStatsDate = document.getElementById("copy-stats-date");
 const copyStatsBtn = document.getElementById("copy_stats");
 /* export secion */
 const downloadCsv = document.getElementById("download-csv");
@@ -132,7 +135,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
     const existingIndex = dailyLogs.findIndex(item => item.date === submit_date);
     debug && console.log("matched :", existingIndex);
     // showing submit confirmation if its not a existing data 
-    const sure2submit = existingIndex === -1 ? await toggleConfiramtionPopup("Submit Data ?", false) : true;
+    const sure2submit = existingIndex === -1 ? await toggleConfiramtionPopup(`Submit Data for ${submit_date}?`, false) : true;
     if (sure2submit) {
 
         let daily_logs_input_obj = {
@@ -170,12 +173,10 @@ todaysStatsForm.addEventListener("submit", async function (event) {
         calculateDailyLogsTotal();
         showDailyLogsTotal();
         showSnackBar("Data Submitted", undefined, 1000);
+        copyStatsDate.value = submit_date;
+        todaysStatsForm.reset();
+
     }
-
-
-
-
-
 });
 
 
@@ -295,15 +296,15 @@ window.clearLocalStorage = async function clearLocalStorage() {
 
 /* Copying the data in the format of the slack */
 function copyDailyLogToClipboard() {
-    let selectedDate = document.getElementById("copy-stats-date").value;
+
 
     const dailyLogs = fetchDailyLogs();
-    const logForTheDate = dailyLogs.find(stats => stats[DATE] === selectedDate);
+    const logForTheDate = dailyLogs.find(stats => stats[DATE] === copyStatsDate.value);
     if (!dailyLogs || Object.keys(dailyLogs).length === 0) {
         debug && console.log("Daily Logs has not been added");
         showSnackBar("Daily Logs not found", true);
         return;
-    } else if (!selectedDate) {
+    } else if (!copyStatsDate.value) {
         showSnackBar("Select a date", true);
     } else if (!logForTheDate) {
         debug && console.log("Logs for the selected date is missing");
@@ -325,6 +326,7 @@ function copyDailyLogToClipboard() {
 
         let hasEnterdTypingStats = logForTheDate[TYPING_SPEED] && logForTheDate[TYPING_ACCURACY] ? true : false;
         const StatsForTheDay = `
+        Date     : [${logForTheDate[DATE]}]
         ${hasEnterdTypingStats ? `Typing   : [${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]` : ""} 
         Focus    : [${formatOutputTime(logForTheDate[FOCUS_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_FOCUS])}]
         CT       : [${formatOutputTime(logForTheDate[CODE_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_CODE_TIME])}]
@@ -342,9 +344,9 @@ function copyDailyLogToClipboard() {
             .join('\n');
         console.log("Clipboard Data : ", StatsForTheDay);
         console.log("Clipboard Data : ", statsForTheDayFormated);
-        navigator.clipboard.writeText(statsForTheDayFormated).then(() => console.log(`stats for ${selectedDate} copied`)).catch((err) => console.log(`error copying data ${err}`));
+        navigator.clipboard.writeText(statsForTheDayFormated).then(() => console.log(`stats for ${copyStatsDate.value} copied`)).catch((err) => console.log(`error copying data ${err}`));
 
-        showSnackBar(`Stats for ${selectedDate} copied`);
+        showSnackBar(`Stats for ${copyStatsDate.value} copied`);
     }
 
 
@@ -811,7 +813,8 @@ downloadCsv.addEventListener("click", () => {
     const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "dailyLogs.csv";
+    // link.download = "dailyLogs.csv";
+    link.download = `${exportFileName}.csv`;
     link.click();
 
 
@@ -855,7 +858,7 @@ downloadExcel.addEventListener("click", () => {
     // console.log(worksheet);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "All daily logs");
-    XLSX.writeFile(workbook, "DailyStats.xlsx");
+    XLSX.writeFile(workbook, `${exportFileName}.xlsx`);
 
 });
 
