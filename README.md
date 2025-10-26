@@ -21,9 +21,14 @@ video link: https://youtu.be/Z-kLdgsZp2w
 
 ## 🖼️ScreenShots
 
-<img width="696" height="1216" alt="DailyLogs Demo2" src="https://github.com/user-attachments/assets/ea1dfa2f-6a1d-43be-813c-a318d35aa176" />
-<img width="696" height="1216" alt="DailyLogs Demo1" src="https://github.com/user-attachments/assets/fde54ce4-aed1-4196-ba9a-bfcb0b8f903c" />
-<img width="696" height="1216" alt="DailyLogs Demo3" src="https://github.com/user-attachments/assets/c58f1273-e685-42a1-984e-1d6f46b11f9b" />
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/fde54ce4-aed1-4196-ba9a-bfcb0b8f903c" width="250" alt="DailyLogs Demo1"></td>
+    <td><img src="https://github.com/user-attachments/assets/ea1dfa2f-6a1d-43be-813c-a318d35aa176" width="250" alt="DailyLogs Demo2"></td>
+    <td><img src="https://github.com/user-attachments/assets/c58f1273-e685-42a1-984e-1d6f46b11f9b" width="250" alt="DailyLogs Demo3"></td>
+  </tr>
+</table>
+
 
 
 
