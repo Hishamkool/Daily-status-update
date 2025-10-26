@@ -13,11 +13,21 @@ LIVE WEBSITE: https://hishamkool.github.io/Daily-status-update/
 7. **Automatic Duration & LOC Calculation** – Effortlessly calculates the **duration** and **total lines of code (LOC)** for each entry.  
 8. **Smart Slack Date Autofill** – Once you submit a daily log, the “Copy to Slack” field automatically includes the date, saving you from manually selecting it again.  
 
+ 
 ## 🎥 Demo / Usage Guide
 
-Here’s a quick walkthrough of how the Daily Log Tracker works:
+Here’s a quick walkthrough video of how the Daily Log Tracker works:
 
-[![Daily Logs Demo](./dailyLogs%20thumbnail.png)](https://youtu.be/Z-kLdgsZp2w)
+<p align="center">
+  <a href="https://youtu.be/Z-kLdgsZp2w">
+    <img src="./dailyLogs%20thumbnail.png" alt="Daily Logs Demo" width="100%">
+  </a>
+  <br>
+  <a href="https://youtu.be/Z-kLdgsZp2w"><b>▶ Watch on YouTube</b></a>
+</p>
+
+
+
 
 ## 🖼️ScreenShots
 
