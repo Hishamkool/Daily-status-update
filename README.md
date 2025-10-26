@@ -16,8 +16,8 @@ LIVE WEBSITE: https://hishamkool.github.io/Daily-status-update/
 ## 🎥 Demo / Usage Guide
 
 Here’s a quick walkthrough of how the Daily Log Tracker works:
-video link: https://youtu.be/Z-kLdgsZp2w
 
+[![Daily Logs Demo](https://img.youtube.com/vi/Z-kLdgsZp2w/0.jpg)](https://youtu.be/Z-kLdgsZp2w)
 
 ## 🖼️ScreenShots
 
@@ -28,9 +28,6 @@ video link: https://youtu.be/Z-kLdgsZp2w
     <td><img src="https://github.com/user-attachments/assets/c58f1273-e685-42a1-984e-1d6f46b11f9b" width="250" alt="DailyLogs Demo3"></td>
   </tr>
 </table>
-
-
-
 
 
 ## 🧾 Project Overview
