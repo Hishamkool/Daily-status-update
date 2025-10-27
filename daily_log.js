@@ -1,7 +1,7 @@
 
 /* variables */
 /* debug status */
-const debug = false;
+const debug = true;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = 'dailyLogs';
@@ -26,8 +26,9 @@ const SL_NO = "sl_no";
 
 // ====== DAILY STATS SUM ======
 const LATEST_DATE = "latest_date";
-const TOTAL_COLUMN = "Total"
+const TOTAL_COLUMN = "Total" // Column heading for total field in export
 // ====== PREVIOUS TOTALS & ALL-TIME KEYS ======
+
 const TOTAL_FOCUS = "total_focus";
 const TOTAL_CODE_TIME = "total_code_time";
 const TOTAL_ACTIVE_CODE_TIME = "total_active_code_time";
@@ -294,11 +295,64 @@ window.clearLocalStorage = async function clearLocalStorage() {
 }
 /* ________________________________________________________________ */
 
+/* function to sort daily Logs based on date */
+function sortDailyLogs() {
+    const dialyLogsArray = fetchDailyLogs();
+    if (!dialyLogsArray || dialyLogsArray.length == 0) {
+        showSnackBar("Previous Totals is empty");
+        return;
+    }
+    const sortedDailyLogs = dialyLogsArray.sort((a, b) => new Date(a[DATE]) - new Date(b[DATE]));
+    debug && console.log("daily logs sorted for based on date", sortedDailyLogs);
+    return sortedDailyLogs;
+}
+
+// function to calculate totals based on the passed date
+function previousTotalsTillDate(ISOdate) {
+    // sorts the daily logs by date
+    const sortedDailyLogs = sortDailyLogs();
+    const previousTotalInput = fetchPreviousInput();
+    const arrayTillDate = sortedDailyLogs.filter(log => log[DATE] <= ISOdate);
+
+    let totalFocus = 0, totalCode = 0, totalAct = 0, totalHtml = 0, totalcss = 0, totaljs = 0, totalreact = 0, totallocTilldate = 0;
+    arrayTillDate.forEach(log => {
+        totalFocus += time2Seconds(log[FOCUS_TIME]),
+            totalCode += time2Seconds(log[CODE_TIME]),
+            totalAct += time2Seconds(log[ACTIVE_CODE_TIME]),
+            totalHtml += log[HTML],
+            totalcss += log[KEY_CSS],
+            totaljs += log[JAVASCRIPT],
+            totalreact += log[REACT]
+            totallocTilldate += log[DAILY_TOTAL]
+    });
+    if (previousTotalInput) {
+        totalFocus += time2Seconds(previousTotalInput[TOTAL_FOCUS]),
+            totalCode += time2Seconds(previousTotalInput[TOTAL_CODE_TIME]),
+            totalAct += time2Seconds(previousTotalInput[TOTAL_ACTIVE_CODE_TIME]),
+            totalHtml += previousTotalInput[TOTAL_HTML],
+            totalcss += previousTotalInput[TOTAL_CSS],
+            totaljs += previousTotalInput[TOTAL_JS],
+            totalreact += previousTotalInput[TOTAL_REACT],
+            totallocTilldate += previousTotalInput[ALL_TIME_TOTAL]
+    }
+    return {
+        [DATE]: ISOdate,
+        [TOTAL_FOCUS]: secondsToHMS(totalFocus),
+        [TOTAL_CODE_TIME]: secondsToHMS(totalCode),
+        [TOTAL_ACTIVE_CODE_TIME]: secondsToHMS(totalAct),
+        [TOTAL_HTML]: totalHtml,
+        [TOTAL_CSS]: totalcss,
+        [TOTAL_JS]: totaljs,
+        [TOTAL_REACT]: totalreact,
+        [ALL_TIME_TOTAL]: totallocTilldate
+    };
+}
+
 /* Copying the data in the format of the slack */
 function copyDailyLogToClipboard() {
-
-
+    // we need to add previous total input values and daily logs till date as the total value
     const dailyLogs = fetchDailyLogs();
+
     const logForTheDate = dailyLogs.find(stats => stats[DATE] === copyStatsDate.value);
     if (!dailyLogs || Object.keys(dailyLogs).length === 0) {
         debug && console.log("Daily Logs has not been added");
@@ -311,7 +365,8 @@ function copyDailyLogToClipboard() {
         showSnackBar("logs for selected date is missing", true);
         return;
     } else {
-        let previousPlusDaily = fetchPreviousPlusDaily();
+        let totalTillDate = previousTotalsTillDate(copyStatsDate.value)
+        let logsTillDate = totalTillDate;
         // format time hr , min and sec
         const formatOutputTime = (hms) => {
             if (!hms) {
@@ -328,14 +383,14 @@ function copyDailyLogToClipboard() {
         const StatsForTheDay = `
         Date     : [${logForTheDate[DATE]}]
         ${hasEnterdTypingStats ? `Typing   : [${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]` : ""} 
-        Focus    : [${formatOutputTime(logForTheDate[FOCUS_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_FOCUS])}]
-        CT       : [${formatOutputTime(logForTheDate[CODE_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_CODE_TIME])}]
-        ACT      : [${formatOutputTime(logForTheDate[ACTIVE_CODE_TIME])}] [${formatOutputTime(previousPlusDaily[TOTAL_ACTIVE_CODE_TIME])}]
-        HTML     : [${logForTheDate[HTML] || 0}] [${previousPlusDaily[TOTAL_HTML] || 0}]
-        CSS      : [${logForTheDate[KEY_CSS] || 0}] [${previousPlusDaily[TOTAL_CSS] || 0}]
-        JS       : [${logForTheDate[JAVASCRIPT] || 0}] [${previousPlusDaily[TOTAL_JS] || 0}]
-        React    : [${logForTheDate[REACT] || 0}] [${previousPlusDaily[TOTAL_REACT] || 0}]
-        Total    : [${logForTheDate[DAILY_TOTAL]}] [${previousPlusDaily[ALL_TIME_TOTAL]}]
+        Focus    : [${formatOutputTime(logForTheDate[FOCUS_TIME])}] [${formatOutputTime(logsTillDate[TOTAL_FOCUS])}]
+        CT       : [${formatOutputTime(logForTheDate[CODE_TIME])}] [${formatOutputTime(logsTillDate[TOTAL_CODE_TIME])}]
+        ACT      : [${formatOutputTime(logForTheDate[ACTIVE_CODE_TIME])}] [${formatOutputTime(logsTillDate[TOTAL_ACTIVE_CODE_TIME])}]
+        HTML     : [${logForTheDate[HTML] || 0}] [${logsTillDate[TOTAL_HTML] || 0}]
+        CSS      : [${logForTheDate[KEY_CSS] || 0}] [${logsTillDate[TOTAL_CSS] || 0}]
+        JS       : [${logForTheDate[JAVASCRIPT] || 0}] [${logsTillDate[TOTAL_JS] || 0}]
+        React    : [${logForTheDate[REACT] || 0}] [${logsTillDate[TOTAL_REACT] || 0}]
+        Total    : [${logForTheDate[DAILY_TOTAL]}] [${logsTillDate[ALL_TIME_TOTAL]}]
         `;
         // formating the stats to remove the spaces in the starting and ending of the line
         const statsForTheDayFormated = StatsForTheDay.split('\n')
@@ -458,6 +513,12 @@ previousTotalsForm.addEventListener("submit", async (event) => {
         [TOTAL_CSS]: Number(totalCss.value) || 0,
         [TOTAL_JS]: Number(totalJS.value) || 0,
         [TOTAL_REACT]: Number(totalReact.value) || 0,
+        [ALL_TIME_TOTAL]:
+            (Number(totalHtml.value) || 0) +
+            (Number(totalCss.value) || 0) +
+            (Number(totalJS.value) || 0) +
+            (Number(totalReact.value) || 0),
+
     };
     localStorage.setItem(storage_key_previous_total_input, JSON.stringify(previous_total_inputs_obj));
     let storedPreviousTotal = localStorage.getItem(storage_key_previous_total_input);
@@ -485,6 +546,7 @@ function add_dailyStatsTotal_and_PreviousInput() {
             [TOTAL_CSS]: 0,
             [TOTAL_JS]: 0,
             [TOTAL_REACT]: 0,
+            [ALL_TIME_TOTAL]: 0
         };
         localStorage.setItem(storage_key_previous_total_input, JSON.stringify(previousTotal));
 
