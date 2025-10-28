@@ -177,13 +177,16 @@
 
         <div class="copy-export-section-container">
             <!-- copy stats in the format required for slack submission -->
-            <section class="copy-stats-section">
+            <section class="manage-stats-section">
                 <span class="section-title">Copy To Slack:</span>
                 <p class="section-subtitle">Choose a date to copy the daily stats to the clipboard.</p>
-                <div class="copy-export-content">
-                    <label for="copy-stats-date">Date:
-                        <input type="date" name="copy-stats-date" id="copy-stats-date"></label>
-                    <button id="copy_stats" title="e.g.,
+
+
+                <label for="copy-stats-date">Date:
+                    <input type="date" name="copy-stats-date" id="copy-stats-date">
+                </label>
+                <pre id="show-data-clipboard"></pre>
+                <button id="copy_stats" title="e.g.,
                     Typing   : [63wpm][99%]
                     Focus    : [12hr 04min][736hr 30min]
                     CT       : [7hr 35min][494hr 48min]
@@ -193,13 +196,16 @@
                     Js       : [2][6014]
                     json     : [0][2702]
                     React    : [107[2884]
-                    Total    : [389][26,243]" class="copy-stats-btn" type="button">Copy Stats</button>
-                </div>
+                    Total    : [389][26,243]" class="copy-stats-btn" type="button">
+                    <img class="slack-icon" src="assets/png/slack.png" alt="slack icon">
+                    <span>Copy Stats</span>
+
+                </button>
             </section>
             <!-- section to export the daily logs to csv or excel files -->
-            <section class="export-section">
+            <section class="manage-stats-section">
                 <span class="section-title">Click To Export:</span>
-                <p class="section-subtitle">Click to download all the Daily logs.</p>
+                <p class="section-subtitle">Click to download complete Daily logs.</p>
                 <div class="buttons-continer">
                     <button id="download-csv" title="download all daily logs in csv format" class="download-buttons">
                         <img class="download-btn-logo" src="assets/svg/csv-logo.svg" alt="download in csv format icon">
@@ -212,6 +218,30 @@
                         <div class="download-btn-text">Export Excel</div>
                     </button>
                 </div>
+            </section>
+            <!-- delete data secion -->
+            <section class="manage-stats-section">
+                <span class="section-title">Delete a Log</span>
+                <p class="section-subtitle">Choose a Serial No. Or Date to delete that particular Daily Log.</p>
+
+                <div class="delete-selector-cnt">
+                    <label for="serial-number">
+                        Serial Number
+                        <input type="number" size="2" id="serial-number">
+                    </label>
+                    <span>or</span>
+                    <label for="delete-date">
+                        Date:
+                        <input type="date" size="2" id="delete-date">
+                    </label>
+                </div>
+                <pre id="show-data"></pre>
+
+                <button type="submit" class="delete-btn " id="remove-one-day-log"
+                    title="Remove the log of the selected date">
+                    <img class="delete-icon" src="assets/png/bin.png" alt="delete logs icon">
+                    <span>Delete Log</span>
+                </button>
             </section>
 
         </div>

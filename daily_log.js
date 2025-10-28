@@ -68,16 +68,21 @@ const totalLOCAllTime = document.getElementById("previous-total-alltimeloc");
 /* Copy stats to clipboard or slack*/
 let copyStatsDate = document.getElementById("copy-stats-date");
 const copyStatsBtn = document.getElementById("copy_stats");
+const showDataClipboard = document.getElementById("show-data-clipboard");
 /* export secion */
 const downloadCsv = document.getElementById("download-csv");
 const downloadExcel = document.getElementById("download-excel");
+/* delete a log section */
+const deleteDate = document.getElementById("delete-date");
+const serialNumber = document.getElementById("serial-number");
+const removeLogDateBtn = document.getElementById("remove-one-day-log");
+const showDataBeforeDeleting = document.getElementById("show-data"); // to show the selected log for the date before deletion
 /* output */
 const outputItemsVisibility = document.querySelectorAll(".output-items-visibility");
 const outputFile = document.querySelector(".output-file");
 const dailyStatsSum = document.querySelector(".daily-stats-sum");
 const previousOutput = document.querySelector(".previous-output");
 const previousPlusDailyStats = document.querySelector(".previous-plus-dailystats");
-const removeOneDayLog = document.getElementById("remove-one-day-log");
 /* get stats */
 let dailyLogs = fetchDailyLogs();
 /* Popups */
@@ -134,6 +139,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
     event.preventDefault();
     dailyLogs = fetchDailyLogs();
     const submit_date = document.getElementById("todays-entry-date").value;
+    if (!submit_date || submit_date == null || submit_date == "") return;
     const existingIndex = dailyLogs.findIndex(item => item.date === submit_date);
     debug && console.log("matched :", existingIndex);
     // showing submit confirmation if its not a existing data 
@@ -348,67 +354,7 @@ function previousTotalsTillDate(ISOdate) {
         [ALL_TIME_TOTAL]: totallocTilldate
     };
 }
-copyStatsBtn.addEventListener("click", () => copyDailyLogToClipboard());
-/* Copying the data in the format of the slack */
-function copyDailyLogToClipboard() {
 
-    // we need to add previous total input values and daily logs till date as the total value
-    const dailyLogs = fetchDailyLogs();
-
-    const logForTheDate = dailyLogs.find(stats => stats[DATE] === copyStatsDate.value);
-    if (!dailyLogs || Object.keys(dailyLogs).length === 0) {
-        debug && console.log("Daily Logs has not been added");
-        showSnackBar("Daily Logs not found", true);
-        return;
-    } else if (!copyStatsDate.value) {
-        showSnackBar("Select a date", true);
-    } else if (!logForTheDate) {
-        debug && console.log("Logs for the selected date is missing");
-        showSnackBar("logs for selected date is missing", true);
-        return;
-    } else {
-        let totalTillDate = previousTotalsTillDate(copyStatsDate.value);
-
-        let logsTillDate = totalTillDate;
-        // format time hr , min and sec
-        const formatOutputTime = (hms) => {
-            if (!hms) {
-                return "0hr 0min";
-            } else {
-                const parts = hms.split(":").map(Number);
-                const [h = 0, m = 0, s = 0] = parts;
-                if (s == 0) return `${h}hr ${m}min`;
-                return `${h}hr ${m}min ${s}sec`;
-            }
-        };
-
-        let hasEnterdTypingStats = logForTheDate[TYPING_SPEED] && logForTheDate[TYPING_ACCURACY] ? true : false;
-        const StatsForTheDay = `
-        Date     : [${logForTheDate[DATE]}]
-        ${hasEnterdTypingStats ? `Typing   : [${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]` : ""} 
-        Focus    : [${formatOutputTime(logForTheDate[FOCUS_TIME])}] [${formatOutputTime(logsTillDate[TOTAL_FOCUS])}]
-        CT       : [${formatOutputTime(logForTheDate[CODE_TIME])}] [${formatOutputTime(logsTillDate[TOTAL_CODE_TIME])}]
-        ACT      : [${formatOutputTime(logForTheDate[ACTIVE_CODE_TIME])}] [${formatOutputTime(logsTillDate[TOTAL_ACTIVE_CODE_TIME])}]
-        HTML     : [${logForTheDate[HTML] || 0}] [${logsTillDate[TOTAL_HTML] || 0}]
-        CSS      : [${logForTheDate[KEY_CSS] || 0}] [${logsTillDate[TOTAL_CSS] || 0}]
-        JS       : [${logForTheDate[JAVASCRIPT] || 0}] [${logsTillDate[TOTAL_JS] || 0}]
-        React    : [${logForTheDate[REACT] || 0}] [${logsTillDate[TOTAL_REACT] || 0}]
-        Total    : [${logForTheDate[DAILY_TOTAL]}] [${logsTillDate[ALL_TIME_TOTAL]}]
-        `;
-        // formating the stats to remove the spaces in the starting and ending of the line
-        const statsForTheDayFormated = StatsForTheDay.split('\n')
-            .map(eachLine => eachLine.trim())
-            .filter(eachLine => eachLine)
-            .join('\n');
-        console.log("Clipboard Data : ", StatsForTheDay);
-        console.log("Clipboard Data : ", statsForTheDayFormated);
-        navigator.clipboard.writeText(statsForTheDayFormated).then(() => console.log(`stats for ${copyStatsDate.value} copied`)).catch((err) => console.log(`error copying data ${err}`));
-
-        showSnackBar(`Stats for ${copyStatsDate.value} copied`);
-    }
-
-
-}
 
 
 /* _________________working of previous total form_________________________________________________ */
@@ -416,6 +362,7 @@ function copyDailyLogToClipboard() {
 // function to add all the values of previous inputs or daily stats
 function calculateDailyLogsTotal() {
     // calculating total lines of code from daily stats
+    const dailyLogs = fetchDailyLogs();
     const sumDailyStats = dailyLogs.reduce((acc, currnt) => {
         if (!acc.latestDate || new Date(currnt.date) > new Date(acc.latestDate)) {
             acc.latestDate = currnt.date;
@@ -645,12 +592,7 @@ function showPreviousPlusDaily() {
     debug && console.log("PreviousTotalSum:", previousTotalSum);
 }
 
-// // remove log of the passed date
-// removeOneDayLog.addEventListener("click", () => {
-//     // if (!date) {
 
-//     // }
-// })
 
 /* VALIDATIONS */
 // previous inputs validations
@@ -816,6 +758,148 @@ function showSnackBar(message, isError = false, duration = 3000) {
         snackBar.classList.remove("showSnack");
     }, duration);
 }
+/* Manage Data Section */
+
+/* copy date even listner */
+copyStatsDate.addEventListener("input", () => {
+    const dailyLogs = fetchDailyLogs();
+    const date = copyStatsDate.value;
+    const data = dailyLogs.filter(logs => logs[DATE] == date);
+
+    showDataClipboard.textContent = JSON.stringify(data, null, 2);
+})
+/* Copying the data in the format of the slack */
+copyStatsBtn.addEventListener("click", () => {
+    {
+        // we need to add previous total input values and daily logs till date as the total value
+        const dailyLogs = fetchDailyLogs();
+
+        const logForTheDate = dailyLogs.find(stats => stats[DATE] === copyStatsDate.value);
+        if (!dailyLogs || Object.keys(dailyLogs).length === 0) {
+            debug && console.log("Daily Logs has not been added");
+            showSnackBar("Daily Logs not found", true);
+            return;
+        } else if (!copyStatsDate.value) {
+            showSnackBar("Select a date", true);
+        } else if (!logForTheDate) {
+            debug && console.log("Logs for the selected date is missing");
+            showSnackBar("logs for selected date is missing", true);
+            return;
+        } else {
+            let totalTillDate = previousTotalsTillDate(copyStatsDate.value);
+
+            let logsTillDate = totalTillDate;
+            // format time hr , min and sec
+            const formatOutputTime = (hms) => {
+                if (!hms) {
+                    return "0hr 0min";
+                } else {
+                    const parts = hms.split(":").map(Number);
+                    const [h = 0, m = 0, s = 0] = parts;
+                    if (s == 0) return `${h}hr ${m}min`;
+                    return `${h}hr ${m}min ${s}sec`;
+                }
+            };
+
+            let hasEnterdTypingStats = logForTheDate[TYPING_SPEED] && logForTheDate[TYPING_ACCURACY] ? true : false;
+            const StatsForTheDay = `
+        Date     : [${logForTheDate[DATE]}]
+        ${hasEnterdTypingStats ? `Typing   : [${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]` : ""} 
+        Focus    : [${formatOutputTime(logForTheDate[FOCUS_TIME])}] [${formatOutputTime(logsTillDate[TOTAL_FOCUS])}]
+        CT       : [${formatOutputTime(logForTheDate[CODE_TIME])}] [${formatOutputTime(logsTillDate[TOTAL_CODE_TIME])}]
+        ACT      : [${formatOutputTime(logForTheDate[ACTIVE_CODE_TIME])}] [${formatOutputTime(logsTillDate[TOTAL_ACTIVE_CODE_TIME])}]
+        HTML     : [${logForTheDate[HTML] || 0}] [${logsTillDate[TOTAL_HTML] || 0}]
+        CSS      : [${logForTheDate[KEY_CSS] || 0}] [${logsTillDate[TOTAL_CSS] || 0}]
+        JS       : [${logForTheDate[JAVASCRIPT] || 0}] [${logsTillDate[TOTAL_JS] || 0}]
+        React    : [${logForTheDate[REACT] || 0}] [${logsTillDate[TOTAL_REACT] || 0}]
+        Total    : [${logForTheDate[DAILY_TOTAL]}] [${logsTillDate[ALL_TIME_TOTAL]}]
+        `;
+            // formating the stats to remove the spaces in the starting and ending of the line
+            const statsForTheDayFormated = StatsForTheDay.split('\n')
+                .map(eachLine => eachLine.trim())
+                .filter(eachLine => eachLine)
+                .join('\n');
+            console.log("Clipboard Data : ", StatsForTheDay);
+            console.log("Clipboard Data : ", statsForTheDayFormated);
+            navigator.clipboard.writeText(statsForTheDayFormated).then(() => console.log(`stats for ${copyStatsDate.value} copied`)).catch((err) => console.log(`error copying data ${err}`));
+
+            showSnackBar(`Stats for ${copyStatsDate.value} copied`);
+        }
+
+
+    }
+});
+
+/* delete buton  */
+deleteDate.addEventListener("input", () => showDataDate());
+//for every input of the serial number show logs from daily logs
+serialNumber.addEventListener("input", () => showDataSerial());
+
+/* show data for the required date */
+function showDataDate() {
+    serialNumber.value = "";
+    const dailyLogs = fetchDailyLogs();
+    const selectedDate = deleteDate.value;
+    const targetObject = dailyLogs.filter(logs => logs[DATE] == selectedDate);
+    showDataBeforeDeleting.textContent = targetObject.length === 0 ? "" : JSON.stringify(targetObject, null, "\t");
+}
+/* Show data for the requied serial number */
+function showDataSerial() {
+    deleteDate.value = ""
+    const dailyLogs = fetchDailyLogs();
+    const slNoselected = serialNumber.value;
+    const selectedDate = deleteDate.value;
+    const targetObject = dailyLogs.filter(logs => (Number(logs[SL_NO]) == Number(slNoselected)));
+    // console.log("Target object is", JSON.stringify(targetObject));
+    showDataBeforeDeleting.textContent = targetObject.length === 0 ? "" : JSON.stringify(targetObject, null, "\t");
+}
+/* remove an item based on slno or date */
+removeLogDateBtn.addEventListener("click", async () => {
+    const dailyLogs = fetchDailyLogs();
+    const slno = serialNumber.value;
+    const selectedDate = deleteDate.value;
+    if (!slno && !selectedDate) {
+        showSnackBar("Select date or sl no. to continue", true, 2000);
+        return;
+    }
+    if (slno && selectedDate) {
+        showSnackBar("Select either date or serial number not both", true, 2000);
+        return;
+    }
+    const idtoShow = slno || selectedDate;
+    const sure2delete = await toggleConfiramtionPopup(`Are You sure to delete the data for ${idtoShow}`, removeLogDateBtn);
+    if (sure2delete === false) {
+        return;
+    } else {
+        let index = -1;
+        if (slno) {
+            index = dailyLogs.findIndex(logs => Number(logs[SL_NO]) == Number(slno));
+        } else if (selectedDate) {
+            index = dailyLogs.findIndex(logs => logs[DATE] == selectedDate)
+        }
+
+        if (index !== -1) {
+            const removedTarget = dailyLogs.splice(index, 1);
+            console.log("Removed data from dailyLog: ", removedTarget);
+            console.log("Updated daily slno: ", dailyLogs);
+            localStorage.setItem(storage_key_daily_log, JSON.stringify(dailyLogs));
+            showSnackBar("Deleted data.");
+            calculateDailyLogsTotal();
+            if (slno) {
+                showDataSerial();
+                serialNumber.value = "";
+
+            } else {
+                showDataDate();
+                deleteDate.value = "";
+
+            }
+        } else {
+            showSnackBar("No matching entry found", true);
+        }
+    }
+});
+
 
 /* DOWNLOAD SECTION */
 // event listeners to download csv file
@@ -877,8 +961,7 @@ downloadCsv.addEventListener("click", () => {
 
 
 });
-
-
+// download excel file
 downloadExcel.addEventListener("click", () => {
 
     const dailyLogs = fetchDailyLogs();
@@ -919,6 +1002,8 @@ downloadExcel.addEventListener("click", () => {
     XLSX.writeFile(workbook, `${exportFileName}.xlsx`);
 
 });
+
+
 
 /* admin items */
 // function to print all the values in the localStorage
