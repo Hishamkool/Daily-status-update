@@ -183,7 +183,7 @@
                 <div class="copy-export-content">
                     <label for="copy-stats-date">Date:
                         <input type="date" name="copy-stats-date" id="copy-stats-date"></label>
-                    <button title="e.g.,
+                    <button id="copy_stats" title="e.g.,
                     Typing   : [63wpm][99%]
                     Focus    : [12hr 04min][736hr 30min]
                     CT       : [7hr 35min][494hr 48min]
@@ -193,8 +193,7 @@
                     Js       : [2][6014]
                     json     : [0][2702]
                     React    : [107[2884]
-                    Total    : [389][26,243]" class="copy-stats-btn" type="button" id="copy_stats"
-                        onclick="copyDailyLogToClipboard()">Copy Stats</button>
+                    Total    : [389][26,243]" class="copy-stats-btn" type="button">Copy Stats</button>
                 </div>
             </section>
             <!-- section to export the daily logs to csv or excel files -->
@@ -214,6 +213,7 @@
                     </button>
                 </div>
             </section>
+
         </div>
 
         <!-- show output section -->
@@ -228,6 +228,7 @@
                         Previous Stats </button>
                     <button class="output-btns" title="Clear complete local storage" onclick="clearLocalStorage()">Clear
                         All Data</button>
+
 
                 </div>
                 <div>

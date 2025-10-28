@@ -77,6 +77,7 @@ const outputFile = document.querySelector(".output-file");
 const dailyStatsSum = document.querySelector(".daily-stats-sum");
 const previousOutput = document.querySelector(".previous-output");
 const previousPlusDailyStats = document.querySelector(".previous-plus-dailystats");
+const removeOneDayLog = document.getElementById("remove-one-day-log");
 /* get stats */
 let dailyLogs = fetchDailyLogs();
 /* Popups */
@@ -275,7 +276,7 @@ async function clearPreviousTotal() {
         showSnackBar("Clearing Previous Stats...", undefined, 1000);
         localStorage.removeItem(storage_key_previous_total_input);
         localStorage.removeItem(storage_key_previous_plus_daily);
-
+        setPreviousInputsValues();
         debug && console.log("cleared PreviousTotalSum:", fetchPreviousPlusDaily());
         showStats();
     } else {
@@ -323,7 +324,7 @@ function previousTotalsTillDate(ISOdate) {
             totalcss += log[KEY_CSS],
             totaljs += log[JAVASCRIPT],
             totalreact += log[REACT]
-            totallocTilldate += log[DAILY_TOTAL]
+        totallocTilldate += log[DAILY_TOTAL]
     });
     if (previousTotalInput) {
         totalFocus += time2Seconds(previousTotalInput[TOTAL_FOCUS]),
@@ -347,9 +348,10 @@ function previousTotalsTillDate(ISOdate) {
         [ALL_TIME_TOTAL]: totallocTilldate
     };
 }
-
+copyStatsBtn.addEventListener("click", () => copyDailyLogToClipboard());
 /* Copying the data in the format of the slack */
 function copyDailyLogToClipboard() {
+
     // we need to add previous total input values and daily logs till date as the total value
     const dailyLogs = fetchDailyLogs();
 
@@ -365,7 +367,8 @@ function copyDailyLogToClipboard() {
         showSnackBar("logs for selected date is missing", true);
         return;
     } else {
-        let totalTillDate = previousTotalsTillDate(copyStatsDate.value)
+        let totalTillDate = previousTotalsTillDate(copyStatsDate.value);
+
         let logsTillDate = totalTillDate;
         // format time hr , min and sec
         const formatOutputTime = (hms) => {
@@ -520,6 +523,7 @@ previousTotalsForm.addEventListener("submit", async (event) => {
             (Number(totalReact.value) || 0),
 
     };
+
     localStorage.setItem(storage_key_previous_total_input, JSON.stringify(previous_total_inputs_obj));
     let storedPreviousTotal = localStorage.getItem(storage_key_previous_total_input);
     /*  debug &&  */console.log("PreviousTotal Input:", JSON.parse(storedPreviousTotal));
@@ -641,6 +645,13 @@ function showPreviousPlusDaily() {
     debug && console.log("PreviousTotalSum:", previousTotalSum);
 }
 
+// // remove log of the passed date
+// removeOneDayLog.addEventListener("click", () => {
+//     // if (!date) {
+
+//     // }
+// })
+
 /* VALIDATIONS */
 // previous inputs validations
 const allPreviousInputs = document.querySelectorAll(".previous-input-time");
@@ -752,21 +763,6 @@ document.querySelectorAll('#todays-data-form input[type="time"]').forEach(input 
     input.addEventListener("copy", allowCopying);
 });
 
-// function to print all the values in the localStorage
-window.showlocalStorageData = function showlocalStorageData() {
-    for (let index = 0; index < localStorage.length; index++) {
-        const key = localStorage.key(index);
-        const value = localStorage.getItem(key);
-
-        let parsedValue;
-        try {
-            parsedValue = JSON.parse(value);
-        } catch (e) {
-            parsedValue = value; // keep as string if not valid JSON
-        }
-        console.log(`(${key}):`, parsedValue);
-    }
-};
 /* popups */
 // function to handle confirmation messages 
 // note this is an asysc function so while calling it its an await call else you will always get true
@@ -924,6 +920,59 @@ downloadExcel.addEventListener("click", () => {
 
 });
 
+/* admin items */
+// function to print all the values in the localStorage
+function showlocalStorageData() {
+    for (let index = 0; index < localStorage.length; index++) {
+        const key = localStorage.key(index);
+        const value = localStorage.getItem(key);
+
+        let parsedValue;
+        try {
+            parsedValue = JSON.parse(value);
+        } catch (e) {
+            parsedValue = value; // keep as string if not valid JSON
+        }
+        console.log(`(${key}):`, parsedValue);
+    }
+};
+
+/* // if all time total is not already set
+function setAllTimeTotalForPreviousInput() {
+    const prevInput =
+    {
+        "date": "2025-10-03",
+        "total_focus": "353:43:13",
+        "total_code_time": "218:10:47",
+        "total_active_code_time": "167:08:45",
+        "total_html": 1485,
+        "total_css": 6099,
+        "total_js": 1061,
+        "total_react": 0 
+    };
+    console.log("previous total input now:", prevInput);
+
+    if (
+        prevInput &&
+        (prevInput[ALL_TIME_TOTAL] == null || prevInput[ALL_TIME_TOTAL] === "")
+    ) {
+        const totalValue =
+            Number(prevInput[TOTAL_HTML] || 0) +
+            Number(prevInput[TOTAL_CSS] || 0) +
+            Number(prevInput[TOTAL_JS] || 0) +
+            Number(prevInput[TOTAL_REACT] || 0);
+
+        console.log("all time total is:", totalValue);
+
+        prevInput[ALL_TIME_TOTAL] = totalValue;
+        localStorage.setItem(
+            storage_key_previous_total_input,
+            JSON.stringify(prevInput)
+        );
+
+        console.log("value added:", prevInput);
+    }
+} */
 
 
 /* Conditions or work flow
