@@ -1,7 +1,7 @@
 
 /* variables */
 /* debug status */
-const debug = true;
+const debug = false;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = 'dailyLogs';
@@ -175,8 +175,12 @@ todaysStatsForm.addEventListener("submit", async function (event) {
             // i.e., exsisting index == -1 means(no entrt found) its a new entry then add
             addData(daily_logs_input_obj);
         }
+
+        /* 
         // remove this [debug] - to set random numbers to the lines of code for testing
-        debug && setRandomValuesToLinesOfCode();
+        debug && setRandomValuesToLinesOfCode(); 
+        */
+
         // function call to calculate the dailyLogsTotal
         calculateDailyLogsTotal();
         showDailyLogsTotal();
@@ -197,22 +201,7 @@ function replaceData(existingIndex, entry) {
 
 };
 
-/* [debug] remove this function ------------------------ */
-function setRandomValuesToLinesOfCode() {
-    const html = document.getElementById("todays-html");
-    const css = document.getElementById("todays-css");
-    const react = document.getElementById("todays-js");
-    const js = document.getElementById("todays-react");
 
-    html.value = Math.floor(Math.random() * (600 - 50 + 1)) + 50;
-    css.value = Math.floor(Math.random() * (600 - 50 + 1)) + 50;
-    js.value = Math.floor(Math.random() * (600 - 50 + 1)) + 50;
-    react.value = Math.floor(Math.random() * (600 - 50 + 1)) + 50;
-
-
-    calculateTotalLinesOfCode();
-}
-/* -------------------------------------------------------- */
 
 // function to add todays data
 function addData(entry) {
