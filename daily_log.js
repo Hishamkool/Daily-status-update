@@ -72,6 +72,7 @@ const showDataClipboard = document.getElementById("show-data-clipboard");
 /* export secion */
 const downloadCsv = document.getElementById("download-csv");
 const downloadExcel = document.getElementById("download-excel");
+const downloadJson = document.getElementById("download-json");
 /* delete a log section */
 const deleteDate = document.getElementById("delete-date");
 const serialNumber = document.getElementById("serial-number");
@@ -756,7 +757,7 @@ copyStatsDate.addEventListener("input", () => {
     const data = dailyLogs.filter(logs => logs[DATE] == date);
 
     showDataClipboard.textContent = JSON.stringify(data, null, 2);
-})
+});
 /* Copying the data in the format of the slack */
 copyStatsBtn.addEventListener("click", () => {
     {
@@ -944,7 +945,6 @@ downloadCsv.addEventListener("click", () => {
     const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    // link.download = "dailyLogs.csv";
     link.download = `${exportFileName}.csv`;
     link.click();
 
@@ -952,7 +952,6 @@ downloadCsv.addEventListener("click", () => {
 });
 // download excel file
 downloadExcel.addEventListener("click", () => {
-
     const dailyLogs = fetchDailyLogs();
     const dailyLogsSum = fetchDailyLogsSum();
 
@@ -989,6 +988,23 @@ downloadExcel.addEventListener("click", () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "All daily logs");
     XLSX.writeFile(workbook, `${exportFileName}.xlsx`);
+
+});
+
+// donwload daily Logs in json format
+downloadJson.addEventListener("click", () => {
+    const dailylogs = fetchDailyLogs();
+    if (!dailylogs.length) {
+        showSnackBar("No daily logs found to export", true, 2000);
+        return;
+    }
+    const blob = new Blob([JSON.stringify(dailylogs, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${exportFileName}.json`;
+    link.click();
+
 
 });
 

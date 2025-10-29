@@ -242,9 +242,15 @@
  }
 
  @media(hover: hover) {
-     .download-buttons:hover {
-         transform: scale(1.2);
+
+     .download-buttons:hover,
+     .submit-btn:hover,
+     .copy-stats-btn:hover,
+     .delete-btn:hover,
+     .output-btns:hover {
+         transform: scale(1.1);
      }
+
  }
 
 
