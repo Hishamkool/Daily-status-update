@@ -1,5 +1,6 @@
 /* [debug] remove this function ------------------------ */
 function setRandomValuesToLinesOfCode() {
+    showSnackBar("Random values set to todays stats, total changed", true, 3000);
     const html = document.getElementById("todays-html");
     const css = document.getElementById("todays-css");
     const react = document.getElementById("todays-js");
