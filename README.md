@@ -4,14 +4,49 @@ LIVE WEBSITE: https://hishamkool.github.io/Daily-status-update/
 
 ## ✨ Features
 
-1. **Automatic Previous Totals** – Previous totals are automatically calculated and displayed as you add new daily logs.  
+<!-- 1. **Automatic Previous Totals** – Previous totals are automatically calculated and displayed as you add new daily logs.  
 2. **Seamless Fresh Start** – Setting up new previous totals allows you to start fresh without any conflicts between daily logs and previous totals.  
 3. **Data Export Options** – Export your daily logs to either **XLSX (Excel)** or **CSV** format for easy backup or sharing.  
 4. **Copy Logs for Slack** – Instantly copy logs for any specific date in a **pre-formatted layout** suitable for submitting daily logs on Slack.  
 5. **Smart Input Handling** – Supports **copying and pasting** directly into time picker input fields for faster data entry in today’s stats.  
 6. **Local Storage Support** – All daily logs are securely stored in **browser local storage**, ensuring data persistence between sessions.  
 7. **Automatic Duration & LOC Calculation** – Effortlessly calculates the **duration** and **total lines of code (LOC)** for each entry.  
-8. **Smart Slack Date Autofill** – Once you submit a daily log, the “Copy to Slack” field automatically includes the date, saving you from manually selecting it again.  
+8. **Smart Slack Date Autofill** – Once you submit a daily log, the “Copy to Slack” field automatically includes the date, saving you from manually selecting it again.  --> 
+1. **Automatic Previous Totals**  
+   Instantly calculates and displays previous totals as you add new daily logs.
+
+2. **Seamless Fresh Start**  
+   Setting up new previous totals allows you to start fresh without conflicts between old logs and totals.
+
+3. **Flexible Data Export**  
+   Export your daily logs in **XLSX (Excel)**, **CSV**, or **JSON** format for easy backup and sharing.
+
+4. **Slack-Ready Log Copy**  
+   Copy logs for any specific date in a **pre-formatted layout** ready to be shared directly on Slack.
+
+5. **Smart Time Input Handling**  
+   Supports **copying and pasting** values inside time picker fields for faster data entry.
+
+6. **Local Storage Support**  
+   All logs are securely saved in **browser local storage**, ensuring data persistence across sessions.
+
+7. **Automatic Duration & LOC Calculation**  
+   Calculates **focus duration**, **coding duration**, and **total lines of code (LOC)** automatically for each log entry.
+
+8. **Smart Slack Date Autofill**  
+   After submitting a log, the “Copy to Slack” field automatically includes the date, saving you extra steps.
+
+9. **Delete Daily Logs**  
+   Easily delete logs of any specific date to keep your records clean and organized.
+
+10. **Accurate Previous Totals by Date**  
+    When copying stats to the clipboard, previous totals are calculated **exactly up to the selected date**.
+
+11. **Partial Log Updates**  
+    Update only specific fields in your daily stats without overwriting the entire entry.
+
+12. **Optimized for Efficiency**  
+    Every interaction — from input to export — is designed for speed, clarity, and minimal manual effort.
 
  
 ## 🎥 Demo / Usage Guide

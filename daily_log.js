@@ -150,7 +150,7 @@ async function partiallyUpdateTodaysEntry() {
 
         if (item) {
 
-            const updateValues = await toggleConfiramtionPopup(`Data for ${submitDate} already exists, Do you want to update,`, true, ` This will update the input fields`, todaysDate);
+            const updateValues = await toggleConfiramtionPopup(`Data for ${submitDate} already exists, Do you want to update?`, true, ` This will update the input fields`);
             if (updateValues) {
                 typingSpeed.value = item[TYPING_SPEED] || ""
                 typingAccuracy.value = item[TYPING_ACCURACY] || "";
@@ -172,58 +172,66 @@ todaysStatsForm.addEventListener("submit", async function (event) {
     event.preventDefault();
     dailyLogs = fetchDailyLogs();
     const submit_date = todaysDate.value;
-    if (!submit_date || submit_date == null || submit_date == "") return;
+    if (!submit_date) {
+        showSnackBar(`Select a valid date before submitting, date is: ${submit_date}`, true);
+        return;
+    }
+    if (submit_date === null || submit_date === "") {
+        return;
+    }
     const existingIndex = dailyLogs.findIndex(item => item.date === submit_date);
     debug && console.log("matched :", existingIndex);
     // showing submit confirmation if its not a existing data 
     const sure2submit = existingIndex === -1 ? await toggleConfiramtionPopup(`Submit Data for ${submit_date}?`, true, `Check all values before submitting..`) : true;
-    if (sure2submit) {
+    if (!sure2submit) return;
 
-        let daily_logs_input_obj = {
-            [DATE]: todaysDate.value,
-            [TYPING_SPEED]: typingSpeed.value,
-            [TYPING_ACCURACY]: typingAccuracy.value,
-            [FOCUS_TIME]: todaysFocus.value || "00:00:00",
-            [CODE_TIME]: todaysCodeTime.value || "00:00:00",
-            [ACTIVE_CODE_TIME]: todaysActiveCodeTime.value || "00:00:00",
-            [HTML]: Number(todaysHTML.value) || 0,
-            [KEY_CSS]: Number(todaysCSS.value) || 0,
-            [JAVASCRIPT]: Number(todaysJS.value) || 0,
-            [REACT]: Number(todaysReact.value) || 0,
-            [DAILY_TOTAL]: todaysTotalLoc.value,
-        };
+    let daily_logs_input_obj = {
+        [DATE]: todaysDate.value,
+        [TYPING_SPEED]: typingSpeed.value,
+        [TYPING_ACCURACY]: typingAccuracy.value,
+        [FOCUS_TIME]: todaysFocus.value || "00:00:00",
+        [CODE_TIME]: todaysCodeTime.value || "00:00:00",
+        [ACTIVE_CODE_TIME]: todaysActiveCodeTime.value || "00:00:00",
+        [HTML]: Number(todaysHTML.value) || 0,
+        [KEY_CSS]: Number(todaysCSS.value) || 0,
+        [JAVASCRIPT]: Number(todaysJS.value) || 0,
+        [REACT]: Number(todaysReact.value) || 0,
+        [DAILY_TOTAL]: todaysTotalLoc.value || 0,
+    };
 
 
-        // id date matches with output (prestored values)
-        if (existingIndex !== -1) {
-            const replace = await toggleConfiramtionPopup(`Data for ${submit_date} is already added, Do you want to replace ?`);
-            //    if use wants to replace the already available data 
-            if (replace) {
-                //functinality to replace the todays data
-                replaceData(existingIndex, daily_logs_input_obj);
-            } else {
-                return;
-            }
+    // id date matches with output (prestored values)
+    if (existingIndex !== -1) {
+        const replace = await toggleConfiramtionPopup(`Data for ${submit_date} is already added, Do you want to replace ?`);
+        //    if use wants to replace the already available data 
+        if (replace) {
+            //functinality to replace the todays data
+            replaceData(existingIndex, daily_logs_input_obj);
         } else {
-            // i.e., exsisting index == -1 means(no entrt found) its a new entry then add
-            addData(daily_logs_input_obj);
+            return;
         }
-
-        /* 
-        // remove this [debug] - to set random numbers to the lines of code for testing
-        debug && setRandomValuesToLinesOfCode(); 
-        */
-
-        // function call to calculate the dailyLogsTotal
-        calculateDailyLogsTotal();
-        showDailyLogsTotal();
-        showSnackBar("Data Submitted", undefined, 1000);
-        copyStatsDate.value = submit_date;
-        copyStatsBtn.dispatchEvent(new Event("input", { bubbles: true }));
-        copyStatsBtn.dispatchEvent(new Event("change", { bubbles: true }));
-        todaysStatsForm.reset();
-
+    } else {
+        // i.e., exsisting index == -1 means(no entrt found) its a new entry then add
+        addData(daily_logs_input_obj);
     }
+
+    /* 
+    // remove this [debug] - to set random numbers to the lines of code for testing
+    debug && setRandomValuesToLinesOfCode(); 
+    */
+
+    // function call to calculate the dailyLogsTotal
+    calculateDailyLogsTotal();
+    showDailyLogsTotal();
+    showSnackBar("Data Submitted", undefined, 1000);
+    copyStatsDate.value = submit_date;
+    copyStatsBtn.dispatchEvent(new Event("input", { bubbles: true }));
+    copyStatsBtn.dispatchEvent(new Event("change", { bubbles: true }));
+    setTimeout(() => {
+        todaysStatsForm.reset();
+        todaysTotalLoc.value = "";
+    }, 200);
+
 });
 
 
@@ -472,7 +480,7 @@ previousTotalsForm.addEventListener("submit", async (event) => {
     debug && console.log("previous total submit button clicked");
 
     event.preventDefault();
-    const deleteAllDailyLogs = await toggleConfiramtionPopup("Setting previous total would clear all of the saved daily logs and start fresh, do you want to continue?");
+    const deleteAllDailyLogs = await toggleConfiramtionPopup("Setting previous total would clear all of the saved daily logs and start fresh, do you want to continue?", true, `PLEASE EXPORT ALL DAILY LOGS BEFORE SUBMITING`);
     if (!deleteAllDailyLogs) {
         return;
     }
