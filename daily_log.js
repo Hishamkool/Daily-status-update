@@ -133,18 +133,50 @@ function calculateTotalLinesOfCode() {
     totalLOCAllTime.value = previousTotal;
     totalLOCAllTime.textContent = previousTotal;
 }
+// event listner for todays entry date
+todaysDate.addEventListener("input", partiallyUpdateTodaysEntry);
+
+// function to partially update todays entries or show the values of todats entries if data is already submitted
+async function partiallyUpdateTodaysEntry() {
+
+    const dailyLogs = fetchDailyLogs();
+    const submitDate = todaysDate.value;
+    if (!submitDate) return;
+    if (dailyLogs.length == 0) {
+        debug && console.log("Dialy Logs is empty");
+        return;
+    } else {
+        const item = dailyLogs.find(item => item[DATE] === submitDate);
+
+        if (item) {
+
+            const updateValues = await toggleConfiramtionPopup(`Data for ${submitDate} already exists, Do you want to update,`, true, ` This will update the input fields`, todaysDate);
+            if (updateValues) {
+                typingSpeed.value = item[TYPING_SPEED] || ""
+                typingAccuracy.value = item[TYPING_ACCURACY] || "";
+                todaysFocus.value = item[FOCUS_TIME] || '00:00:00';
+                todaysCodeTime.value = item[CODE_TIME] || '00:00:00';
+                todaysActiveCodeTime.value = item[ACTIVE_CODE_TIME] || '00:00:00';
+                todaysHTML.value = item[HTML] || 0;
+                todaysCSS.value = item[KEY_CSS] || 0;
+                todaysJS.value = item[JAVASCRIPT] || 0;
+                todaysReact.value = item[REACT] || 0;
+            }
+        }
+    }
+}
 
 // sumbit event listner on todays stats - todays submit
 todaysStatsForm.addEventListener("submit", async function (event) {
 
     event.preventDefault();
     dailyLogs = fetchDailyLogs();
-    const submit_date = document.getElementById("todays-entry-date").value;
+    const submit_date = todaysDate.value;
     if (!submit_date || submit_date == null || submit_date == "") return;
     const existingIndex = dailyLogs.findIndex(item => item.date === submit_date);
     debug && console.log("matched :", existingIndex);
     // showing submit confirmation if its not a existing data 
-    const sure2submit = existingIndex === -1 ? await toggleConfiramtionPopup(`Submit Data for ${submit_date}?`, false) : true;
+    const sure2submit = existingIndex === -1 ? await toggleConfiramtionPopup(`Submit Data for ${submit_date}?`, true, `Check all values before submitting..`) : true;
     if (sure2submit) {
 
         let daily_logs_input_obj = {
@@ -187,6 +219,8 @@ todaysStatsForm.addEventListener("submit", async function (event) {
         showDailyLogsTotal();
         showSnackBar("Data Submitted", undefined, 1000);
         copyStatsDate.value = submit_date;
+        copyStatsBtn.dispatchEvent(new Event("input", { bubbles: true }));
+        copyStatsBtn.dispatchEvent(new Event("change", { bubbles: true }));
         todaysStatsForm.reset();
 
     }
@@ -698,7 +732,7 @@ document.querySelectorAll('#todays-data-form input[type="time"]').forEach(input 
 /* popups */
 // function to handle confirmation messages 
 // note this is an asysc function so while calling it its an await call else you will always get true
-async function toggleConfiramtionPopup(message, shouldDisplyNote = true, anchorElement) {
+async function toggleConfiramtionPopup(message, shouldDisplyNote = true, importantNote = "", anchorElement) {
 
     return new Promise((resolve) => {
         confirmMessage.textContent = message;
@@ -706,7 +740,12 @@ async function toggleConfiramtionPopup(message, shouldDisplyNote = true, anchorE
             confirmNote.style.display = "none";
         } else {
             confirmNote.style.display = "block";
+            confirmNote.textContent = `Note: This action cannot be undone!`;
+            if (importantNote != "") {
+                confirmNote.textContent = importantNote;
+            }
         }
+
         const onYes = () => {
             cleanup();
             resolve(true);
@@ -1026,43 +1065,6 @@ function showlocalStorageData() {
         console.log(`(${key}):`, parsedValue);
     }
 };
-
-/* // if all time total is not already set
-function setAllTimeTotalForPreviousInput() {
-    const prevInput =
-    {
-        "date": "2025-10-03",
-        "total_focus": "353:43:13",
-        "total_code_time": "218:10:47",
-        "total_active_code_time": "167:08:45",
-        "total_html": 1485,
-        "total_css": 6099,
-        "total_js": 1061,
-        "total_react": 0 
-    };
-    console.log("previous total input now:", prevInput);
-
-    if (
-        prevInput &&
-        (prevInput[ALL_TIME_TOTAL] == null || prevInput[ALL_TIME_TOTAL] === "")
-    ) {
-        const totalValue =
-            Number(prevInput[TOTAL_HTML] || 0) +
-            Number(prevInput[TOTAL_CSS] || 0) +
-            Number(prevInput[TOTAL_JS] || 0) +
-            Number(prevInput[TOTAL_REACT] || 0);
-
-        console.log("all time total is:", totalValue);
-
-        prevInput[ALL_TIME_TOTAL] = totalValue;
-        localStorage.setItem(
-            storage_key_previous_total_input,
-            JSON.stringify(prevInput)
-        );
-
-        console.log("value added:", prevInput);
-    }
-} */
 
 
 /* Conditions or work flow
