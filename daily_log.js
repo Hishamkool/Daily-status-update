@@ -26,9 +26,8 @@ const SL_NO = "sl_no";
 
 // ====== DAILY STATS SUM ======
 const LATEST_DATE = "latest_date";
-const TOTAL_COLUMN = "Total" // Column heading for total field in export
-// ====== PREVIOUS TOTALS & ALL-TIME KEYS ======
 
+// ====== PREVIOUS TOTALS & ALL-TIME KEYS ======
 const TOTAL_FOCUS = "total_focus";
 const TOTAL_CODE_TIME = "total_code_time";
 const TOTAL_ACTIVE_CODE_TIME = "total_active_code_time";
@@ -38,7 +37,11 @@ const TOTAL_JS = "total_js";
 const TOTAL_REACT = "total_react";
 const ALL_TIME_TOTAL = "all_time_total";
 
-/* constant export file name */
+// ====== Export Tabel Heading constants ======
+const TOTAL_COLUMN = "Total";// Column heading for total field in export
+const ALL_TIME_TOTAL_COLUMN = "All Time Total";
+
+// ====== constant export file name ====== 
 const exportFileName = "DailyLogs";
 
 /* todays stats variables */
@@ -196,7 +199,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
         [KEY_CSS]: Number(todaysCSS.value) || 0,
         [JAVASCRIPT]: Number(todaysJS.value) || 0,
         [REACT]: Number(todaysReact.value) || 0,
-        [DAILY_TOTAL]: todaysTotalLoc.value || 0,
+        [DAILY_TOTAL]: todaysTotalLoc.value,
     };
 
 
@@ -463,7 +466,7 @@ function fetchDailyLogsSum() {
 // function to display sum of dailyLogsSum
 function showDailyLogsTotal() {
     let dailySum = fetchDailyLogsSum();
-    if (dailySum.length == 0) {
+    if (Object.keys(dailySum).length === 0) {
         dailyStatsSum.style.textAlign = "center";
         dailyStatsSum.textContent = 'Daily Stats Sum empty';
 
@@ -952,9 +955,10 @@ downloadCsv.addEventListener("click", () => {
 
     const logsForCsv = [...dailyLogs];
 
-
+    // fetchig daily logs sum and pushing it into the end row.
     if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
         logsForCsv.push({
+            [TOTAL_COLUMN]: TOTAL_COLUMN,
             [DATE]: dailyLogsSum[LATEST_DATE],
             [FOCUS_TIME]: dailyLogsSum[FOCUS_TIME],
             [CODE_TIME]: dailyLogsSum[CODE_TIME],
@@ -968,23 +972,48 @@ downloadCsv.addEventListener("click", () => {
 
         });
     }
-
+    const previousTotals = fetchPreviousPlusDaily();
+    if (previousTotals && Object.keys(previousTotals).length > 0) {
+        logsForCsv.push({
+            [TOTAL_COLUMN]: ALL_TIME_TOTAL_COLUMN,
+            [DATE]: previousTotals[DATE],
+            [FOCUS_TIME]: previousTotals[TOTAL_FOCUS],
+            [CODE_TIME]: previousTotals[TOTAL_CODE_TIME],
+            [ACTIVE_CODE_TIME]: previousTotals[TOTAL_ACTIVE_CODE_TIME],
+            [HTML]: previousTotals[TOTAL_HTML],
+            [KEY_CSS]: previousTotals[TOTAL_CSS],
+            [JAVASCRIPT]: previousTotals[TOTAL_JS],
+            [REACT]: previousTotals[TOTAL_REACT],
+            [DAILY_TOTAL]: previousTotals[ALL_TIME_TOTAL],
+        });
+    }
     // Create CSV
-    const headers = [String([TOTAL_COLUMN]), "Date", "Focus Time", "Code Time", "Active Code Time", "HTML", "CSS", "JS", "React", "DailyTotal", "Typing Speed", "Typing Accuracy"];
-    const rows = logsForCsv.map(obj => [
-        obj[SL_NO] ?? "TOTAL",
-        obj[DATE],
-        obj[FOCUS_TIME],
-        obj[CODE_TIME],
-        obj[ACTIVE_CODE_TIME],
-        obj[HTML],
-        obj[KEY_CSS],
-        obj[JAVASCRIPT],
-        obj[REACT],
-        obj[DAILY_TOTAL],
-        obj[TYPING_SPEED] ? obj[TYPING_SPEED] + " wpm" : "",
-        obj[TYPING_ACCURACY] ? obj[TYPING_ACCURACY] + "%" : ""
-    ].join(","));
+    const headers = [TOTAL_COLUMN, "Date", "Focus Time", "Code Time", "Active Code Time", "HTML", "CSS", "JS", "React", "DailyTotal", "Typing Speed", "Typing Accuracy"];
+    const rows = logsForCsv.map(obj => {
+        let serialOrLabel = "";
+        if (obj[TOTAL_COLUMN] === TOTAL_COLUMN) {
+            serialOrLabel = TOTAL_COLUMN;
+        } else if (obj[TOTAL_COLUMN] === ALL_TIME_TOTAL_COLUMN) {
+            serialOrLabel = ALL_TIME_TOTAL_COLUMN;
+        } else {
+            serialOrLabel = obj[SL_NO];
+        }
+
+        return [
+            serialOrLabel,
+            obj[DATE],
+            obj[FOCUS_TIME],
+            obj[CODE_TIME],
+            obj[ACTIVE_CODE_TIME],
+            obj[HTML],
+            obj[KEY_CSS],
+            obj[JAVASCRIPT],
+            obj[REACT],
+            obj[DAILY_TOTAL],
+            obj[TYPING_SPEED] ? obj[TYPING_SPEED] + " wpm" : "",
+            obj[TYPING_ACCURACY] ? obj[TYPING_ACCURACY] + "%" : ""
+        ].join(",");
+    });
 
     const csvData = headers.join(",") + "\n" + rows.join("\n");
     console.log("csv file :", csvData);
@@ -994,9 +1023,8 @@ downloadCsv.addEventListener("click", () => {
     link.href = URL.createObjectURL(blob);
     link.download = `${exportFileName}.csv`;
     link.click();
-
-
 });
+
 // download excel file
 downloadExcel.addEventListener("click", () => {
     const dailyLogs = fetchDailyLogs();
@@ -1013,7 +1041,7 @@ downloadExcel.addEventListener("click", () => {
     // Add total row at the end
     if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
         logsForExcel.push({
-            [TOTAL_COLUMN]: "TOTAL:", // first column
+            [TOTAL_COLUMN]: TOTAL_COLUMN, // first column
             [DATE]: dailyLogsSum[LATEST_DATE],
             [FOCUS_TIME]: dailyLogsSum[FOCUS_TIME],
             [CODE_TIME]: dailyLogsSum[CODE_TIME],
@@ -1025,7 +1053,21 @@ downloadExcel.addEventListener("click", () => {
             [DAILY_TOTAL]: dailyLogsSum[DAILY_TOTAL],
         });
     }
-
+    const previousTotals = fetchPreviousPlusDaily();
+    if (previousTotals || previousTotals.length != 0) {
+        logsForExcel.push({
+            [TOTAL_COLUMN]: ALL_TIME_TOTAL_COLUMN,
+            [DATE]: previousTotals[DATE],
+            [FOCUS_TIME]: previousTotals[TOTAL_FOCUS],
+            [CODE_TIME]: previousTotals[TOTAL_CODE_TIME],
+            [ACTIVE_CODE_TIME]: previousTotals[TOTAL_ACTIVE_CODE_TIME],
+            [HTML]: previousTotals[TOTAL_HTML],
+            [KEY_CSS]: previousTotals[TOTAL_CSS],
+            [JAVASCRIPT]: previousTotals[TOTAL_JS],
+            [REACT]: previousTotals[TOTAL_REACT],
+            [DAILY_TOTAL]: previousTotals[ALL_TIME_TOTAL],
+        });
+    }
     // Adding headers so that i can add total column at the beginning
     // const headers = [String([TOTAL_COLUMN]), String([[DATE]]), String([FOCUS_TIME]), String([CODE_TIME]), String([ACTIVE_CODE_TIME]), String([HTML]), String([KEY_CSS]), String([JAVASCRIPT]), String([REACT]), String([DAILY_TOTAL])];
     const headers = [TOTAL_COLUMN];
