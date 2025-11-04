@@ -87,6 +87,7 @@ const outputFile = document.querySelector(".output-file");
 const dailyStatsSum = document.querySelector(".daily-stats-sum");
 const previousOutput = document.querySelector(".previous-output");
 const previousPlusDailyStats = document.querySelector(".previous-plus-dailystats");
+const importDailyLogsBtn = document.getElementById("import-daily-logs");
 /* get stats */
 let dailyLogs = fetchDailyLogs();
 /* Popups */
@@ -290,14 +291,67 @@ function showStats() {
 
 }
 
-/* Delete data buttons _____________________________________*/
-// function to delete daily stats from the local storage
-async function clearDailyStats(deleteAllEntries) {
-    if (!deleteAllEntries) {
-        // if there is no passed bool we show popup
-        deleteAllEntries = await toggleConfiramtionPopup("Delete all daily stats?");
+
+// function to @import daily logs in json
+importDailyLogsBtn.addEventListener("change", function (event) {
+    console.log("fle input button clicked");
+    const file = event.target.files[0];
+    if (!file) {
+        showSnackBar("No file selected..");
+        return;
     }
-    if (deleteAllEntries) {
+    if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+        showSnackBar("Please upload a valid json file", true);
+        return;
+    }
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = async function (e) {
+        try {
+            const jsonPlainTxt = e.target.result;
+            const jsonData = JSON.parse(jsonPlainTxt);
+            const jsonString = JSON.stringify(jsonData);
+
+            const sure2delete = await toggleConfiramtionPopup(
+                "Are you sure to import the data? This will clear all your data except previous totals",
+                true,
+                "Before importing data make sure to set PREVIOUS TOTALS (when you have data any other than daily logs) otherwise it will only calculate the totals of daily logs not the previous input."
+            );
+
+            if (sure2delete) {
+                console.log("Read data :", jsonData);
+                showSnackBar("Successfully read items");
+                await clearExceptPreviousInputs(true); 
+                console.log("Storage cleared");
+                localStorage.setItem(storage_key_daily_log, jsonString);
+                console.log("successfully set json values to daily logs");
+                calculateDailyLogsTotal();
+                showStats();
+            } else {
+                return;
+            } 
+        } catch (error) {
+            showSnackBar("Error, reading file", true);
+            console.log("error reading file", error);
+        }
+    };
+    reader.onerror = function () {
+        showSnackBar("Error reading file.", true);
+        console.error("FileReader error reading file:", reader.error);
+    };
+
+});
+
+/* @Delete data buttons  _____________________________________*/
+// function to delete daily stats from the local storage
+async function clearDailyStats(confirmation) {
+    let shouldDelete = confirmation;
+
+    if (shouldDelete === undefined) {
+        shouldDelete = await toggleConfiramtionPopup("Delete all daily stats?");
+    }
+
+    if (shouldDelete) {
         showSnackBar("Clearing Daily Stats...", undefined, 500);
         dailyLogs = [];
         localStorage.removeItem(storage_key_daily_log);
@@ -310,10 +364,14 @@ async function clearDailyStats(deleteAllEntries) {
         return;
     }
 };
-// function to delete previus stats from the local storage
-async function clearPreviousTotal() {
-    const deletePreviousTotals = await toggleConfiramtionPopup("Do you want to delete previous totals?");
-    if (deletePreviousTotals) {
+// function to delete all previus stats from the local storage
+async function clearPreviousInputAndPreviousTotals(confirmation) {
+    let shouldDelete = confirmation;
+    if (shouldDelete === undefined) {
+        shouldDelete = await toggleConfiramtionPopup("Do you want to delete previous totals?");
+
+    }
+    if (shouldDelete) {
         showSnackBar("Clearing Previous Stats...", undefined, 1000);
         localStorage.removeItem(storage_key_previous_total_input);
         localStorage.removeItem(storage_key_previous_plus_daily);
@@ -324,11 +382,31 @@ async function clearPreviousTotal() {
         return;
     }
 };
-// function to clear all values in the local storage
-window.clearLocalStorage = async function clearLocalStorage() {
-    const clear = await toggleConfiramtionPopup("Do you want to reset all the data stored in the browser? ");
 
-    if (clear) {
+// clear everything except previous input values from storage - used for importing json
+async function clearExceptPreviousInputs(confirmation) {
+    let shouldDelete = confirmation;
+    if (shouldDelete === undefined) {
+        shouldDelete = await toggleConfiramtionPopup("Do you want to clear everthing except previous user input values");
+    }
+    if (shouldDelete) {
+        showSnackBar("Clearing except previous input values....", undefined, 1000);
+        localStorage.removeItem(storage_key_daily_log);
+        localStorage.removeItem(storage_key_daily_logs_sum);
+        localStorage.removeItem(storage_key_previous_plus_daily);
+        debug && console.log("cleared all values except previous input");
+        debug && showlocalStorageData();
+    }
+}
+// function to clear all values in the local storage
+async function clearLocalStorage(confirmation) {
+    let shouldClear = confirmation;
+
+    if (shouldClear === undefined) {
+        shouldClear = await toggleConfiramtionPopup("Do you want to reset all the data stored in the browser? ");
+    }
+
+    if (shouldClear) {
         showSnackBar("Clearing LocalStorage...", undefined, 1000);
         localStorage.clear();
         showStats();
@@ -881,7 +959,7 @@ function showDataDate() {
     const dailyLogs = fetchDailyLogs();
     const selectedDate = deleteDate.value;
     const targetObject = dailyLogs.filter(logs => logs[DATE] == selectedDate);
-    showDataBeforeDeleting.textContent = targetObject.length === 0 ? "" : JSON.stringify(targetObject, null, "\t");
+    showDataBeforeDeleting.textContent = targetObject.length === 0 ? "" : JSON.stringify(targetObject, null, 2);
 }
 /* Show data for the requied serial number */
 function showDataSerial() {
@@ -891,7 +969,8 @@ function showDataSerial() {
     const selectedDate = deleteDate.value;
     const targetObject = dailyLogs.filter(logs => (Number(logs[SL_NO]) == Number(slNoselected)));
     // console.log("Target object is", JSON.stringify(targetObject));
-    showDataBeforeDeleting.textContent = targetObject.length === 0 ? "" : JSON.stringify(targetObject, null, "\t");
+    showDataBeforeDeleting.textContent = targetObject.length === 0 ? "" : JSON.stringify(targetObject, null, 2);
+
 }
 /* remove an item based on slno or date */
 removeLogDateBtn.addEventListener("click", async () => {
@@ -939,6 +1018,8 @@ removeLogDateBtn.addEventListener("click", async () => {
         }
     }
 });
+
+
 
 
 /* DOWNLOAD SECTION */
