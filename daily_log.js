@@ -315,13 +315,13 @@ importDailyLogsBtn.addEventListener("change", function (event) {
             const sure2delete = await toggleConfiramtionPopup(
                 "Are you sure to import the data? This will clear all your data except previous totals",
                 true,
-                "Before importing data make sure to set PREVIOUS TOTALS (when you have data any other than daily logs) otherwise it will only calculate the totals of daily logs not the previous input."
+                "IMPORTANT! Before importing data make sure to set PREVIOUS TOTALS (if you have data other than daily logs) otherwise it will only calculate the totals of daily logs not include the previous totals."
             );
 
             if (sure2delete) {
                 console.log("Read data :", jsonData);
                 showSnackBar("Successfully read items");
-                await clearExceptPreviousInputs(true); 
+                await clearExcept_PreviousInputs(true);
                 console.log("Storage cleared");
                 localStorage.setItem(storage_key_daily_log, jsonString);
                 console.log("successfully set json values to daily logs");
@@ -329,7 +329,7 @@ importDailyLogsBtn.addEventListener("change", function (event) {
                 showStats();
             } else {
                 return;
-            } 
+            }
         } catch (error) {
             showSnackBar("Error, reading file", true);
             console.log("error reading file", error);
@@ -384,7 +384,7 @@ async function clearPreviousInputAndPreviousTotals(confirmation) {
 };
 
 // clear everything except previous input values from storage - used for importing json
-async function clearExceptPreviousInputs(confirmation) {
+async function clearExcept_PreviousInputs(confirmation) {
     let shouldDelete = confirmation;
     if (shouldDelete === undefined) {
         shouldDelete = await toggleConfiramtionPopup("Do you want to clear everthing except previous user input values");
