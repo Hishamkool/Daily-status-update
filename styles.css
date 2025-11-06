@@ -54,6 +54,7 @@
 
  .header-title {
      font-family: var(--font-abeezee);
+     padding: 10px;
  }
 
  .developed-by {
