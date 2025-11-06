@@ -27,6 +27,30 @@
                 <button id="confirm-yes" class="popup-btns">YES</button>
             </div>
         </div>
+
+        <!-- backdrop -->
+        <div class="popup-backdrop" id="backdrop-add-lan">
+            <!-- add language popup -->
+            <div class="add-lan-popup" id="add-lan-popup">
+                <div class="add-lan-popup-title">
+                    <span>Add a new language</span>
+                </div>
+                <form id="add-language-form">
+                    <div class="key-value">
+                        <div class="key">
+                            <label for="language-key">
+                                <span>Language:</span>
+                                <input type="text" placeholder="eg., Json" name="language-name"
+                                    id="language-name"></label>
+                        </div>
+                        <div class="popup-btns-cnt">
+                            <button type="button" id="cancel-lan-add" class="popup-btns">Cancel</button>
+                            <button type="submit" id="confirm-lan-add" class="popup-btns">Add</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
         <!-- snackbars -->
         <div id="snack-bar"> </div>
         <!-- container for both input sections previous and daily -->
@@ -163,6 +187,10 @@
                             <input type="number" id="todays-react" name="todays-react" placeholder="121" min="0"
                                 title="Total lines of CSS code written">
                         </div>
+                        <!-- add new programing language to track the count -->
+                        <div class="form-item">
+                            <button type="button" class="add-lang-btn" id="add-lan-btn">Add Language</button>
+                        </div>
                         <div class="form-item">
                             <label>Total: </label>
                             <span>
@@ -266,7 +294,7 @@
                 </div>
 
                 <div class="import-btn-div">
-                    <label   for="import-daily-logs">
+                    <label for="import-daily-logs">
                         <div class="Import-title">Import Daily Logs: </div>
                         <p class="import-subtitle">Import a daily logs json file which you exported.</p>
                         <input type="file" accept=".json" id="import-daily-logs" title="Import Daily"
@@ -296,8 +324,10 @@
         </section>
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="debug.js"></script>
-    <script src="daily_log.js"></script>
+    <script src="javascript/debug.js"></script>
+    <!-- to add new languages -->
+    <script src="javascript/add_new_language.js"></script>
+    <script src="javascript/daily_log.js"></script>
 </body>
 
 </html>

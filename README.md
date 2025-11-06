@@ -3,15 +3,7 @@ Track daily progress and coding productivity
 LIVE WEBSITE: https://hishamkool.github.io/Daily-status-update/
 
 ## ✨ Features
-
-<!-- 1. **Automatic Previous Totals** – Previous totals are automatically calculated and displayed as you add new daily logs.  
-2. **Seamless Fresh Start** – Setting up new previous totals allows you to start fresh without any conflicts between daily logs and previous totals.  
-3. **Data Export Options** – Export your daily logs to either **XLSX (Excel)** or **CSV** format for easy backup or sharing.  
-4. **Copy Logs for Slack** – Instantly copy logs for any specific date in a **pre-formatted layout** suitable for submitting daily logs on Slack.  
-5. **Smart Input Handling** – Supports **copying and pasting** directly into time picker input fields for faster data entry in today’s stats.  
-6. **Local Storage Support** – All daily logs are securely stored in **browser local storage**, ensuring data persistence between sessions.  
-7. **Automatic Duration & LOC Calculation** – Effortlessly calculates the **duration** and **total lines of code (LOC)** for each entry.  
-8. **Smart Slack Date Autofill** – Once you submit a daily log, the “Copy to Slack” field automatically includes the date, saving you from manually selecting it again.  --> 
+ 
 1. **Automatic Previous Totals**  
    Instantly calculates and displays previous totals as you add new daily logs.
 

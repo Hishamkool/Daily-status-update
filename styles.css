@@ -136,6 +136,65 @@
      justify-content: space-between;
  }
 
+ /* add a new language button */
+ .add-lang-btn {
+     background-color: white;
+     border: none;
+     border: 1px solid grey;
+     border-radius: 5px;
+     padding: 3px 10px;
+     font-family: sans-serif;
+     font-weight: 500;
+     caret-color: salmon;
+ }
+
+ .add-lang-btn:active {
+     background-color: grey;
+ }
+
+ /* add language popup */
+ .popup-backdrop {
+     inset: 0;
+     display: none;
+     position: fixed;
+     -webkit-backdrop-filter: blur(2px);
+     backdrop-filter: blur(2px);
+ }
+ #backdrop-add-lan.visible{
+    display: block;
+ }
+
+
+
+ .add-lan-popup {
+     position: fixed;
+     inset: 0;
+     margin: auto;
+     background-color: #fff;
+     height: max-content;
+     width: max-content;
+     min-width: 250px;
+     min-height: 100px;
+     border: 1px solid rgba(0, 0, 0, 0.1);
+     border-radius: 13px;
+     padding: 10px;
+     z-index: 10;
+ }
+
+ .add-lan-popup-title {
+     padding-bottom: 15px;
+     text-align: start;
+     font-size: 16px;
+     font-weight: 600;
+ }
+
+ /* input field language */
+ #language-name {
+     border: 1px solid rgba(0, 0, 0, 0.1);
+     border-radius: 5px;
+     padding: 6px;
+ }
+
  .submit-btn-cnt {
      display: flex;
      flex-direction: row;
@@ -303,7 +362,7 @@
  /* import button style */
  /* button container */
  .import-btn-div {
-     font-family: sans-serif; 
+     font-family: sans-serif;
      padding: 10px;
      margin: 10px;
      background-image: var(--gradient-6);
@@ -311,8 +370,9 @@
      border-radius: 15px;
      border: 2px solid black;
  }
- .import-btn-div  *{
-    cursor: pointer;
+
+ .import-btn-div * {
+     cursor: pointer;
  }
 
 

@@ -91,11 +91,13 @@ const importDailyLogsBtn = document.getElementById("import-daily-logs");
 /* get stats */
 let dailyLogs = fetchDailyLogs();
 /* Popups */
+// confirmation popup
 const confirmationPopup = document.getElementById("ConfirmationBox");
 const confirmYes = document.getElementById("confirm-yes");
 const confirmNo = document.getElementById("confirm-no");
 const confirmMessage = document.getElementById("confirm-message");
 const confirmNote = document.getElementById("confirm-note");
+
 /* snackbar */
 const snackBar = document.getElementById("snack-bar");
 const snackBarData = document.getElementById("snack-bar-data");
@@ -319,31 +321,30 @@ importDailyLogsBtn.addEventListener("change", function (event) {
             const jsonPlainTxt = e.target.result;
             const jsonData = JSON.parse(jsonPlainTxt);
             const importPreviousInput = jsonData.previousInput;
-            const importDailyLogs = jsonData.dailyLogs; 
+            const importDailyLogs = jsonData.dailyLogs;
 
             const sure2delete = await toggleConfiramtionPopup(
                 "Are you sure to import the data? This will DELETE all your Data",
                 true, "Make sure to export you data for safety before import"
             );
 
-            if (sure2delete) {
-                console.log("Read data :", jsonData);
-                showSnackBar("Successfully read items");
-                const previousInputString = JSON.stringify(importPreviousInput);
-                const dailyLogsString = JSON.stringify(importDailyLogs);
+            if (!sure2delete) return;
 
-                // await clearExcept_PreviousInputs(true);
-                await clearLocalStorage(true);
-                console.log("Storage cleared");
-                localStorage.setItem(storage_key_previous_total_input, previousInputString);
-                localStorage.setItem(storage_key_daily_log, dailyLogsString);
+            console.log("Read data :", jsonData);
+            showSnackBar("Successfully read items");
+            const previousInputString = JSON.stringify(importPreviousInput);
+            const dailyLogsString = JSON.stringify(importDailyLogs);
 
-                console.log("successfully set json values to daily logs and previous inputs");
-                calculateDailyLogsTotal();
-                showStats();
-            } else {
-                return;
-            }
+            // await clearExcept_PreviousInputs(true);
+            await clearLocalStorage(true);
+            console.log("Storage cleared");
+            localStorage.setItem(storage_key_previous_total_input, previousInputString);
+            localStorage.setItem(storage_key_daily_log, dailyLogsString);
+
+            console.log("successfully set json values to daily logs and previous inputs");
+            calculateDailyLogsTotal();
+            showStats();
+
         } catch (error) {
             showSnackBar("Error, reading file", true);
             console.log("error reading file", error);
@@ -1118,7 +1119,7 @@ downloadCsv.addEventListener("click", () => {
     const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${exportFileName + " " + currentDateTime}.csv`;
+    link.download = `${debug ? "debug " : "" + exportFileName + " " + currentDateTime}.csv`;
     link.click();
 });
 
@@ -1174,7 +1175,7 @@ downloadExcel.addEventListener("click", () => {
     // console.log(worksheet);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "All daily logs");
-    XLSX.writeFile(workbook, `${exportFileName + " " + currentDateTime}.xlsx`);
+    XLSX.writeFile(workbook, `${debug ? "debug " : "" + exportFileName + " " + currentDateTime}.xlsx`);
 
 });
 
@@ -1197,7 +1198,7 @@ downloadJson.addEventListener("click", () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${exportFileName + " " + currentDateTime}.json`;
+    link.download = `${debug ? "debug " : "" + exportFileName + " " + currentDateTime}.json`;
     link.click();
 
 
