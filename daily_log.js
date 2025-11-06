@@ -1,7 +1,7 @@
 
 /* variables */
 /* debug status */
-const debug = false;
+const debug = true;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = 'dailyLogs';
@@ -248,6 +248,14 @@ function replaceData(existingIndex, entry) {
 
 };
 
+// function get current time
+function getCurrentTime() {
+    const now = new Date();
+
+    const time = now.toLocaleString();
+    debug && console.log(time);
+    return time;
+}
 
 
 // function to add todays data
@@ -310,21 +318,27 @@ importDailyLogsBtn.addEventListener("change", function (event) {
         try {
             const jsonPlainTxt = e.target.result;
             const jsonData = JSON.parse(jsonPlainTxt);
-            const jsonString = JSON.stringify(jsonData);
+            const importPreviousInput = jsonData.previousInput;
+            const importDailyLogs = jsonData.dailyLogs; 
 
             const sure2delete = await toggleConfiramtionPopup(
-                "Are you sure to import the data? This will clear all your data except previous totals",
-                true,
-                "IMPORTANT! Before importing data make sure to set PREVIOUS TOTALS (if you have data other than daily logs) otherwise it will only calculate the totals of daily logs not include the previous totals."
+                "Are you sure to import the data? This will DELETE all your Data",
+                true, "Make sure to export you data for safety before import"
             );
 
             if (sure2delete) {
                 console.log("Read data :", jsonData);
                 showSnackBar("Successfully read items");
-                await clearExcept_PreviousInputs(true);
+                const previousInputString = JSON.stringify(importPreviousInput);
+                const dailyLogsString = JSON.stringify(importDailyLogs);
+
+                // await clearExcept_PreviousInputs(true);
+                await clearLocalStorage(true);
                 console.log("Storage cleared");
-                localStorage.setItem(storage_key_daily_log, jsonString);
-                console.log("successfully set json values to daily logs");
+                localStorage.setItem(storage_key_previous_total_input, previousInputString);
+                localStorage.setItem(storage_key_daily_log, dailyLogsString);
+
+                console.log("successfully set json values to daily logs and previous inputs");
                 calculateDailyLogsTotal();
                 showStats();
             } else {
@@ -409,6 +423,7 @@ async function clearLocalStorage(confirmation) {
     if (shouldClear) {
         showSnackBar("Clearing LocalStorage...", undefined, 1000);
         localStorage.clear();
+        previousTotalsForm.reset();
         showStats();
         return `local storage cleared successfully : ${showlocalStorageData()}`
     }
@@ -472,7 +487,7 @@ function previousTotalsTillDate(ISOdate) {
 
 /* _________________working of previous total form_________________________________________________ */
 
-// function to add all the values of previous inputs or daily stats
+// function to add all the values of all daily stats and then calculate the previous totals
 function calculateDailyLogsTotal() {
     // calculating total lines of code from daily stats
     const dailyLogs = fetchDailyLogs();
@@ -667,7 +682,7 @@ function fetchPreviousPlusDaily() {
     } catch (error) {
         previousPlusDaily = [];
     }
-    console.log(`PreviousPlusDaily:${previousPlusDaily}`);
+    // debug && console.log(`PreviousPlusDaily:${JSON.stringify(previousPlusDaily)}`);
     return previousPlusDaily;
 }
 
@@ -1022,9 +1037,10 @@ removeLogDateBtn.addEventListener("click", async () => {
 
 
 
-/* DOWNLOAD SECTION */
+/* DOWNLOAD SECTION or @export section */
 // event listeners to download csv file
 downloadCsv.addEventListener("click", () => {
+    const currentDateTime = getCurrentTime();
     const dailyLogs = fetchDailyLogs();
     const dailyLogsSum = fetchDailyLogsSum();
     // if we have not stored any daily logs yet
@@ -1097,17 +1113,18 @@ downloadCsv.addEventListener("click", () => {
     });
 
     const csvData = headers.join(",") + "\n" + rows.join("\n");
-    console.log("csv file :", csvData);
+    debug && console.log("csv file :", csvData);
 
     const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${exportFileName}.csv`;
+    link.download = `${exportFileName + " " + currentDateTime}.csv`;
     link.click();
 });
 
 // download excel file
 downloadExcel.addEventListener("click", () => {
+    const currentDateTime = getCurrentTime();
     const dailyLogs = fetchDailyLogs();
     const dailyLogsSum = fetchDailyLogsSum();
 
@@ -1157,22 +1174,30 @@ downloadExcel.addEventListener("click", () => {
     // console.log(worksheet);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "All daily logs");
-    XLSX.writeFile(workbook, `${exportFileName}.xlsx`);
+    XLSX.writeFile(workbook, `${exportFileName + " " + currentDateTime}.xlsx`);
 
 });
 
 // donwload daily Logs in json format
 downloadJson.addEventListener("click", () => {
+    const currentDateTime = getCurrentTime();
     const dailylogs = fetchDailyLogs();
+    const previousInput = fetchPreviousInput();
+    const previousTotal = fetchPreviousPlusDaily();
     if (!dailylogs.length) {
         showSnackBar("No daily logs found to export", true, 2000);
         return;
     }
-    const blob = new Blob([JSON.stringify(dailylogs, null, 2)], { type: 'application/json' });
+    const exportData = {
+        previousTotal: previousTotal,
+        previousInput: previousInput,
+        dailyLogs: dailyLogs
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${exportFileName}.json`;
+    link.download = `${exportFileName + " " + currentDateTime}.json`;
     link.click();
 
 
