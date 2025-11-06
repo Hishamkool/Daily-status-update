@@ -1,7 +1,7 @@
 
 /* variables */
 /* debug status */
-const debug = true;
+const debug = false;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = 'dailyLogs';
