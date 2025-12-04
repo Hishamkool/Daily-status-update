@@ -7,6 +7,7 @@ const storage_key_daily_log = "dailyLogs";
 const storage_key_daily_logs_sum = "dailyLogsSum";
 const storage_key_previous_total_input = "previousTotalObj";
 const storage_key_previous_plus_daily = "previousPlusDaily";
+const storage_key_user_set_language_array = "userSetLanguages";
 
 /* CONSTANT KEY NAMES FOR OBJECTS */
 // ====== DAILY STATS KEYS ======
@@ -157,7 +158,7 @@ function calculateTotalLinesOfCode() {
   totalLOCAllTime.textContent = previousTotal;
 }
 // event listner for todays entry date
-todaysDate.addEventListener("input", partiallyUpdateTodaysEntry);
+todaysDate.addEventListener("change", partiallyUpdateTodaysEntry);
 
 // function to partially update todays entries or show the values of todats entries if data is already submitted
 async function partiallyUpdateTodaysEntry() {
