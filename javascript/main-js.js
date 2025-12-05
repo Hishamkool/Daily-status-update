@@ -108,7 +108,6 @@ const snackBarData = document.getElementById("snack-bar-data");
 /* INITIAL loading functions  */
 showStats();
 calculateTotalLinesOfCode();
-setPreviousInputsValues();
 
 if (debug) {
   outputItemsVisibility.forEach((outputItem) => {
@@ -598,7 +597,7 @@ function calculateDailyLogsTotal() {
     [JAVASCRIPT]: sumDailyStats.js,
     [REACT]: sumDailyStats.react,
     [DAILY_TOTAL]: sumDailyStats.previousTotal,
-    ...sumDailyStats.dynamicLanguages,
+    ...sumDailyStats.dynamicLanguages, // adding languages fields to total object
   };
 
   // debug && console.log("daily logs object:", dailyLogTotalObj);
@@ -704,50 +703,66 @@ previousTotalsForm.addEventListener("submit", async (event) => {
 // function to add previous totals input and daily logs sum
 function add_dailyStatsTotal_and_PreviousInput() {
   let dailyLogsSum = fetchDailyLogsSum();
-  let previousTotal = fetchPreviousInput();
+  let previousInput = fetchPreviousInput();
 
-  if (!previousTotal || Object.keys(previousTotal).length === 0) {
-    previousTotal = {
+  // if previous input is empty set default values
+  if (!previousInput || Object.keys(previousInput).length === 0) {
+    previousInput = {
       [TOTAL_FOCUS]: "00:00:00",
       [TOTAL_CODE_TIME]: "00:00:00",
       [TOTAL_ACTIVE_CODE_TIME]: "00:00:00",
-      [TOTAL_HTML]: 0,
-      [TOTAL_CSS]: 0,
-      [TOTAL_JS]: 0,
-      [TOTAL_REACT]: 0,
-      [ALL_TIME_TOTAL]: 0,
+      languages: {}, // to hold languages
     };
     localStorage.setItem(
       storage_key_previous_total_input,
-      JSON.stringify(previousTotal)
+      JSON.stringify(previousInput)
     );
   }
+  // if previous input or daily sum dosent contain the added languages add and set them to 0
+  const userLanguages = getUserLanguages();
+  userLanguages.forEach((lang) => {
+    //add it inside languages object
+    if (!previousInput.languages) previousInput.languages = {};
+    if (!(lang in previousInput.languages)) previousInput.languages[lang] = 0;
+    if (!dailyLogsSum.languages) dailyLogsSum.languages = {};
+    if (!(lang in dailyLogsSum)) dailyLogsSum.languages[lang] = 0;
+  });
+
+  // finding each language totals to an object
+  let languagesTotals = {};
+  userLanguages.forEach((lang) => {
+    languagesTotals[lang] =
+      (previousInput.languages[lang] || 0) + (dailyLogsSum[lang] || 0);
+  });
+
+  // now finding the totals of all languages
+  const allTimeTotal = Object.values(languagesTotals).reduce((acc, cur) => {
+    return acc + cur;
+  });
+  // const all_time_total_previous = userLanguages.reduce((acc, lang) => {});
 
   let previous_plus_daily_obj = {
     [DATE]: dailyLogsSum[LATEST_DATE] || previousDate.value,
     [TOTAL_FOCUS]: secondsToHMS(
-      time2Seconds(previousTotal[TOTAL_FOCUS]) +
+      time2Seconds(previousInput[TOTAL_FOCUS]) +
         time2Seconds(dailyLogsSum[FOCUS_TIME])
     ),
     [TOTAL_CODE_TIME]: secondsToHMS(
-      time2Seconds(previousTotal[TOTAL_CODE_TIME]) +
+      time2Seconds(previousInput[TOTAL_CODE_TIME]) +
         time2Seconds(dailyLogsSum[CODE_TIME])
     ),
     [TOTAL_ACTIVE_CODE_TIME]: secondsToHMS(
-      time2Seconds(previousTotal[TOTAL_ACTIVE_CODE_TIME]) +
+      time2Seconds(previousInput[TOTAL_ACTIVE_CODE_TIME]) +
         time2Seconds(dailyLogsSum[ACTIVE_CODE_TIME])
     ),
-    [TOTAL_HTML]: previousTotal[TOTAL_HTML] + dailyLogsSum[HTML],
-    [TOTAL_CSS]: previousTotal[TOTAL_CSS] + dailyLogsSum[KEY_CSS],
-    [TOTAL_JS]: previousTotal[TOTAL_JS] + dailyLogsSum[JAVASCRIPT],
-    [TOTAL_REACT]: previousTotal[TOTAL_REACT] + dailyLogsSum[REACT],
-    [ALL_TIME_TOTAL]:
-      previousTotal[TOTAL_HTML] +
-      dailyLogsSum[HTML] +
-      (previousTotal[TOTAL_CSS] + dailyLogsSum[KEY_CSS]) +
-      (previousTotal[TOTAL_JS] + dailyLogsSum[JAVASCRIPT]) +
-      (previousTotal[TOTAL_REACT] + dailyLogsSum[REACT]),
+    [TOTAL_HTML]: previousInput[TOTAL_HTML] + dailyLogsSum[HTML],
+    [TOTAL_CSS]: previousInput[TOTAL_CSS] + dailyLogsSum[KEY_CSS],
+    [TOTAL_JS]: previousInput[TOTAL_JS] + dailyLogsSum[JAVASCRIPT],
+    [TOTAL_REACT]: previousInput[TOTAL_REACT] + dailyLogsSum[REACT],
+    ...languagesTotals,
+    [ALL_TIME_TOTAL]: allTimeTotal,
   };
+
   localStorage.setItem(
     storage_key_previous_plus_daily,
     JSON.stringify(previous_plus_daily_obj)
@@ -770,15 +785,33 @@ function setPreviousInputsValues() {
   totalCodeTime.value = previousPlusDaily[TOTAL_CODE_TIME] || "00:00:00";
   totalActiveCodeTime.value =
     previousPlusDaily[TOTAL_ACTIVE_CODE_TIME] || "00:00:00";
+  //defaulst languages
   totalHtml.value = previousPlusDaily[TOTAL_HTML] || 0;
   totalCss.value = previousPlusDaily[TOTAL_CSS] || 0;
   totalJS.value = previousPlusDaily[TOTAL_JS] || 0;
   totalReact.value = previousPlusDaily[TOTAL_REACT] || 0;
-  totalLOCAllTime.textContent =
+  // for static languages total
+  let allTimeTotal =
     previousPlusDaily[TOTAL_HTML] +
     previousPlusDaily[TOTAL_CSS] +
     previousPlusDaily[TOTAL_JS] +
     previousPlusDaily[TOTAL_REACT];
+
+  //dynamically add user added languages
+  const userLanguages = getUserLanguages();
+  userLanguages.forEach((lang) => {
+    const input = document.getElementById(`${previousPrefix}-${lang}`);
+    if (!input) {
+      console.error(
+        `input field dosent exists for previous total : ${previousPrefix}-${lang}`
+      );
+    } else {
+      input.value = previousPlusDaily[lang] || 0;
+      allTimeTotal += previousPlusDaily[lang] || 0;
+    }
+  });
+
+  totalLOCAllTime.value = allTimeTotal;
 }
 // function to retrieve the sum of daily logs plus previous total input values
 function fetchPreviousPlusDaily() {

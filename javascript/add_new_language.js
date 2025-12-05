@@ -106,7 +106,10 @@ function renderLanguages(languageName) {
 }
 
 // for everly languages added by the user rendering it while page load
-window.addEventListener("DOMContentLoaded", renderLanguagesOnStartUp);
+window.addEventListener("DOMContentLoaded", () => {
+  renderLanguagesOnStartUp();
+  setPreviousInputsValues();
+});
 
 function renderLanguagesOnStartUp() {
   const savedLanguages = JSON.parse(
