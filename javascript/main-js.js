@@ -1,6 +1,6 @@
 /* variables */
 /* debug status */
-const debug = false;
+const debug = true;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = "dailyLogs";
@@ -119,48 +119,55 @@ if (debug) {
     outputItem.classList.remove("visible");
   });
 }
-// funtion to get the stored daily log file
-function fetchDailyLogs() {
-  return JSON.parse(localStorage.getItem(storage_key_daily_log)) || [];
-}
 
-// even listners for total lines of code as user inputs data
-[
-  todaysHTML,
-  todaysCSS,
-  todaysJS,
-  todaysReact,
-  totalHtml,
-  totalCss,
-  totalJS,
-  totalReact,
-].forEach((input) => {
-  input.addEventListener("input", calculateTotalLinesOfCode);
+// adding event listners to static and dynamic lines of code
+programingLanguages.forEach((section) => {
+  section.addEventListener("input", calculateTotalLinesOfCode);
 });
 
 // function to add and set todays total lines of code for todays entry and previous total
 function calculateTotalLinesOfCode() {
+  let todaysTotal = 0;
+  let previousTotal = 0;
+
   // todays fields total
-  let todaysTotal =
+  todaysTotal =
     (Number(todaysHTML.value) || 0) +
     (Number(todaysCSS.value) || 0) +
     (Number(todaysJS.value) || 0) +
     (Number(todaysReact.value) || 0);
-  todaysTotalLoc.value = todaysTotal;
-  todaysTotalLoc.textContent = todaysTotal;
+
   // previous fields total
-  let previousTotal =
+  previousTotal =
     (Number(totalHtml.value) || 0) +
     (Number(totalCss.value) || 0) +
     (Number(totalJS.value) || 0) +
     (Number(totalReact.value) || 0);
+
+  // now need to add user input fields total lines of code
+  const userLanguages = getUserLanguages();
+
+  userLanguages.forEach((lang) => {
+    const userInput = document.getElementById(`${todaysPrefix}-${lang}`);
+    const previousInput = document.getElementById(`${previousPrefix}-${lang}`);
+    if (userInput) {
+      todaysTotal += Number(userInput.value) || 0;
+    }
+    if (previousInput) {
+      previousTotal += Number(previousInput.value) || 0;
+    }
+  });
+
+  todaysTotalLoc.value = todaysTotal;
+  todaysTotalLoc.textContent = todaysTotal;
+
   totalLOCAllTime.value = previousTotal;
   totalLOCAllTime.textContent = previousTotal;
 }
 // event listner for todays entry date
 todaysDate.addEventListener("change", partiallyUpdateTodaysEntry);
 
-// function to partially update todays entries or show the values of todats entries if data is already submitted
+// function to partially update todays entries or SHOW THE VALUES OF TODATS ENTRIES IF DATA IS ALREADY SUBMITTED
 async function partiallyUpdateTodaysEntry() {
   const dailyLogs = fetchDailyLogs();
   const submitDate = todaysDate.value;
@@ -190,6 +197,35 @@ async function partiallyUpdateTodaysEntry() {
       }
     }
   }
+}
+// function to build daily logs object for incorporating user set languages
+function buildDailyLogsObject(prefix) {
+  let daily_logs_input_obj = {
+    [DATE]: todaysDate.value,
+    [TYPING_SPEED]: typingSpeed.value,
+    [TYPING_ACCURACY]: typingAccuracy.value,
+    [FOCUS_TIME]: todaysFocus.value || "00:00:00",
+    [CODE_TIME]: todaysCodeTime.value || "00:00:00",
+    [ACTIVE_CODE_TIME]: todaysActiveCodeTime.value || "00:00:00",
+    [HTML]: Number(todaysHTML.value) || 0,
+    [KEY_CSS]: Number(todaysCSS.value) || 0,
+    [JAVASCRIPT]: Number(todaysJS.value) || 0,
+    [REACT]: Number(todaysReact.value) || 0,
+    [DAILY_TOTAL]: todaysTotalLoc.value,
+  };
+
+  // adding user set languages to the object
+  const userLanguages = getUserLanguages();
+  userLanguages.forEach((lang) => {
+    const input = document.querySelector(`input[name="${prefix}-${lang}"]`);
+    daily_logs_input_obj[lang] = input ? Number(input.value) || 0 : 0;
+  });
+
+  return daily_logs_input_obj;
+}
+// funtion to get the stored daily log file
+function fetchDailyLogs() {
+  return JSON.parse(localStorage.getItem(storage_key_daily_log)) || [];
 }
 
 // sumbit event listner on todays stats - todays submit
@@ -221,20 +257,8 @@ todaysStatsForm.addEventListener("submit", async function (event) {
         )
       : true;
   if (!sure2submit) return;
-
-  let daily_logs_input_obj = {
-    [DATE]: todaysDate.value,
-    [TYPING_SPEED]: typingSpeed.value,
-    [TYPING_ACCURACY]: typingAccuracy.value,
-    [FOCUS_TIME]: todaysFocus.value || "00:00:00",
-    [CODE_TIME]: todaysCodeTime.value || "00:00:00",
-    [ACTIVE_CODE_TIME]: todaysActiveCodeTime.value || "00:00:00",
-    [HTML]: Number(todaysHTML.value) || 0,
-    [KEY_CSS]: Number(todaysCSS.value) || 0,
-    [JAVASCRIPT]: Number(todaysJS.value) || 0,
-    [REACT]: Number(todaysReact.value) || 0,
-    [DAILY_TOTAL]: todaysTotalLoc.value,
-  };
+  // building daily logs object for static and dynamic languages
+  let daily_logs_input_obj = buildDailyLogsObject(todaysPrefix);
 
   // id date matches with output (prestored values)
   if (existingIndex !== -1) {
@@ -252,11 +276,6 @@ todaysStatsForm.addEventListener("submit", async function (event) {
     // i.e., exsisting index == -1 means(no entrt found) its a new entry then add
     addData(daily_logs_input_obj);
   }
-
-  /* 
-    // remove this [debug] - to set random numbers to the lines of code for testing
-    debug && setRandomValuesToLinesOfCode(); 
-    */
 
   // function call to calculate the dailyLogsTotal
   calculateDailyLogsTotal();
@@ -530,8 +549,9 @@ function previousTotalsTillDate(ISOdate) {
 
 // function to add all the values of all daily stats and then calculate the previous totals
 function calculateDailyLogsTotal() {
-  // calculating total lines of code from daily stats
   const dailyLogs = fetchDailyLogs();
+  const userLanguages = getUserLanguages();
+
   const sumDailyStats = dailyLogs.reduce(
     (acc, currnt) => {
       if (!acc.latestDate || new Date(currnt.date) > new Date(acc.latestDate)) {
@@ -544,6 +564,13 @@ function calculateDailyLogsTotal() {
       acc.css += currnt[KEY_CSS] || 0;
       acc.js += currnt[JAVASCRIPT] || 0;
       acc.react += currnt[REACT] || 0;
+
+      // adding user set languages totals
+      userLanguages.forEach((lang) => {
+        acc.dynamicLanguages[lang] =
+          (acc.dynamicLanguages[lang] || 0) + (currnt[lang] || 0);
+      });
+
       acc.previousTotal += currnt[DAILY_TOTAL] || 0;
       return acc;
     },
@@ -557,6 +584,7 @@ function calculateDailyLogsTotal() {
       js: 0,
       react: 0,
       previousTotal: 0,
+      dynamicLanguages: {},
     }
   );
 
@@ -570,6 +598,7 @@ function calculateDailyLogsTotal() {
     [JAVASCRIPT]: sumDailyStats.js,
     [REACT]: sumDailyStats.react,
     [DAILY_TOTAL]: sumDailyStats.previousTotal,
+    ...sumDailyStats.dynamicLanguages,
   };
 
   // debug && console.log("daily logs object:", dailyLogTotalObj);
