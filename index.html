@@ -1,217 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="assets/png/dailyLog512.png">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="assets/png/dailyLog512.png" />
     <title>Daily Log Vonnue</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <header>
-        <h1 class="header-title">Daily log calculator</h1>
-        <span class="developed-by">Muhammed Hisham</span>
+      <h1 class="header-title">Daily log calculator</h1>
+      <span class="developed-by">Muhammed Hisham</span>
     </header>
     <main>
-        <!-- popups -->
-        <!--   <button popovertarget="ConfirmationBox">test</button> -->
-        <div id="ConfirmationBox" class="popups" popover="auto">
-            <div class="popup-title">Are You Sure?</div>
-            <div id="confirm-message">This will delete all the data stored in the localstorage</div>
-            <div id="confirm-note">Note: This action cannot be undone!</div>
-            <div class="popup-btns-cnt">
-                <button id="confirm-no" class="popup-btns">NO</button>
-                <button id="confirm-yes" class="popup-btns">YES</button>
+      <!-- popups -->
+      <!--   <button popovertarget="ConfirmationBox">test</button> -->
+      <div id="ConfirmationBox" class="popups" popover="auto">
+        <div class="popup-title">Are You Sure?</div>
+        <div id="confirm-message">
+          This will delete all the data stored in the localstorage
+        </div>
+        <div id="confirm-note">Note: This action cannot be undone!</div>
+        <div class="popup-btns-cnt">
+          <button id="confirm-no" class="popup-btns">NO</button>
+          <button id="confirm-yes" class="popup-btns">YES</button>
+        </div>
+      </div>
+
+      <!-- backdrop -->
+      <div class="popup-backdrop" id="backdrop-add-lan">
+        <!-- add language popup -->
+        <div class="add-lan-popup" id="add-lan-popup">
+          <div class="add-lan-popup-title">
+            <span>Add a new language</span>
+          </div>
+          <form id="add-language-form">
+            <div class="key-value">
+              <div class="key">
+                <label for="language-key">
+                  <span>Language:</span>
+                  <input
+                    type="text"
+                    placeholder="eg., Json"
+                    name="language-name"
+                    id="language-name"
+                /></label>
+              </div>
+              <div class="popup-btns-cnt">
+                <button type="button" id="cancel-lan-add" class="popup-btns">
+                  Cancel
+                </button>
+                <button type="submit" id="confirm-lan-add" class="popup-btns">
+                  Add
+                </button>
+              </div>
             </div>
+          </form>
         </div>
-
-        <!-- backdrop -->
-        <div class="popup-backdrop" id="backdrop-add-lan">
-            <!-- add language popup -->
-            <div class="add-lan-popup" id="add-lan-popup">
-                <div class="add-lan-popup-title">
-                    <span>Add a new language</span>
+      </div>
+      <!-- snackbars -->
+      <div id="snack-bar"></div>
+      <!-- container for both input sections previous and daily -->
+      <div class="input-sections-cnt">
+        <!-- PREVIOUS ENTRY -->
+        <section class="input-section">
+          <div class="section-title">
+            <h3 class="section-title-heading">Previous Total:</h3>
+            <span class="form-date">
+              <label for="previous-total-date" class="form-date-label"
+                >Date:
+              </label>
+              <input
+                type="date"
+                id="previous-total-date"
+                form="previous-total-form"
+                required
+              />
+            </span>
+          </div>
+          <!-- debug remove no validation -->
+          <form id="previous-total-form" class="both-forms">
+            <div class="section-form-items">
+              <div class="form-item">
+                <label for="previous-focus-time" title="Focus time in HH:MM:SS"
+                  >Focus:</label
+                >
+                <input
+                  type="text"
+                  title="HHHH:MM:SS"
+                  placeholder="43:24:56"
+                  class="previous-input-time"
+                  id="previous-focus-time"
+                  required
+                />
+              </div>
+              <div class="form-item">
+                <label for="previous-ct" title="Code time in HH:MM:SS"
+                  >CT:</label
+                >
+                <input
+                  type="text"
+                  title="hours:MM:SS"
+                  placeholder="300:28:19"
+                  class="previous-input-time"
+                  id="previous-ct"
+                  required
+                />
+              </div>
+              <div class="form-item">
+                <label for="previous-act" title="Active Code time in HH:MM:SS"
+                  >ACT:</label
+                >
+                <input
+                  type="text"
+                  title="hours:MM:SS"
+                  placeholder="280:12:47"
+                  class="previous-input-time"
+                  id="previous-act"
+                  required
+                />
+              </div>
+              <div class="programing-languages">
+                <div class="form-item">
+                  <label for="previous-html">HTML: </label>
+                  <input
+                    type="number"
+                    id="previous-html"
+                    name="previous-html"
+                    placeholder="121"
+                    min="0"
+                    title="Total lines of HTML code written"
+                  />
                 </div>
-                <form id="add-language-form">
-                    <div class="key-value">
-                        <div class="key">
-                            <label for="language-key">
-                                <span>Language:</span>
-                                <input type="text" placeholder="eg., Json" name="language-name"
-                                    id="language-name"></label>
-                        </div>
-                        <div class="popup-btns-cnt">
-                            <button type="button" id="cancel-lan-add" class="popup-btns">Cancel</button>
-                            <button type="submit" id="confirm-lan-add" class="popup-btns">Add</button>
-                        </div>
-                    </div>
-                </form>
+                <div class="form-item">
+                  <label for="previous-css">CSS: </label>
+                  <input
+                    type="number"
+                    id="previous-css"
+                    name="previous-css"
+                    placeholder="121"
+                    min="0"
+                    title="Total lines of CSS code written"
+                  />
+                </div>
+                <div class="form-item">
+                  <label for="previous-js">JS: </label>
+                  <input
+                    type="number"
+                    id="previous-js"
+                    name="previous-js"
+                    placeholder="121"
+                    min="0"
+                    title="Total lines of CSS code written"
+                  />
+                </div>
+                <div class="form-item">
+                  <label for="previous-react">React: </label>
+                  <input
+                    type="number"
+                    id="previous-react"
+                    name="previous-react"
+                    placeholder="121"
+                    min="0"
+                    title="Total lines of CSS code written"
+                  />
+                </div>
+              </div>
+              <div class="form-item">
+                <label>Total: </label>
+                <span>
+                  <span id="previous-total-alltimeloc">0</span>
+                </span>
+              </div>
             </div>
-        </div>
-        <!-- snackbars -->
-        <div id="snack-bar"> </div>
-        <!-- container for both input sections previous and daily -->
-        <div class="input-sections-cnt">
-            <!-- PREVIOUS ENTRY -->
-            <section class="input-section">
-                <div class="section-title">
-                    <h3 class="section-title-heading">Previous Total: </h3>
-                    <span class="form-date">
-                        <label for="previous-total-date" class="form-date-label">Date: </label>
-                        <input type="date" id="previous-total-date" form="previous-total-form" required>
-                    </span>
+            <div class="submit-btn-cnt">
+              <button type="submit" class="submit-btn">Submit</button>
+            </div>
+          </form>
+        </section>
+        <!-- TODAYS ENTRY -->
+        <section class="input-section">
+          <div class="section-title">
+            <h3 class="section-title-heading">Todays Entry:</h3>
+            <span class="form-date">
+              <label for="todays-entry-date" class="form-date-label"
+                >Date:
+              </label>
+              <input
+                type="date"
+                id="todays-entry-date"
+                form="todays-data-form"
+                s
+                name="todays-stats-date"
+                required
+              />
+            </span>
+          </div>
+          <form id="todays-data-form" class="both-forms">
+            <div class="section-form-items">
+              <div class="form-item">
+                <label for="" title="Enter typing speeds in wpm"
+                  >Typing :</label
+                >
+                <div class="typing-speed-content">
+                  <span>
+                    <input
+                      type="number"
+                      class="typing-fields"
+                      id="typing-wpm"
+                      name="typing-wpm"
+                      placeholder="50"
+                    />
+                    <label for="typing-wpm">wpm</label>
+                  </span>
+                  <span>
+                    <input
+                      type="number"
+                      class="typing-fields"
+                      id="typing-accuracy"
+                      name="typing-accuracy"
+                      placeholder="97"
+                    />
+                    <label for="typing-accuracy">%</label>
+                  </span>
                 </div>
-                <!-- debug remove no validation -->
-                <form id="previous-total-form" class="both-forms">
-
-                    <div class="section-form-items">
-
-
-                        <div class="form-item">
-                            <label for="previous-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
-                            <input type="text" title="HHHH:MM:SS" placeholder="43:24:56" class="previous-input-time"
-                                id="previous-focus-time" required>
-                        </div>
-                        <div class="form-item">
-                            <label for="previous-ct" title="Code time in HH:MM:SS">CT:</label>
-                            <input type="text" title="hours:MM:SS" placeholder="300:28:19" class="previous-input-time"
-                                id="previous-ct" required>
-                        </div>
-                        <div class="form-item">
-                            <label for="previous-act" title="Active Code time in HH:MM:SS">ACT:</label>
-                            <input type="text" title="hours:MM:SS" placeholder="280:12:47" class="previous-input-time"
-                                id="previous-act" required>
-                        </div>
-                        <div class="programing-languages">
-                            <div class="form-item">
-                                <label for="previous-html">HTML: </label>
-                                <input type="number" id="previous-html" name="previous-html" placeholder="121" min="0"
-                                    title="Total lines of HTML code written">
-                            </div>
-                            <div class="form-item">
-                                <label for="previous-css">CSS: </label>
-                                <input type="number" id="previous-css" name="previous-css" placeholder="121" min="0"
-                                    title="Total lines of CSS code written">
-                            </div>
-                            <div class="form-item">
-                                <label for="previous-js">JS: </label>
-                                <input type="number" id="previous-js" name="previous-js" placeholder="121" min="0"
-                                    title="Total lines of CSS code written">
-                            </div>
-                            <div class="form-item">
-                                <label for="previous-react">React: </label>
-                                <input type="number" id="previous-react" name="previous-react" placeholder="121" min="0"
-                                    title="Total lines of CSS code written">
-                            </div>
-                        </div>
-                        <div class="form-item">
-                            <label>Total: </label>
-                            <span>
-                                <span id="previous-total-alltimeloc">0</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="submit-btn-cnt"><button type="submit" class="submit-btn">Submit</button></div>
-                </form>
-            </section>
-            <!-- TODAYS ENTRY -->
-            <section class="input-section">
-                <div class="section-title">
-                    <h3 class="section-title-heading">Todays Entry: </h3>
-                    <span class="form-date">
-                        <label for="todays-entry-date" class="form-date-label">Date: </label>
-                        <input type="date" id="todays-entry-date" form="todays-data-form" s name="todays-stats-date"
-                            required>
-                    </span>
+              </div>
+              <div class="form-item">
+                <label for="todays-focus-time" title="Focus time in HH:MM:SS"
+                  >Focus:</label
+                >
+                <input
+                  type="time"
+                  id="todays-focus-time"
+                  name="todays-focus-time"
+                  step="1"
+                  onpaste="allowPasting(event)"
+                  oninput="validateTimeFormat(this)"
+                  placeholder="00:00:00"
+                  title="Use Ctrl+V to paste time"
+                  lang="en-GB"
+                  required
+                />
+              </div>
+              <div class="form-item">
+                <label for="todays-ct" title="Code time in HH:MM:SS">CT:</label>
+                <input
+                  type="time"
+                  id="todays-ct"
+                  name="todays-ct"
+                  step="1"
+                  onpaste="allowPasting(event)"
+                  oninput="validateTimeFormat(this)"
+                  placeholder="00:00:00"
+                  title="Use Ctrl+V to paste time"
+                  required
+                />
+              </div>
+              <div class="form-item">
+                <label for="todays-act" title="Active Code time in HH:MM:SS"
+                  >ACT:</label
+                >
+                <input
+                  type="time"
+                  id="todays-act"
+                  name="todays-act"
+                  step="1"
+                  onpaste="allowPasting(event)"
+                  oninput="validateTimeFormat(this)"
+                  placeholder="00:00:00"
+                  title="Use Ctrl+V to paste time"
+                  required
+                />
+              </div>
+              <div class="programing-languages">
+                <div class="form-item">
+                  <label for="todays-html">HTML: </label>
+                  <input
+                    type="number"
+                    id="todays-html"
+                    name="todays-html"
+                    placeholder="121"
+                    min="0"
+                    title="Total lines of HTML code written"
+                  />
                 </div>
-                <form id="todays-data-form" class="both-forms">
-                    <div class="section-form-items">
-                        <div class="form-item">
-                            <label for="" title="Enter typing speeds in wpm">Typing :</label>
-                            <div class="typing-speed-content">
-                                <span>
-                                    <input type="number" class="typing-fields" id="typing-wpm" name="typing-wpm"
-                                        placeholder="50">
-                                    <label for="typing-wpm">wpm</label>
-                                </span>
-                                <span>
-                                    <input type="number" class="typing-fields" id="typing-accuracy"
-                                        name="typing-accuracy" placeholder="97">
-                                    <label for="typing-accuracy">%</label>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="form-item">
-                            <label for="todays-focus-time" title="Focus time in HH:MM:SS">Focus:</label>
-                            <input type="time" id="todays-focus-time" name="todays-focus-time" step="1"
-                                onpaste="allowPasting(event)" oninput="validateTimeFormat(this)" placeholder="00:00:00"
-                                title="Use Ctrl+V to paste time" lang="en-GB" required>
-                        </div>
-                        <div class="form-item">
-                            <label for="todays-ct" title="Code time in HH:MM:SS">CT:</label>
-                            <input type="time" id="todays-ct" name="todays-ct" step="1" onpaste="allowPasting(event)"
-                                oninput="validateTimeFormat(this)" placeholder="00:00:00"
-                                title="Use Ctrl+V to paste time" required>
-                        </div>
-                        <div class="form-item">
-                            <label for="todays-act" title="Active Code time in HH:MM:SS">ACT:</label>
-                            <input type="time" id="todays-act" name="todays-act" step="1" onpaste="allowPasting(event)"
-                                oninput="validateTimeFormat(this)" placeholder="00:00:00"
-                                title="Use Ctrl+V to paste time" required>
-                        </div>
-                        <div class="programing-languages">
-                            <div class="form-item">
-                                <label for="todays-html">HTML: </label>
-                                <input type="number" id="todays-html" name="todays-html" placeholder="121" min="0"
-                                    title="Total lines of HTML code written">
-                            </div>
-                            <div class="form-item">
-                                <label for="todays-css">CSS: </label>
-                                <input type="number" id="todays-css" name="todays-css" placeholder="121" min="0"
-                                    title="Total lines of CSS code written">
-                            </div>
-                            <div class="form-item">
-                                <label for="todays-js">JS: </label>
-                                <input type="number" id="todays-js" name="todays-js" placeholder="121" min="0"
-                                    title="Total lines of CSS code written">
-                            </div>
-                            <div class="form-item">
-                                <label for="todays-react">React: </label>
-                                <input type="number" id="todays-react" name="todays-react" placeholder="121" min="0"
-                                    title="Total lines of CSS code written">
-                            </div>
-                        </div>
-                        <!-- add new programing language to track the count -->
-                        <div class="form-item">
-                            <button type="button" class="add-lang-btn" id="add-lan-btn">Add Language</button>
-                        </div>
-                        <div class="form-item">
-                            <label>Total: </label>
-                            <span>
-                                <span id="todays-total-loc">0</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="submit-btn-cnt"><button type="submit" class="submit-btn">Submit</button></div>
-                </form>
-            </section>
-        </div>
+                <div class="form-item">
+                  <label for="todays-css">CSS: </label>
+                  <input
+                    type="number"
+                    id="todays-css"
+                    name="todays-css"
+                    placeholder="121"
+                    min="0"
+                    title="Total lines of CSS code written"
+                  />
+                </div>
+                <div class="form-item">
+                  <label for="todays-js">JS: </label>
+                  <input
+                    type="number"
+                    id="todays-js"
+                    name="todays-js"
+                    placeholder="121"
+                    min="0"
+                    title="Total lines of CSS code written"
+                  />
+                </div>
+                <div class="form-item">
+                  <label for="todays-react">React: </label>
+                  <input
+                    type="number"
+                    id="todays-react"
+                    name="todays-react"
+                    placeholder="121"
+                    min="0"
+                    title="Total lines of CSS code written"
+                  />
+                </div>
+              </div>
+              <!-- add new programing language to track the count -->
+              <div class="form-item">
+                <button type="button" class="add-lang-btn" id="add-lan-btn">
+                  Add Language
+                </button>
+              </div>
+              <div class="form-item">
+                <label>Total: </label>
+                <span>
+                  <span id="todays-total-loc">0</span>
+                </span>
+              </div>
+            </div>
+            <div class="submit-btn-cnt">
+              <button type="submit" class="submit-btn">Submit</button>
+            </div>
+          </form>
+        </section>
+      </div>
 
-        <div class="copy-export-section-container">
-            <!-- copy stats in the format required for slack submission -->
-            <section class="manage-stats-section">
-                <span class="section-title">Copy To Slack:</span>
-                <p class="section-subtitle">Choose a date to copy the daily stats to the clipboard.</p>
+      <div class="copy-export-section-container">
+        <!-- copy stats in the format required for slack submission -->
+        <section class="manage-stats-section">
+          <span class="section-title">Copy To Slack:</span>
+          <p class="section-subtitle">
+            Choose a date to copy the daily stats to the clipboard.
+          </p>
 
-
-                <label for="copy-stats-date">Date:
-                    <input type="date" name="copy-stats-date" id="copy-stats-date">
-                </label>
-                <pre id="show-data-clipboard"></pre>
-                <button id="copy_stats" title="e.g.,
+          <label for="copy-stats-date"
+            >Date:
+            <input type="date" name="copy-stats-date" id="copy-stats-date" />
+          </label>
+          <pre id="show-data-clipboard"></pre>
+          <button
+            id="copy_stats"
+            title="e.g.,
                     Typing   : [63wpm][99%]
                     Focus    : [12hr 04min][736hr 30min]
                     CT       : [7hr 35min][494hr 48min]
@@ -221,110 +365,171 @@
                     Js       : [2][6014]
                     json     : [0][2702]
                     React    : [107[2884]
-                    Total    : [389][26,243]" class="copy-stats-btn" type="button">
-                    <img class="slack-icon" src="assets/png/slack.png" alt="slack icon">
-                    <span>Copy Stats</span>
-
-                </button>
-            </section>
-            <!-- section to export the daily logs to csv or excel files -->
-            <section class="manage-stats-section">
-                <span class="section-title">Click To Export:</span>
-                <p class="section-subtitle">Click to download complete Daily logs.</p>
-                <div class="buttons-continer">
-                    <button id="download-csv" title="download all daily logs in csv format" class="download-buttons">
-                        <img class="download-btn-logo" src="assets/svg/csv-logo.svg" alt="download in csv format icon">
-                        <div class="download-btn-text">Export CSV</div>
-                    </button>
-                    <button id="download-excel" title="download all daily logs in excel format"
-                        class="download-buttons">
-                        <img class="download-btn-logo" src="assets/svg/excel-logo1.svg"
-                            alt="download in excel format icon">
-                        <div class="download-btn-text">Export Excel</div>
-                    </button>
-                    <button id="download-json" class="download-buttons" title="download dailylogs in json format">
-                        <img class="download-btn-logo" src="assets/png/JsonFile.png"
-                            alt="download in excel format icon">
-                        <div class="download-btn-text">Export Json</div>
-                    </button>
-                </div>
-            </section>
-            <!-- delete data secion -->
-            <section class="manage-stats-section">
-                <span class="section-title">Delete a Log</span>
-                <p class="section-subtitle">Choose a Serial No. Or Date to delete that particular Daily Log.</p>
-
-                <div class="delete-selector-cnt">
-                    <label for="serial-number">
-                        Serial Number
-                        <input type="number" size="2" id="serial-number">
-                    </label>
-                    <span>or</span>
-                    <label for="delete-date">
-                        Date:
-                        <input type="date" size="2" id="delete-date">
-                    </label>
-                </div>
-                <pre id="show-data"></pre>
-
-                <button type="submit" class="delete-btn " id="remove-one-day-log"
-                    title="Remove the log of the selected date">
-                    <img class="delete-icon" src="assets/png/bin.png" alt="delete logs icon">
-                    <span>Delete Log</span>
-                </button>
-            </section>
-
-        </div>
-
-        <!-- show output section -->
-        <section id="output">
-            <span class="section-title">Output:</span>
-            <div class="output-box">
-                <div class="output-btns-cnt">
-                    <button class="output-btns" onclick="showStats()" title="show all output">Refresh Output</button>
-                    <button class="output-btns" title="clear all the recorded daily stats from todats stats window"
-                        onclick="clearDailyStats()">Clear Daily Stats</button>
-                    <button class="output-btns" title="clear previous totals" onclick="clearPreviousTotal()">Reset
-                        Previous Stats </button>
-                    <button class="output-btns" title="Clear complete local storage" onclick="clearLocalStorage()">Clear
-                        All Data</button>
-                </div>
-
-                <div class="import-btn-div">
-                    <label for="import-daily-logs">
-                        <div class="Import-title">Import Daily Logs: </div>
-                        <p class="import-subtitle">Import a daily logs json file which you exported.</p>
-                        <input type="file" accept=".json" id="import-daily-logs" title="Import Daily"
-                            placeholder="Import DailyLogs">
-                    </label>
-                </div>
-                <div>
-                    <h5 class="output-title">Previous total:</h5>
-                    <pre class="previous-plus-dailystats output-file-style"></pre>
-                </div>
-                <!-- too debug previous input values -->
-                <div class="output-items-visibility">
-                    <h5 class="output-title">Previous Input:</h5>
-                    <pre class="previous-output output-file-style"></pre>
-                </div>
-                <div class="output-items-visibility">
-                    <h5 class="output-title">Daily Status Sum:</h5>
-                    <pre class="daily-stats-sum output-file-style"></pre>
-                </div>
-                <div>
-                    <h5 class="output-title">Daily Stats:</h5>
-                    <pre class="output-file output-file-style"></pre>
-                </div>
-
-
-            </div>
+                    Total    : [389][26,243]"
+            class="copy-stats-btn"
+            type="button"
+          >
+            <img
+              class="slack-icon"
+              src="assets/png/slack.png"
+              alt="slack icon"
+            />
+            <span>Copy Stats</span>
+          </button>
         </section>
+        <!-- section to export the daily logs to csv or excel files -->
+        <section class="manage-stats-section">
+          <span class="section-title">Click To Export:</span>
+          <p class="section-subtitle">Click to download complete Daily logs.</p>
+          <div class="buttons-continer">
+            <button
+              id="download-csv"
+              title="download all daily logs in csv format"
+              class="download-buttons"
+            >
+              <img
+                class="download-btn-logo"
+                src="assets/svg/csv-logo.svg"
+                alt="download in csv format icon"
+              />
+              <div class="download-btn-text">Export CSV</div>
+            </button>
+            <button
+              id="download-excel"
+              title="download all daily logs in excel format"
+              class="download-buttons"
+            >
+              <img
+                class="download-btn-logo"
+                src="assets/svg/excel-logo1.svg"
+                alt="download in excel format icon"
+              />
+              <div class="download-btn-text">Export Excel</div>
+            </button>
+            <button
+              id="download-json"
+              class="download-buttons"
+              title="download dailylogs in json format"
+            >
+              <img
+                class="download-btn-logo"
+                src="assets/png/JsonFile.png"
+                alt="download in excel format icon"
+              />
+              <div class="download-btn-text">Export Json</div>
+            </button>
+          </div>
+        </section>
+        <!-- delete data secion -->
+        <section class="manage-stats-section">
+          <span class="section-title">Delete a Log</span>
+          <p class="section-subtitle">
+            Choose a Serial No. Or Date to delete that particular Daily Log.
+          </p>
+
+          <div class="delete-selector-cnt">
+            <label for="serial-number">
+              Serial Number
+              <input type="number" size="2" id="serial-number" />
+            </label>
+            <span>or</span>
+            <label for="delete-date">
+              Date:
+              <input type="date" size="2" id="delete-date" />
+            </label>
+          </div>
+          <pre id="show-data"></pre>
+
+          <button
+            type="submit"
+            class="delete-btn"
+            id="remove-one-day-log"
+            title="Remove the log of the selected date"
+          >
+            <img
+              class="delete-icon"
+              src="assets/png/bin.png"
+              alt="delete logs icon"
+            />
+            <span>Delete Log</span>
+          </button>
+        </section>
+      </div>
+
+      <!-- show output section -->
+      <section id="output">
+        <span class="section-title">Output:</span>
+        <div class="output-box">
+          <div class="output-btns-cnt">
+            <button
+              class="output-btns"
+              onclick="showStats()"
+              title="show all output"
+            >
+              Refresh Output
+            </button>
+            <button
+              class="output-btns"
+              title="clear all the recorded daily stats from todats stats window"
+              onclick="clearDailyStats()"
+            >
+              Clear Daily Stats
+            </button>
+            <button
+              class="output-btns"
+              title="clear previous totals"
+              onclick="clearPreviousTotal()"
+            >
+              Reset Previous Stats
+            </button>
+            <button
+              class="output-btns"
+              title="Clear complete local storage"
+              onclick="clearLocalStorage()"
+            >
+              Clear All Data
+            </button>
+          </div>
+
+          <div class="import-btn-div">
+            <label for="import-daily-logs">
+              <div class="Import-title">Import Daily Logs:</div>
+              <p class="import-subtitle">
+                Import a daily logs json file which you exported.
+              </p>
+              <input
+                type="file"
+                accept=".json"
+                id="import-daily-logs"
+                title="Import Daily"
+                placeholder="Import DailyLogs"
+              />
+            </label>
+          </div>
+          <div>
+            <h5 class="output-title">Previous total:</h5>
+            <pre class="previous-plus-dailystats output-file-style"></pre>
+          </div>
+          <!-- too debug previous input values -->
+          <div class="output-items-visibility">
+            <h5 class="output-title">Previous Input:</h5>
+            <pre class="previous-output output-file-style"></pre>
+          </div>
+          <div class="output-items-visibility">
+            <h5 class="output-title">Daily Status Sum:</h5>
+            <pre class="daily-stats-sum output-file-style"></pre>
+          </div>
+          <div>
+            <h5 class="output-title">Daily Stats:</h5>
+            <pre class="output-file output-file-style"></pre>
+          </div>
+        </div>
+      </section>
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="javascript/debug.js"></script>
     <!-- to add new languages -->
     <script src="javascript/add_new_language.js"></script>
     <script src="javascript/main-js.js"></script>
-</body>
-
+  </body>
 </html>

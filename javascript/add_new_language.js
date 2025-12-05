@@ -4,73 +4,150 @@ const addLanButton = document.getElementById("add-lan-btn");
 const addLanPopup = document.getElementById("add-lan-popup");
 const confirmAddLan = document.getElementById("confirm-lan-add");
 const cancelAddLan = document.getElementById("cancel-lan-add");
-const inputName = document.getElementById("language-name");
+const languageNameInput = document.getElementById("language-name");
 const backdropAddLan = document.getElementById("backdrop-add-lan");
 const addLanForm = document.getElementById("add-language-form");
+
 /* form constants */
 const programingLanguages = document.querySelectorAll(".programing-languages");
 let languageName = "";
 
 /* show popup */
 addLanButton.addEventListener("click", () => {
-    backdropAddLan.classList.add("visible");
-
+  backdropAddLan.classList.add("visible");
 });
 
 /* close popup */
 backdropAddLan.addEventListener("click", () => {
-    backdropAddLan.classList.remove("visible");
+  backdropAddLan.classList.remove("visible");
 });
 
 /* dont remove backdrop  on clicking inide the popup */
 addLanPopup.addEventListener("click", (e) => {
-    e.stopPropagation();
+  e.stopPropagation();
 });
 
 cancelAddLan.addEventListener("click", () => {
-    backdropAddLan.classList.remove("visible");
-    addLanForm.reset();
+  backdropAddLan.classList.remove("visible");
+  addLanForm.reset();
 });
 addLanForm.addEventListener("submit", submitLanguage);
 
 /* FUNCTION TO SUBMIT LANGUAGE NAME . */
 function submitLanguage(e) {
-    e.preventDefault();
-    inputName.setCustomValidity("");
-    languageName = inputName.value.trim();
-    if (!languageName) {
-        inputName.setCustomValidity("Language name cannot be empty.");
-        inputName.reportValidity();
-        return;
-    }
-    const lettesrOnly = /^[A-Za-z]+$/;
-    if (!lettesrOnly.test(languageName)) {
-        inputName.setCustomValidity("Language name contain numbers.");
-        inputName.reportValidity();
-    }
-    languageName = languageName.charAt(0).toUpperCase() + languageName.slice(1).toLowerCase();
-    console.log("Added language:", languageName);
-    backdropAddLan.classList.remove("visible");
+  e.preventDefault();
+  languageNameInput.setCustomValidity("");
+  console.log("submitting language", [...languageName]);
+
+  languageName = languageNameInput.value.trim();
+  if (!languageName) {
+    languageNameInput.setCustomValidity("Language name cannot be empty.");
+    languageNameInput.reportValidity();
+    return;
+  }
+  const lettesrOnly = /^[A-Za-z ]+$/;
+  if (!lettesrOnly.test(languageName)) {
+    languageNameInput.setCustomValidity(
+      "Language name cannot contain numbers."
+    );
+    languageNameInput.reportValidity();
+    return;
+  }
+  languageName =
+    languageName.charAt(0).toUpperCase() + languageName.slice(1).toLowerCase();
+  console.log("Added language:", languageName);
+
+  // saving these languages to local storage
+  let savedLanguges =
+    JSON.parse(localStorage.getItem(storage_key_user_set_language_array)) || [];
+
+  // checking for duplicates
+  if (!savedLanguges.includes(languageName)) {
+    savedLanguges.push(languageName);
+    localStorage.setItem(
+      storage_key_user_set_language_array,
+      JSON.stringify(savedLanguges)
+    );
     renderLanguages(languageName);
-    addLanForm.reset();
-};
+  } else {
+    showSnackBar(`${languageName} already added`, true);
+  }
+  backdropAddLan.classList.remove("visible");
+  addLanForm.reset();
+}
+// removing previous validation errors while typing
+languageNameInput.addEventListener("input", () => {
+  languageNameInput.setCustomValidity("");
+});
 
 /* function to add the languages to the todays stats */
 function renderLanguages(languageName) {
-    console.log(programingLanguages);
-    programingLanguages.forEach((section) => {
-        const div = document.createElement("div");
-        div.innerHTML =
-            `<div class="form-item">
+  programingLanguages.forEach((section) => {
+    const formItem = document.createElement("div");
+    formItem.classList.add("form-item");
+    formItem.innerHTML = `
         <label for="${languageName}">${languageName}</label>
-        <input type="number" id="${languageName}" name="${languageName}" placeholder="121" min="0"
+        <input type="number" id="${languageName}" name="${languageName}" placeholder="10" min="0"
         title="Total lines of ${languageName} code written">
-        </div>`;
-        section.appendChild(div);
+        <button type="button" class="delete-lang" data-lang="${languageName}">x</button>
+        `;
+    section.appendChild(formItem);
+  });
 
+  attachDeleteHandlers();
+}
+
+// for everly languages added by the user rendering it while page load
+window.addEventListener("DOMContentLoaded", renderLanguagesOnStartUp);
+
+function renderLanguagesOnStartUp() {
+  const savedLanguages = JSON.parse(
+    localStorage.getItem(storage_key_user_set_language_array)
+  );
+  savedLanguages.forEach((lang) => {
+    renderLanguages(lang);
+  });
+}
+
+// function to delete language
+function deleteALanguage(languageName) {
+  let savedLanguages =
+    JSON.parse(localStorage.getItem(storage_key_user_set_language_array)) || [];
+
+  if (savedLanguages.length === 0) {
+    return;
+  }
+  //removing the seletect language form the saved languages array
+  savedLanguages = savedLanguages.filter((lang) => lang !== languageName);
+  localStorage.setItem(
+    storage_key_user_set_language_array,
+    JSON.stringify(savedLanguages)
+  );
+  // deleting the lan from ui
+  document
+    .querySelectorAll(`[data-lang="${languageName}"]`)
+    .forEach((languages) => {
+      languages.closest(".form-item").remove();
     });
+}
 
+// event listner for delte buttons
+// deleteLanguages.forEach((x) => {
+//   x.addEventListener("click", function () {
+//     console.log("Deleting language", this.dataset.lang);
+//   });
+// });
+// this wont work because when the document loaded new delete buttons wont be added to event listners
 
+// adding event listners for every new x / delete button
+function attachDeleteHandlers() {
+  const deleteLanguages = document.querySelectorAll(".delete-lang"); // need to access it when new delete button added
 
-
+  deleteLanguages.forEach((deleteBtn) => {
+    deleteBtn.addEventListener("click", function () {
+      const languageName = this.dataset.lang;
+      console.log("Deleting language...", languageName);
+      deleteALanguage(languageName);
+    });
+  });
 }
