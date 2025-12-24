@@ -544,6 +544,7 @@ header {
   text-align: center;
   width: max-content;
   max-width: 80vw;
+  z-index: 100;
 }
 
 #snack-bar.showSnack {

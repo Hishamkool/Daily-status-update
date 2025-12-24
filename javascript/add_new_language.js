@@ -9,6 +9,7 @@ const backdropAddLan = document.getElementById("backdrop-add-lan");
 const addLanForm = document.getElementById("add-language-form");
 const todaysPrefix = "todays"; //for user language input fields
 const previousPrefix = "previous";
+const existingLanguages = ["html", "css", "js", "javascript", "react"];
 
 /* form constants */
 const programingLanguages = document.querySelectorAll(".programing-languages");
@@ -40,7 +41,7 @@ function submitLanguage(e) {
   e.preventDefault();
   languageNameInput.setCustomValidity("");
 
-  languageName = languageNameInput.value.trim();
+  languageName = languageNameInput.value.trim().toLowerCase();
 
   if (!languageName) {
     languageNameInput.setCustomValidity("Language name cannot be empty.");
@@ -53,6 +54,10 @@ function submitLanguage(e) {
       "Language name cannot contain numbers."
     );
     languageNameInput.reportValidity();
+    return;
+  }
+  if (existingLanguages.includes(languageName)) {
+    showSnackBar(`${languageName} is already a build-in language.`, true);
     return;
   }
   languageName =
@@ -110,12 +115,10 @@ window.addEventListener("DOMContentLoaded", () => {
   renderLanguagesOnStartUp();
   setPreviousInputsValues();
 });
-
+// create elements on refresh / page load
 function renderLanguagesOnStartUp() {
-  const savedLanguages = JSON.parse(
-    localStorage.getItem(storage_key_user_set_language_array)
-  );
-  savedLanguages.forEach((lang) => {
+  const userLanguages = getUserLanguages();
+  userLanguages.forEach((lang) => {
     renderLanguages(lang);
   });
 }

@@ -1,0 +1,58 @@
+DAILY LOGS CALCULATOR
+
+
+====================
+ISSUES
+====================
+
+1. Keeping track of other programming languages:
+   - Option 1: Allow users to add custom key–value pairs
+     * Requires language key normalization (e.g., JSON vs Json)
+     * Export, import, and reporting become complex
+   - Option 2: Add a single "Others" field to group all non-core languages
+
+2. Add option to merge daily logs if duplicate dates exist
+
+3. Add a remarks field (if required)
+
+4. Backup and fetch logs from a backend service
+
+6. add user languages for exporting in csv , xlsx and json.
+
+
+
+====================
+SOLVED
+====================
+
+1. Previous totals are calculated only till the selected date when copying stats to clipboard
+2. Delete a daily log for a specific date
+3. Partially update daily stats
+4. Exported files include all-time total along with totals
+5. Export daily logs as JSON
+6. Import daily logs from JSON when backend backup is unavailable
+7. Previous totals and previous inputs are included in JSON export and import
+8. Exported files include the date in name.
+9. User language values are shown during partial updates
+10. Daily totals are recalculated when partially updating values
+11. Daily totals are cleared after submitting a log
+5. fixed totals in previous totals not calculating user added lanugages.
+6. fixed previous totals 0 when screen loads - [used .value for span instead of .textcontent]
+
+
+====================
+FEATURES
+====================
+
+1. Previous totals are automatically calculated and displayed as daily logs are added
+2. Resetting previous totals allows a clean restart without conflicts
+3. Export daily logs in XLSX (Excel) or CSV formats
+4. Copy formatted logs for any date to submit on Slack
+5. Copy and paste values directly into time picker inputs
+6. Daily logs are stored in localStorage
+7. Automatic calculation of durations and total lines of code
+8. After submitting a daily log, the copy-to-Slack date is auto-filled
+9. Delete daily logs for a specific date
+10. Accurate calculation of previous totals till any selected date
+11. Export daily logs in JSON format
+12. Partially update daily statistics
