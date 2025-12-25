@@ -95,7 +95,12 @@ languageNameInput.addEventListener("input", () => {
 });
 
 //replace spaces with underscores , make lowercase - for language ids
-const createLangKey = (lang) => lang.trim().toLowerCase().replace(/\s+/g, "_");
+const createLangKey = (lang) =>
+  lang
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "") // for removing white spaces
+    .replace(/[^a-z0-9+#]/g, ""); // for removing any other characters other this set
 
 /* function to add the languages to the todays stats */
 function renderLanguages(langName, langKey) {
@@ -130,8 +135,8 @@ window.addEventListener("DOMContentLoaded", () => {
 // create elements on refresh / page load
 function renderLanguagesOnStartUp() {
   const userLanguages = getUserLanguages();
-  userLanguages.forEach(({ lang, key }) => {
-    renderLanguages(lang, key);
+  userLanguages.forEach(({ key, label }) => {
+    renderLanguages(label, key);
   });
 }
 
