@@ -12,7 +12,7 @@ const previousPrefix = "previous";
 const existingLanguages = ["html", "css", "js", "javascript", "react"];
 
 /* form constants */
-const programingLanguages = document.querySelectorAll(".programing-languages");
+const programmingLanguages = document.querySelectorAll(".programing-languages");
 let languageName = "";
 
 /* show popup */
@@ -40,45 +40,52 @@ addLanForm.addEventListener("submit", submitLanguage);
 function submitLanguage(e) {
   e.preventDefault();
   languageNameInput.setCustomValidity("");
+  let rawName = languageNameInput.value.trim();
+  // languageName = languageNameInput.value.trim().toLowerCase();
 
-  languageName = languageNameInput.value.trim().toLowerCase();
-
-  if (!languageName) {
+  if (!rawName) {
     languageNameInput.setCustomValidity("Language name cannot be empty.");
     languageNameInput.reportValidity();
     return;
   }
-  const lettesrOnly = /^[A-Za-z ]+$/;
-  if (!lettesrOnly.test(languageName)) {
+  const lettesrOnly = /^[A-Za-z+# ]+$/;
+  if (!lettesrOnly.test(rawName)) {
     languageNameInput.setCustomValidity(
-      "Language name cannot contain numbers."
+      "Language name can contain only letters, +, # and spaces."
     );
     languageNameInput.reportValidity();
     return;
   }
-  if (existingLanguages.includes(languageName)) {
-    showSnackBar(`${languageName} is already a build-in language.`, true);
+
+  const langKey = createLangKey(rawName);
+  if (existingLanguages.includes(langKey)) {
+    showSnackBar(`${rawName} is already a build-in language.`, true);
     return;
   }
-  languageName =
-    languageName.charAt(0).toUpperCase() + languageName.slice(1).toLowerCase();
-  console.log("Added language:", languageName);
 
-  // saving these languages to local storage
-  let savedLanguges =
+  let savedLanguages =
     JSON.parse(localStorage.getItem(storage_key_user_set_language_array)) || [];
 
-  // checking for duplicates
-  if (!savedLanguges.includes(languageName)) {
-    savedLanguges.push(languageName);
-    localStorage.setItem(
-      storage_key_user_set_language_array,
-      JSON.stringify(savedLanguges)
-    );
-    renderLanguages(languageName);
-  } else {
-    showSnackBar(`${languageName} already added!`, true);
+  //checking for duplicate values
+  const alreadyExists = savedLanguages.some((lang) => lang.key === langKey);
+  // if already exists then return
+  if (alreadyExists) {
+    showSnackBar(`${rawName} already added!`, true);
+    return;
   }
+  // adding to languages array
+  savedLanguages.push({
+    key: langKey,
+    label: rawName,
+  });
+  // setting to local storage
+  localStorage.setItem(
+    storage_key_user_set_language_array,
+    JSON.stringify(savedLanguages)
+  );
+  // rendering language
+  renderLanguages(rawName, langKey);
+
   backdropAddLan.classList.remove("visible");
   addLanForm.reset();
 }
@@ -87,9 +94,12 @@ languageNameInput.addEventListener("input", () => {
   languageNameInput.setCustomValidity("");
 });
 
+//replace spaces with underscores , make lowercase - for language ids
+const createLangKey = (lang) => lang.trim().toLowerCase().replace(/\s+/g, "_");
+
 /* function to add the languages to the todays stats */
-function renderLanguages(languageName) {
-  programingLanguages.forEach((section) => {
+function renderLanguages(langName, langKey) {
+  programmingLanguages.forEach((section) => {
     const formItem = document.createElement("div");
     formItem.classList.add("form-item");
 
@@ -97,31 +107,45 @@ function renderLanguages(languageName) {
     const isPreviousSection =
       section.closest("form").id === "previous-total-form";
     const prefix = isPreviousSection ? previousPrefix : todaysPrefix;
-    const inputId = `${prefix}-${languageName}`;
+    const inputId = `${prefix}-${langKey}`;
     formItem.innerHTML = `
-        <label for="${inputId}">${languageName}</label>
-        <input type="number" id="${inputId}" name="${inputId}" placeholder="10" min="0"
-        title="Total lines of ${inputId} code written">
-        <button type="button" class="delete-lang" data-lang="${languageName}">x</button>
+        <label for="${inputId}">${langName}</label>
+        <input type="number" id="${inputId}" name="${inputId}" data-lang="${langKey}" placeholder="10" min="0"
+        title="Total lines of ${langName} code written">
         `;
+    //  <button type="button" class="delete-lang" data-lang="${languageName}">x</button>
     section.appendChild(formItem);
   });
 
-  attachDeleteHandlers();
+  // attachDeleteHandlers();
 }
 
 // for everly languages added by the user rendering it while page load
 window.addEventListener("DOMContentLoaded", () => {
   renderLanguagesOnStartUp();
+
   setPreviousInputsValues();
 });
+
 // create elements on refresh / page load
 function renderLanguagesOnStartUp() {
   const userLanguages = getUserLanguages();
-  userLanguages.forEach((lang) => {
-    renderLanguages(lang);
+  userLanguages.forEach(({ lang, key }) => {
+    renderLanguages(lang, key);
   });
 }
+
+// function to get user languages
+function getUserLanguages() {
+  return (
+    JSON.parse(localStorage.getItem(storage_key_user_set_language_array)) || []
+  );
+}
+
+/* 
+DELETING A LANGUAGE WOULD MAKE TOTAL MISMATCH IN DAILY LOGS SUM VS PREVIOUS TOTALS.
+SO DELETING A LANGUAGE MUST ALSO DELETE THE VALUES IN DAILY STATS , WILL IMPLEMENT IT LATER
+note : add the delete button while rendering the languages , also add delete handlers function call when rendering
 
 // function to delete language
 function deleteALanguage(languageName) {
@@ -132,7 +156,7 @@ function deleteALanguage(languageName) {
     return;
   }
   //removing the seletect language form the saved languages array
-  savedLanguages = savedLanguages.filter((lang) => lang !== languageName);
+  savedLanguages = savedLanguages.filter((lang) => lang.key !== languageName);
   localStorage.setItem(
     storage_key_user_set_language_array,
     JSON.stringify(savedLanguages)
@@ -157,10 +181,4 @@ function attachDeleteHandlers() {
     });
   });
 }
-
-// function to get user languages
-function getUserLanguages() {
-  return (
-    JSON.parse(localStorage.getItem(storage_key_user_set_language_array)) || []
-  );
-}
+ */

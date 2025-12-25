@@ -122,7 +122,7 @@ if (debug) {
 }
 
 // adding event listners to static and dynamic lines of code
-programingLanguages.forEach((section) => {
+programmingLanguages.forEach((section) => {
   section.addEventListener("input", calculateTotalLinesOfCode);
 });
 
@@ -148,9 +148,9 @@ function calculateTotalLinesOfCode() {
   // now need to add user input fields total lines of code
   const userLanguages = getUserLanguages();
 
-  userLanguages.forEach((lang) => {
-    const userInput = document.getElementById(`${todaysPrefix}-${lang}`);
-    const previousInput = document.getElementById(`${previousPrefix}-${lang}`);
+  userLanguages.forEach(({ key }) => {
+    const userInput = document.getElementById(`${todaysPrefix}-${key}`);
+    const previousInput = document.getElementById(`${previousPrefix}-${key}`);
     if (userInput) {
       todaysTotal += Number(userInput.value) || 0;
     }
@@ -196,14 +196,14 @@ async function partiallyUpdateTodaysEntry() {
       //need to add values to all user languages
       // from user languages we get the language name
       const userLanguages = getUserLanguages();
-      userLanguages.forEach((lang) => {
-        const input = document.getElementById(`${todaysPrefix}-${lang}`);
+      userLanguages.forEach(({ key }) => {
+        const input = document.getElementById(`${todaysPrefix}-${key}`);
         if (!input) {
           console.error("user language button not found for partial update");
 
           return;
         }
-        input.value = item[lang] || 0;
+        input.value = item[key] || 0;
       });
       calculateTotalLinesOfCode();
     }
@@ -228,9 +228,9 @@ function buildDailyLogsObject(prefix) {
 
   // adding user set languages to the object
   const userLanguages = getUserLanguages();
-  userLanguages.forEach((lang) => {
-    const input = document.querySelector(`input[name="${prefix}-${lang}"]`);
-    daily_logs_input_obj[lang] = input ? Number(input.value) || 0 : 0;
+  userLanguages.forEach(({ key }) => {
+    const input = document.querySelector(`input[name="${prefix}-${key}"]`);
+    daily_logs_input_obj[key] = input ? Number(input.value) || 0 : 0;
   });
 
   return daily_logs_input_obj;
@@ -527,8 +527,8 @@ function previousTotalsTillDate(ISOdate) {
   console.log(userLanguages);
   // adding thouse user languages to languages object and setting them to 0
   let userLanguagesTotals = {};
-  userLanguages.forEach((lang) => {
-    userLanguagesTotals[lang] = 0;
+  userLanguages.forEach(({ key }) => {
+    userLanguagesTotals[key] = 0;
   });
 
   let totalFocus = 0,
@@ -550,7 +550,7 @@ function previousTotalsTillDate(ISOdate) {
       (totalreact += log[REACT]);
     // user added languages totals
     userLanguages.forEach(
-      (lang) => (userLanguagesTotals[lang] += log[lang] || 0)
+      ({ key }) => (userLanguagesTotals[key] += log[key] || 0)
     );
     totallocTilldate += log[DAILY_TOTAL];
   });
@@ -564,8 +564,8 @@ function previousTotalsTillDate(ISOdate) {
       (totaljs += previousTotalInput[TOTAL_JS]),
       (totalreact += previousTotalInput[TOTAL_REACT]),
       (totallocTilldate += previousTotalInput[ALL_TIME_TOTAL]);
-    userLanguages.forEach((lang) => {
-      userLanguagesTotals[lang] += previousTotalInput[lang] || 0;
+    userLanguages.forEach(({ key }) => {
+      userLanguagesTotals[key] += previousTotalInput[key] || 0;
     });
   }
   return {
@@ -603,9 +603,9 @@ function calculateDailyLogsTotal() {
       acc.react += currnt[REACT] || 0;
 
       // adding user set languages totals
-      userLanguages.forEach((lang) => {
-        acc.dynamicLanguages[lang] =
-          (acc.dynamicLanguages[lang] || 0) + (currnt[lang] || 0);
+      userLanguages.forEach(({ key }) => {
+        acc.dynamicLanguages[key] =
+          (acc.dynamicLanguages[key] || 0) + (currnt[key] || 0);
       });
 
       acc.previousTotal += currnt[DAILY_TOTAL] || 0;
@@ -759,16 +759,16 @@ function add_dailyStatsTotal_and_PreviousInput() {
   }
   // if previous input or daily sum dosent contain the added languages add and set them to 0
   const userLanguages = getUserLanguages();
-  userLanguages.forEach((lang) => {
-    if (!(lang in previousInput)) previousInput[lang] = 0;
-    if (!(lang in dailyLogsSum)) dailyLogsSum[lang] = 0;
+  userLanguages.forEach(({ key }) => {
+    if (!(key in previousInput)) previousInput[key] = 0;
+    if (!(key in dailyLogsSum)) dailyLogsSum[key] = 0;
   });
 
   // calculating totals perlanguage
   let languagesTotals = {};
-  userLanguages.forEach((lang) => {
-    languagesTotals[lang] =
-      (Number(previousInput[lang]) || 0) + (Number(dailyLogsSum[lang]) || 0);
+  userLanguages.forEach(({ key }) => {
+    languagesTotals[key] =
+      (Number(previousInput[key]) || 0) + (Number(dailyLogsSum[key]) || 0);
   });
 
   // now finding the totals of all languages
@@ -848,15 +848,15 @@ function setPreviousInputsValues() {
 
   //dynamically add user added languages
   const userLanguages = getUserLanguages();
-  userLanguages.forEach((lang) => {
-    const input = document.getElementById(`${previousPrefix}-${lang}`);
+  userLanguages.forEach(({ key }) => {
+    const input = document.getElementById(`${previousPrefix}-${key}`);
     if (!input) {
       console.error(
-        `input field dosent exists for previous total : ${previousPrefix}-${lang}`
+        `input field dosent exists for previous total : ${previousPrefix}-${key}`
       );
     } else {
-      input.value = previousPlusDaily[lang] || 0;
-      allTimeTotal += previousPlusDaily[lang] || 0;
+      input.value = previousPlusDaily[key] || 0;
+      allTimeTotal += previousPlusDaily[key] || 0;
     }
   });
   totalLOCAllTime.textContent = allTimeTotal;
