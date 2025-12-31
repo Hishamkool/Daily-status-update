@@ -4,24 +4,12 @@ DAILY LOGS CALCULATOR
 ====================
 ISSUES
 ====================
+ 
+#. Add option to merge daily logs if duplicate dates exist
 
-1. Keeping track of other programming languages:
-   - Option 1: Allow users to add custom key–value pairs
-     * Requires language key normalization (e.g., JSON vs Json)
-     * Export, import, and reporting become complex
-   - Option 2: Add a single "Others" field to group all non-core languages
+#. Add a remarks field (if required)
 
-2. Add option to merge daily logs if duplicate dates exist
-
-3. Add a remarks field (if required)
-
-4. Backup and fetch logs from a backend service
-# add delete functinality to remove languages. (
-  step 1. design a delete button.
-  a. true - if it has no data in any daily stats or daily logs sum, 
-  b. false - if has data.
-  c. optional - disable language from the ui preserve data.
-)
+#. Backup and fetch logs from a backend service
 
 
 
@@ -40,9 +28,11 @@ SOLVED
 9. User language values are shown during partial updates
 10. Daily totals are recalculated when partially updating values
 11. Daily totals are cleared after submitting a log
-5. fixed totals in previous totals not calculating user added lanugages.
-6. fixed previous totals 0 when screen loads - [used .value for span instead of .textcontent]
-6. added user languages for exporting in csv , xlsx.
+12. fixed totals in previous totals not calculating user added lanugages.
+13. fixed previous totals 0 when screen loads - [used .value for span instead of .textcontent]
+14. added user languages for exporting in csv , xlsx.
+15. Added User langugaes with langugae normalization for keys and labels for ui with tracking.
+16. Added deleting language functionality if data does not exists in the stats.
 
 
 ====================
