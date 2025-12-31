@@ -6,6 +6,12 @@
     <link rel="stylesheet" href="styles.css" />
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="assets/png/dailyLog512.png" />
+    <!-- for flatpicker date picker -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+
     <title>Daily Log Vonnue</title>
   </head>
 
@@ -28,7 +34,7 @@
           <button id="confirm-yes" class="popup-btns">YES</button>
         </div>
       </div>
- 
+
       <!-- backdrop -->
       <div class="popup-backdrop" id="backdrop-add-lan">
         <!-- add language popup -->
@@ -189,11 +195,10 @@
                 >Date:
               </label>
               <input
-                type="date"
+                type="text"
                 id="todays-entry-date"
                 form="todays-data-form"
-                s
-                name="todays-stats-date"
+                name="todays-entry-date"
                 required
               />
             </span>
@@ -526,9 +531,11 @@
         </div>
       </section>
     </main>
+    <!-- excel export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- flat date picker -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="javascript/debug.js"></script>
-    <!-- to add new languages -->
     <script src="javascript/add_new_language.js"></script>
     <script src="javascript/main-js.js"></script>
   </body>

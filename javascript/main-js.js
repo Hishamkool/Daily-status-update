@@ -121,6 +121,34 @@ if (debug) {
   });
 }
 
+// @flat picker
+
+function getHighlightedDates() {
+  const dailyLogs = fetchDailyLogs();
+  return dailyLogs.map((item) => item[DATE]);
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const highlightedDates = getHighlightedDates();
+
+  flatpickr(todaysDate, {
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d-m-Y",
+    defaultDate: "today",
+    maxDate: "today",
+    onChange: function (selectedDates, dateStr) {
+      partiallyUpdateTodaysEntry(dateStr);
+    },
+    onDayCreate: function (dObj, dStr, fpDayElem) {
+      const date = fpDayElem.dateObj; // not dObj
+      const ymd = this.formatDate(date, "Y-m-d");
+      if (highlightedDates.includes(ymd)) {
+        fpDayElem.classList.add("highlighted-day");
+      }
+    },
+  });
+});
+
 // adding event listners to static and dynamic lines of code
 programmingLanguages.forEach((section) => {
   section.addEventListener("input", calculateTotalLinesOfCode);
@@ -164,12 +192,12 @@ function calculateTotalLinesOfCode() {
   totalLOCAllTime.textContent = previousTotal;
 }
 // event listner for todays entry date
-todaysDate.addEventListener("change", partiallyUpdateTodaysEntry);
+// todaysDate.addEventListener("change", partiallyUpdateTodaysEntry);
+/* [NOTE]: using flat date picker now */
 
 //@partialupdate function to partially update todays entries or SHOW THE VALUES OF TODATS ENTRIES IF DATA IS ALREADY SUBMITTED
-async function partiallyUpdateTodaysEntry() {
+async function partiallyUpdateTodaysEntry(submitDate) {
   const dailyLogs = fetchDailyLogs();
-  const submitDate = todaysDate.value;
   if (!submitDate) return;
   if (dailyLogs.length == 0) {
     debug && console.log("Dialy Logs is empty");

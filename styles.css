@@ -168,6 +168,18 @@ header {
   border-width: 1px;
   z-index: 10;
 }
+
+.flatpickr-day.highlighted-day:not(.selected):not(.today) {
+  background-color: #ffd700 !important; /* gold */
+  color: #000 !important;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.flatpickr-day.highlighted-day.today {
+  background-color: #000000 !important; /* slightly different for today */
+}
+
 .delete-lang svg {
   pointer-events: none;
 }
