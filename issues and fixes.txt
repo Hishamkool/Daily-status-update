@@ -16,8 +16,12 @@ ISSUES
 3. Add a remarks field (if required)
 
 4. Backup and fetch logs from a backend service
-
-6. add user languages for exporting in csv , xlsx and json.
+# add delete functinality to remove languages. (
+  step 1. design a delete button.
+  a. true - if it has no data in any daily stats or daily logs sum, 
+  b. false - if has data.
+  c. optional - disable language from the ui preserve data.
+)
 
 
 
@@ -38,6 +42,7 @@ SOLVED
 11. Daily totals are cleared after submitting a log
 5. fixed totals in previous totals not calculating user added lanugages.
 6. fixed previous totals 0 when screen loads - [used .value for span instead of .textcontent]
+6. added user languages for exporting in csv , xlsx.
 
 
 ====================

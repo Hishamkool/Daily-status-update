@@ -1259,6 +1259,7 @@ removeLogDateBtn.addEventListener("click", async () => {
 downloadCsv.addEventListener("click", () => {
   const currentDateTime = getCurrentTime();
   const dailyLogs = fetchDailyLogs();
+  const userLanguages = getUserLanguages();
   const dailyLogsSum = fetchDailyLogsSum();
   // if we have not stored any daily logs yet
   if (!dailyLogs.length) {
@@ -1271,6 +1272,11 @@ downloadCsv.addEventListener("click", () => {
 
   // fetchig daily logs sum and pushing it into the end row.
   if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
+    // making key,value array of language and values and then converting it to an object of key: value
+    const languageValues = Object.fromEntries(
+      userLanguages.map(({ key }) => [key, dailyLogsSum[key] ?? ""])
+    );
+
     logsForCsv.push({
       [TOTAL_COLUMN]: TOTAL_COLUMN,
       [DATE]: dailyLogsSum[LATEST_DATE],
@@ -1281,11 +1287,16 @@ downloadCsv.addEventListener("click", () => {
       [KEY_CSS]: dailyLogsSum[KEY_CSS],
       [JAVASCRIPT]: dailyLogsSum[JAVASCRIPT],
       [REACT]: dailyLogsSum[REACT],
+      ...languageValues,
       [DAILY_TOTAL]: dailyLogsSum[DAILY_TOTAL],
     });
   }
   const previousTotals = fetchPreviousPlusDaily();
   if (previousTotals && Object.keys(previousTotals).length > 0) {
+    const languageValues = Object.fromEntries(
+      userLanguages.map(({ key }) => [key, previousTotals[key] ?? ""])
+    );
+
     logsForCsv.push({
       [TOTAL_COLUMN]: ALL_TIME_TOTAL_COLUMN,
       [DATE]: previousTotals[DATE],
@@ -1296,6 +1307,7 @@ downloadCsv.addEventListener("click", () => {
       [KEY_CSS]: previousTotals[TOTAL_CSS],
       [JAVASCRIPT]: previousTotals[TOTAL_JS],
       [REACT]: previousTotals[TOTAL_REACT],
+      ...languageValues,
       [DAILY_TOTAL]: previousTotals[ALL_TIME_TOTAL],
     });
   }
@@ -1310,6 +1322,7 @@ downloadCsv.addEventListener("click", () => {
     "CSS",
     "JS",
     "React",
+    ...userLanguages.map(({ key }) => String(key)),
     "DailyTotal",
     "Typing Speed",
     "Typing Accuracy",
@@ -1324,6 +1337,9 @@ downloadCsv.addEventListener("click", () => {
       serialOrLabel = obj[SL_NO];
     }
 
+    // receiving the values for each user langugaes
+    const languageValues = userLanguages.map(({ key }) => obj[key] ?? "");
+    //[NOTE] make sure the header order and the language values are in order
     return [
       serialOrLabel,
       obj[DATE],
@@ -1334,6 +1350,7 @@ downloadCsv.addEventListener("click", () => {
       obj[KEY_CSS],
       obj[JAVASCRIPT],
       obj[REACT],
+      ...languageValues,
       obj[DAILY_TOTAL],
       obj[TYPING_SPEED] ? obj[TYPING_SPEED] + " wpm" : "",
       obj[TYPING_ACCURACY] ? obj[TYPING_ACCURACY] + "%" : "",
@@ -1357,6 +1374,7 @@ downloadExcel.addEventListener("click", () => {
   const currentDateTime = getCurrentTime();
   const dailyLogs = fetchDailyLogs();
   const dailyLogsSum = fetchDailyLogsSum();
+  const userLanguages = getUserLanguages();
 
   if (!dailyLogs.length) {
     showSnackBar("No daily Logs found to download", true);
@@ -1368,6 +1386,9 @@ downloadExcel.addEventListener("click", () => {
 
   // Add total row at the end
   if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
+    const languageTotals = Object.fromEntries(
+      userLanguages.map(({ key }) => [key, dailyLogsSum[key] ?? ""])
+    );
     logsForExcel.push({
       [TOTAL_COLUMN]: TOTAL_COLUMN, // first column
       [DATE]: dailyLogsSum[LATEST_DATE],
@@ -1378,11 +1399,15 @@ downloadExcel.addEventListener("click", () => {
       [KEY_CSS]: dailyLogsSum[KEY_CSS],
       [JAVASCRIPT]: dailyLogsSum[JAVASCRIPT],
       [REACT]: dailyLogsSum[REACT],
+      ...languageTotals,
       [DAILY_TOTAL]: dailyLogsSum[DAILY_TOTAL],
     });
   }
   const previousTotals = fetchPreviousPlusDaily();
   if (previousTotals || previousTotals.length != 0) {
+    const languageTotals = Object.fromEntries(
+      userLanguages.map(({ key }) => [key, previousTotals[key] ?? ""])
+    );
     logsForExcel.push({
       [TOTAL_COLUMN]: ALL_TIME_TOTAL_COLUMN,
       [DATE]: previousTotals[DATE],
@@ -1393,12 +1418,28 @@ downloadExcel.addEventListener("click", () => {
       [KEY_CSS]: previousTotals[TOTAL_CSS],
       [JAVASCRIPT]: previousTotals[TOTAL_JS],
       [REACT]: previousTotals[TOTAL_REACT],
+      ...languageTotals,
       [DAILY_TOTAL]: previousTotals[ALL_TIME_TOTAL],
     });
   }
   // Adding headers so that i can add total column at the beginning
   // const headers = [String([TOTAL_COLUMN]), String([[DATE]]), String([FOCUS_TIME]), String([CODE_TIME]), String([ACTIVE_CODE_TIME]), String([HTML]), String([KEY_CSS]), String([JAVASCRIPT]), String([REACT]), String([DAILY_TOTAL])];
-  const headers = [TOTAL_COLUMN];
+  // const headers = [TOTAL_COLUMN];
+  const headers = [
+    TOTAL_COLUMN,
+    DATE,
+    FOCUS_TIME,
+    CODE_TIME,
+    ACTIVE_CODE_TIME,
+    HTML,
+    KEY_CSS,
+    JAVASCRIPT,
+    REACT,
+    ...userLanguages.map(({ key }) => key),
+    DAILY_TOTAL,
+    TYPING_SPEED,
+    TYPING_ACCURACY,
+  ];
 
   const worksheet = XLSX.utils.json_to_sheet(logsForExcel, { header: headers });
   // console.log(worksheet);
