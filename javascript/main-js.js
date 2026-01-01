@@ -1,6 +1,6 @@
 /* variables */
 /* debug status */
-const debug = true;
+const debug = false;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = "dailyLogs";
@@ -124,7 +124,6 @@ if (debug) {
   });
 }
 
-// @flat picker
 // function to get all the dates of the daily logs
 function getHighlightedDates() {
   const dailyLogs = fetchDailyLogs();
@@ -135,12 +134,13 @@ function getHighlightedDates() {
 }
 document.addEventListener("DOMContentLoaded", () => {
   const highlightedDates = getHighlightedDates();
-
+  // @flat picker
   flatpickr(todaysDate, {
     dateFormat: "Y-m-d",
-    altFormat: "d-m-Y",
+    // altFormat: "d-m-Y",
     // altInput: true,
     // defaultDate: "2025.12.31",
+    disableMobile: true,
     defaultDate: new Date(),
 
     // maxDate: "today",
@@ -1427,7 +1427,9 @@ downloadCsv.addEventListener("click", () => {
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = `${
-    debug ? "debug " : "" + exportFileName + " " + currentDateTime
+    debug
+      ? "debug " + currentDateTime
+      : "" + exportFileName + " " + currentDateTime
   }.csv`;
   link.click();
 });
@@ -1510,7 +1512,11 @@ downloadExcel.addEventListener("click", () => {
   XLSX.utils.book_append_sheet(workbook, worksheet, "All daily logs");
   XLSX.writeFile(
     workbook,
-    `${debug ? "debug " : "" + exportFileName + " " + currentDateTime}.xlsx`
+    `${
+      debug
+        ? "debug " + currentDateTime
+        : "" + exportFileName + " " + currentDateTime
+    }.xlsx`
   );
 });
 
