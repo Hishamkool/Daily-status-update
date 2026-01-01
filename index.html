@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- for flatpicker date picker -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
     <link rel="stylesheet" href="styles.css" />
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="assets/png/dailyLog512.png" />
@@ -169,7 +174,7 @@
                 </div>
               </div>
               <div class="form-item">
-                <label>Total: </label>
+                <span>Total: </span>
                 <span>
                   <span id="previous-total-alltimeloc">0</span>
                 </span>
@@ -185,14 +190,19 @@
           <div class="section-title">
             <h3 class="section-title-heading">Todays Entry:</h3>
             <span class="form-date">
-              <label for="todays-entry-date" class="form-date-label"
-                >Date:
+              <label for="todays-entry-date" class="form-date-label">
+                Date:
               </label>
-              <input
-                type="date"
+              <!-- <input
+                type="text"
                 id="todays-entry-date"
                 form="todays-data-form"
-                s
+                name="todays-entry-date"
+                required
+              /> -->
+              <input
+                type="text"
+                id="todays-entry-date"
                 name="todays-stats-date"
                 required
               />
@@ -327,7 +337,7 @@
                 </button>
               </div>
               <div class="form-item">
-                <label>Total: </label>
+                <span>Total: </span>
                 <span>
                   <span id="todays-total-loc">0</span>
                 </span>
@@ -476,9 +486,9 @@
               Clear Daily Stats
             </button>
             <button
+              id="reset-previous-stats"
               class="output-btns"
               title="clear previous totals"
-              onclick="clearPreviousTotal()"
             >
               Reset Previous Stats
             </button>
@@ -526,9 +536,12 @@
         </div>
       </section>
     </main>
+    <!-- for date picker -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- excel export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- js files -->
     <script src="javascript/debug.js"></script>
-    <!-- to add new languages -->
     <script src="javascript/add_new_language.js"></script>
     <script src="javascript/main-js.js"></script>
   </body>

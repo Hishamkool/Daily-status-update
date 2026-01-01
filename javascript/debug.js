@@ -13,6 +13,27 @@ function setRandomValuesToLinesOfCode() {
 
   calculateTotalLinesOfCode();
 }
+
+// to delete one particular user added language from the localstorage
+function removeAParticulatLangugaeFromStorage(languageKey) {
+  let userLanugages = consoleFetchUserLanguages();
+  const originalLength = userLanugages.length;
+
+  const filterdLanguages = userLanugages.filter(
+    (langObj) => langObj.key !== languageKey
+  );
+  const filteredLength = filterdLanguages.length;
+  if (filteredLength < originalLength) {
+    localStorage.setItem(
+      storage_key_user_set_language_array,
+      JSON.stringify(filterdLanguages)
+    );
+    console.log("Deleted the langugae form local storage :", languageKey);
+  } else {
+    console.error("language key not found in user langugages");
+  }
+}
+
 /* -------------------------------------------------------- */
 
 /* // if all time total is not already set

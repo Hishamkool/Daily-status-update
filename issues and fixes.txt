@@ -1,0 +1,54 @@
+DAILY LOGS CALCULATOR
+
+
+====================
+ISSUES
+====================
+ 
+#. Add option to merge daily logs if duplicate dates exist
+
+#. Add a remarks field (if required)
+
+#. Backup and fetch logs from a backend service
+# BUG - todays daily_total getting stored as "" while submitting causing alltimetotal to be a long string of numbers.
+
+
+
+====================
+SOLVED
+====================
+
+1. Previous totals are calculated only till the selected date when copying stats to clipboard
+2. Delete a daily log for a specific date
+3. Partially update daily stats
+4. Exported files include all-time total along with totals
+5. Export daily logs as JSON
+6. Import daily logs from JSON when backend backup is unavailable
+7. Previous totals and previous inputs are included in JSON export and import
+8. Exported files include the date in name.
+9. User language values are shown during partial updates
+10. Daily totals are recalculated when partially updating values
+11. Daily totals are cleared after submitting a log
+12. fixed totals in previous totals not calculating user added lanugages.
+13. fixed previous totals 0 when screen loads - [used .value for span instead of .textcontent]
+14. added user languages for exporting in csv , xlsx.
+15. Added User langugaes with langugae normalization for keys and labels for ui with tracking.
+16. Added deleting language functionality if data does not exists in the stats.
+17. Added flatpickr and highliting for dates the user has submitted daily logs for.
+
+====================
+FEATURES
+====================
+
+1. Previous totals are automatically calculated and displayed as daily logs are added
+2. Resetting previous totals allows a clean restart without conflicts
+3. Export daily logs in XLSX (Excel) or CSV formats
+4. Copy formatted logs for any date to submit on Slack
+5. Copy and paste values directly into time picker inputs
+6. Daily logs are stored in localStorage
+7. Automatic calculation of durations and total lines of code
+8. After submitting a daily log, the copy-to-Slack date is auto-filled
+9. Delete daily logs for a specific date
+10. Accurate calculation of previous totals till any selected date
+11. Export daily logs in JSON format
+12. Partially update daily statistics

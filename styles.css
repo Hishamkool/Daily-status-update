@@ -91,6 +91,7 @@ header {
 }
 
 .form-date-label {
+  padding-right: 5px;
   font-size: 12px;
 }
 
@@ -162,13 +163,42 @@ header {
 .delete-lang {
   position: absolute;
   right: 0px;
-  border: none;
   height: 100%;
   padding: 1px 5px;
-  background: rgb(22, 1, 1);
-  color: white;
-  font-weight: bold;
+  background-color: rgb(252, 205, 205);
+  border-width: 1px;
   z-index: 10;
+}
+/* @flat picker*/
+
+.flatpickr-day.highlighted-day {
+  background-color: #bef36f !important;
+  color: #000000 !important;
+  /* border-radius: 10%; */
+  font-weight: bold;
+}
+/* .flatpickr-calendar {
+} */
+/* .flatpickr-day {
+  height: 32px;
+  line-height: 32px;
+  max-width: 32px;
+} */
+.flatpickr-day.sunday {
+  color: red;
+}
+/* .flatpickr-current-month {
+  
+} */
+/* scope it tightly */
+
+/* Make sure your todays-date input is visible */
+#todays-entry-date {
+  max-width: 114px;
+  padding: 0px 2px;
+}
+.delete-lang svg {
+  pointer-events: none;
 }
 
 .add-lang-btn:active {
@@ -544,6 +574,7 @@ header {
   text-align: center;
   width: max-content;
   max-width: 80vw;
+  z-index: 100;
 }
 
 #snack-bar.showSnack {

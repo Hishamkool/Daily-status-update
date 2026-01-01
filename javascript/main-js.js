@@ -1,6 +1,6 @@
 /* variables */
 /* debug status */
-const debug = false;
+const debug = true;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = "dailyLogs";
@@ -92,6 +92,8 @@ const previousPlusDailyStats = document.querySelector(
   ".previous-plus-dailystats"
 );
 const importDailyLogsBtn = document.getElementById("import-daily-logs");
+// output buttons
+const resetPreviousStats = document.getElementById("reset-previous-stats");
 /* get stats */
 let dailyLogs = fetchDailyLogs();
 /* Popups */
@@ -107,8 +109,10 @@ const snackBar = document.getElementById("snack-bar");
 const snackBarData = document.getElementById("snack-bar-data");
 /* INITIAL loading functions  */
 showStats();
-calculateTotalLinesOfCode();
-setPreviousInputsValues();
+// calculateTotalLinesOfCode();
+//separated the calculating totallines and updating the ui
+//[NOTE] updating ui also calculates the totals first
+updateTotalLocUI();
 
 if (debug) {
   outputItemsVisibility.forEach((outputItem) => {
@@ -119,82 +123,189 @@ if (debug) {
     outputItem.classList.remove("visible");
   });
 }
+
+// @flat picker
+// function to get all the dates of the daily logs
+function getHighlightedDates() {
+  const dailyLogs = fetchDailyLogs();
+  const highlightedDates = dailyLogs.map((item) => item[DATE]);
+  console.log("highlighted dates :", highlightedDates);
+
+  return highlightedDates;
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const highlightedDates = getHighlightedDates();
+
+  flatpickr(todaysDate, {
+    dateFormat: "Y-m-d",
+    altFormat: "d-m-Y",
+    // altInput: true,
+    // defaultDate: "2025.12.31",
+    defaultDate: new Date(),
+
+    // maxDate: "today",
+    onChange: function (selectedDates, dateStr, fp) {
+      partiallyUpdateTodaysEntry(dateStr).then(() => fp.close());
+    },
+
+    onDayCreate: function (dObj, dStr, fp, fpDayElem) {
+      const date = fpDayElem.dateObj; // not dObj
+      const ymd = fp.formatDate(date, "Y-m-d");
+
+      // for highlighting submited days
+      if (highlightedDates.includes(ymd)) {
+        fpDayElem.classList.add("highlighted-day");
+      } else {
+        console.log("ymd:", ymd);
+        console.log("dosent incude the dates");
+      }
+
+      if (fpDayElem.dateObj.getDay() === 0) {
+        fpDayElem.classList.add("sunday");
+      }
+    },
+  });
+});
+
+// adding event listners to static and dynamic lines of code
+programmingLanguages.forEach((section) => {
+  section.addEventListener("input", updateTotalLocUI);
+});
+
+// function to add and set todays total lines of code for todays entry and previous total
+//@lines of code calculation
+function calculateTotalLinesOfCode() {
+  let todaysTotal = 0;
+  let previousTotal = 0;
+
+  // todays fields total
+  todaysTotal =
+    (Number(todaysHTML.value) || 0) +
+    (Number(todaysCSS.value) || 0) +
+    (Number(todaysJS.value) || 0) +
+    (Number(todaysReact.value) || 0);
+
+  // previous fields total
+  previousTotal =
+    (Number(totalHtml.value) || 0) +
+    (Number(totalCss.value) || 0) +
+    (Number(totalJS.value) || 0) +
+    (Number(totalReact.value) || 0);
+
+  // now need to add user input fields total lines of code
+  const userLanguages = getUserLanguages();
+
+  userLanguages.forEach(({ key }) => {
+    const userInput = document.getElementById(`${todaysPrefix}-${key}`);
+    const previousInput = document.getElementById(`${previousPrefix}-${key}`);
+    if (userInput) {
+      todaysTotal += Number(userInput.value) || 0;
+    }
+    if (previousInput) {
+      previousTotal += Number(previousInput.value) || 0;
+    }
+  });
+  // todaysTotalLoc.textContent = todaysTotal;
+  // totalLOCAllTime.textContent = previousTotal;
+
+  return { todaysTotal, previousTotal };
+}
+
+//function to calculate and update the totla lines of code
+function updateTotalLocUI() {
+  const { todaysTotal, previousTotal } = calculateTotalLinesOfCode();
+  todaysTotalLoc.textContent = todaysTotal;
+  totalLOCAllTime.textContent = previousTotal;
+}
+
+// event listner for todays entry date
+// todaysDate.addEventListener("change", partiallyUpdateTodaysEntry);
+/* [NOTE]: using flat date picker now */
+
+//@partialupdate function to partially update todays entries or SHOW THE VALUES OF TODATS ENTRIES IF DATA IS ALREADY SUBMITTED
+async function partiallyUpdateTodaysEntry(submitDate) {
+  const dailyLogs = fetchDailyLogs();
+  if (!submitDate) return;
+  if (dailyLogs.length == 0) {
+    debug && console.log("Dialy Logs is empty");
+    return;
+  }
+  const item = dailyLogs.find((item) => item[DATE] === submitDate);
+
+  if (item) {
+    const updateValues = await toggleConfiramtionPopup(
+      `Data for ${submitDate} already exists, Do you want to update?`,
+      true,
+      ` This will update the input fields`
+    );
+    if (updateValues) {
+      typingSpeed.value = item[TYPING_SPEED] || "";
+      typingAccuracy.value = item[TYPING_ACCURACY] || "";
+      todaysFocus.value = item[FOCUS_TIME] || "00:00:00";
+      todaysCodeTime.value = item[CODE_TIME] || "00:00:00";
+      todaysActiveCodeTime.value = item[ACTIVE_CODE_TIME] || "00:00:00";
+      todaysHTML.value = item[HTML] || 0;
+      todaysCSS.value = item[KEY_CSS] || 0;
+      todaysJS.value = item[JAVASCRIPT] || 0;
+      todaysReact.value = item[REACT] || 0;
+      //need to add values to all user languages
+      // from user languages we get the language name
+      const userLanguages = getUserLanguages();
+      userLanguages.forEach(({ key }) => {
+        const input = document.getElementById(`${todaysPrefix}-${key}`);
+        if (!input) {
+          console.error("user language button not found for partial update");
+
+          return;
+        }
+        input.value = item[key] || 0;
+      });
+      updateTotalLocUI();
+    }
+  }
+}
+// function to build daily logs object for incorporating user set languages
+// @obj @dailyObj
+function buildDailyLogsObject() {
+  // const { todaysTotal } = calculateTotalLinesOfCode();
+  // daily_logs_input_obj[DAILY_TOTAL] = todaysTotal;
+  let daily_logs_input_obj = {
+    [DATE]: todaysDate.value,
+    [TYPING_SPEED]: typingSpeed.value,
+    [TYPING_ACCURACY]: typingAccuracy.value,
+    [FOCUS_TIME]: todaysFocus.value || "00:00:00",
+    [CODE_TIME]: todaysCodeTime.value || "00:00:00",
+    [ACTIVE_CODE_TIME]: todaysActiveCodeTime.value || "00:00:00",
+    [HTML]: Number(todaysHTML.value) || 0,
+    [KEY_CSS]: Number(todaysCSS.value) || 0,
+    [JAVASCRIPT]: Number(todaysJS.value) || 0,
+    [REACT]: Number(todaysReact.value) || 0,
+    [DAILY_TOTAL]: Number(todaysTotalLoc.textContent) || 0,
+  };
+
+  // adding user set languages to the object
+  const userLanguages = getUserLanguages();
+  userLanguages.forEach(({ key }) => {
+    const input = document.querySelector(
+      `input[name="${todaysPrefix}-${key}"]`
+    );
+    daily_logs_input_obj[key] = input ? Number(input.value) || 0 : 0;
+  });
+
+  return daily_logs_input_obj;
+}
 // funtion to get the stored daily log file
 function fetchDailyLogs() {
   return JSON.parse(localStorage.getItem(storage_key_daily_log)) || [];
 }
 
-// even listners for total lines of code as user inputs data
-[
-  todaysHTML,
-  todaysCSS,
-  todaysJS,
-  todaysReact,
-  totalHtml,
-  totalCss,
-  totalJS,
-  totalReact,
-].forEach((input) => {
-  input.addEventListener("input", calculateTotalLinesOfCode);
-});
-
-// function to add and set todays total lines of code for todays entry and previous total
-function calculateTotalLinesOfCode() {
-  // todays fields total
-  let todaysTotal =
-    (Number(todaysHTML.value) || 0) +
-    (Number(todaysCSS.value) || 0) +
-    (Number(todaysJS.value) || 0) +
-    (Number(todaysReact.value) || 0);
-  todaysTotalLoc.value = todaysTotal;
-  todaysTotalLoc.textContent = todaysTotal;
-  // previous fields total
-  let previousTotal =
-    (Number(totalHtml.value) || 0) +
-    (Number(totalCss.value) || 0) +
-    (Number(totalJS.value) || 0) +
-    (Number(totalReact.value) || 0);
-  totalLOCAllTime.value = previousTotal;
-  totalLOCAllTime.textContent = previousTotal;
-}
-// event listner for todays entry date
-todaysDate.addEventListener("change", partiallyUpdateTodaysEntry);
-
-// function to partially update todays entries or show the values of todats entries if data is already submitted
-async function partiallyUpdateTodaysEntry() {
-  const dailyLogs = fetchDailyLogs();
-  const submitDate = todaysDate.value;
-  if (!submitDate) return;
-  if (dailyLogs.length == 0) {
-    debug && console.log("Dialy Logs is empty");
-    return;
-  } else {
-    const item = dailyLogs.find((item) => item[DATE] === submitDate);
-
-    if (item) {
-      const updateValues = await toggleConfiramtionPopup(
-        `Data for ${submitDate} already exists, Do you want to update?`,
-        true,
-        ` This will update the input fields`
-      );
-      if (updateValues) {
-        typingSpeed.value = item[TYPING_SPEED] || "";
-        typingAccuracy.value = item[TYPING_ACCURACY] || "";
-        todaysFocus.value = item[FOCUS_TIME] || "00:00:00";
-        todaysCodeTime.value = item[CODE_TIME] || "00:00:00";
-        todaysActiveCodeTime.value = item[ACTIVE_CODE_TIME] || "00:00:00";
-        todaysHTML.value = item[HTML] || 0;
-        todaysCSS.value = item[KEY_CSS] || 0;
-        todaysJS.value = item[JAVASCRIPT] || 0;
-        todaysReact.value = item[REACT] || 0;
-      }
-    }
-  }
-}
-
 // sumbit event listner on todays stats - todays submit
+// @todays form
 todaysStatsForm.addEventListener("submit", async function (event) {
   event.preventDefault();
+  // recalculate total lines of code in case not updated from dom
+  updateTotalLocUI();
+
   dailyLogs = fetchDailyLogs();
   const submit_date = todaysDate.value;
   if (!submit_date) {
@@ -221,20 +332,8 @@ todaysStatsForm.addEventListener("submit", async function (event) {
         )
       : true;
   if (!sure2submit) return;
-
-  let daily_logs_input_obj = {
-    [DATE]: todaysDate.value,
-    [TYPING_SPEED]: typingSpeed.value,
-    [TYPING_ACCURACY]: typingAccuracy.value,
-    [FOCUS_TIME]: todaysFocus.value || "00:00:00",
-    [CODE_TIME]: todaysCodeTime.value || "00:00:00",
-    [ACTIVE_CODE_TIME]: todaysActiveCodeTime.value || "00:00:00",
-    [HTML]: Number(todaysHTML.value) || 0,
-    [KEY_CSS]: Number(todaysCSS.value) || 0,
-    [JAVASCRIPT]: Number(todaysJS.value) || 0,
-    [REACT]: Number(todaysReact.value) || 0,
-    [DAILY_TOTAL]: todaysTotalLoc.value,
-  };
+  // building daily logs object for static and dynamic languages
+  let daily_logs_input_obj = buildDailyLogsObject();
 
   // id date matches with output (prestored values)
   if (existingIndex !== -1) {
@@ -253,21 +352,17 @@ todaysStatsForm.addEventListener("submit", async function (event) {
     addData(daily_logs_input_obj);
   }
 
-  /* 
-    // remove this [debug] - to set random numbers to the lines of code for testing
-    debug && setRandomValuesToLinesOfCode(); 
-    */
-
   // function call to calculate the dailyLogsTotal
   calculateDailyLogsTotal();
   showDailyLogsTotal();
   showSnackBar("Data Submitted", undefined, 1000);
   copyStatsDate.value = submit_date;
-  copyStatsBtn.dispatchEvent(new Event("input", { bubbles: true }));
-  copyStatsBtn.dispatchEvent(new Event("change", { bubbles: true }));
+  // resetting todays stats after submitting
+  todaysStatsForm.reset();
+  todaysTotalLoc.textContent = 0;
   setTimeout(() => {
-    todaysStatsForm.reset();
-    todaysTotalLoc.value = "";
+    copyStatsBtn.dispatchEvent(new Event("input", { bubbles: true }));
+    copyStatsBtn.dispatchEvent(new Event("change", { bubbles: true }));
   }, 200);
 });
 
@@ -316,7 +411,7 @@ function showDailyStats() {
   debug && console.log("DailyStats:", logs);
 }
 
-/* OUTPUT FIELD BUTTONS */
+/* @OUTPUT FIELD BUTTONS */
 // function to display Output
 function showStats() {
   showSnackBar("Updating output...", undefined, 1000);
@@ -325,6 +420,11 @@ function showStats() {
   showPreviousInput();
   showPreviousPlusDaily();
 }
+// @reset previous stats
+resetPreviousStats.addEventListener(
+  "click",
+  clearPreviousInputAndPreviousTotals
+);
 
 // function to @import daily logs in json
 importDailyLogsBtn.addEventListener("change", function (event) {
@@ -478,12 +578,21 @@ function sortDailyLogs() {
   return sortedDailyLogs;
 }
 
-// function to calculate totals based on the passed date
+//@previoustilldate function to calculate totals based on the passed date
 function previousTotalsTillDate(ISOdate) {
   // sorts the daily logs by date
   const sortedDailyLogs = sortDailyLogs();
   const previousTotalInput = fetchPreviousInput();
   const arrayTillDate = sortedDailyLogs.filter((log) => log[DATE] <= ISOdate);
+  console.log({ sortedDailyLogs });
+
+  const userLanguages = getUserLanguages();
+  console.log(userLanguages);
+  // adding thouse user languages to languages object and setting them to 0
+  let userLanguagesTotals = {};
+  userLanguages.forEach(({ key }) => {
+    userLanguagesTotals[key] = 0;
+  });
 
   let totalFocus = 0,
     totalCode = 0,
@@ -493,6 +602,7 @@ function previousTotalsTillDate(ISOdate) {
     totaljs = 0,
     totalreact = 0,
     totallocTilldate = 0;
+  // adding values till date
   arrayTillDate.forEach((log) => {
     (totalFocus += time2Seconds(log[FOCUS_TIME])),
       (totalCode += time2Seconds(log[CODE_TIME])),
@@ -501,8 +611,13 @@ function previousTotalsTillDate(ISOdate) {
       (totalcss += log[KEY_CSS]),
       (totaljs += log[JAVASCRIPT]),
       (totalreact += log[REACT]);
+    // user added languages totals
+    userLanguages.forEach(
+      ({ key }) => (userLanguagesTotals[key] += log[key] || 0)
+    );
     totallocTilldate += log[DAILY_TOTAL];
   });
+  // if previous totals were submitted by user then we need to add that to the current daily logs totals
   if (previousTotalInput) {
     (totalFocus += time2Seconds(previousTotalInput[TOTAL_FOCUS])),
       (totalCode += time2Seconds(previousTotalInput[TOTAL_CODE_TIME])),
@@ -512,6 +627,9 @@ function previousTotalsTillDate(ISOdate) {
       (totaljs += previousTotalInput[TOTAL_JS]),
       (totalreact += previousTotalInput[TOTAL_REACT]),
       (totallocTilldate += previousTotalInput[ALL_TIME_TOTAL]);
+    userLanguages.forEach(({ key }) => {
+      userLanguagesTotals[key] += previousTotalInput[key] || 0;
+    });
   }
   return {
     [DATE]: ISOdate,
@@ -523,6 +641,7 @@ function previousTotalsTillDate(ISOdate) {
     [TOTAL_JS]: totaljs,
     [TOTAL_REACT]: totalreact,
     [ALL_TIME_TOTAL]: totallocTilldate,
+    ...userLanguagesTotals,
   };
 }
 
@@ -530,8 +649,9 @@ function previousTotalsTillDate(ISOdate) {
 
 // function to add all the values of all daily stats and then calculate the previous totals
 function calculateDailyLogsTotal() {
-  // calculating total lines of code from daily stats
   const dailyLogs = fetchDailyLogs();
+  const userLanguages = getUserLanguages();
+
   const sumDailyStats = dailyLogs.reduce(
     (acc, currnt) => {
       if (!acc.latestDate || new Date(currnt.date) > new Date(acc.latestDate)) {
@@ -544,9 +664,17 @@ function calculateDailyLogsTotal() {
       acc.css += currnt[KEY_CSS] || 0;
       acc.js += currnt[JAVASCRIPT] || 0;
       acc.react += currnt[REACT] || 0;
+
+      // adding user set languages totals
+      userLanguages.forEach(({ key }) => {
+        acc.dynamicLanguages[key] =
+          (acc.dynamicLanguages[key] || 0) + (currnt[key] || 0);
+      });
+
       acc.previousTotal += currnt[DAILY_TOTAL] || 0;
       return acc;
     },
+
     {
       latestDate: null,
       focus: 0,
@@ -557,9 +685,10 @@ function calculateDailyLogsTotal() {
       js: 0,
       react: 0,
       previousTotal: 0,
+      dynamicLanguages: {},
     }
   );
-
+  // @obj @dailyLogsObj
   let daily_logs_total_obj = {
     [LATEST_DATE]: sumDailyStats.latestDate,
     [FOCUS_TIME]: secondsToHMS(sumDailyStats.focus),
@@ -570,6 +699,7 @@ function calculateDailyLogsTotal() {
     [JAVASCRIPT]: sumDailyStats.js,
     [REACT]: sumDailyStats.react,
     [DAILY_TOTAL]: sumDailyStats.previousTotal,
+    ...sumDailyStats.dynamicLanguages, // adding languages fields to total object
   };
 
   // debug && console.log("daily logs object:", dailyLogTotalObj);
@@ -639,6 +769,7 @@ previousTotalsForm.addEventListener("submit", async (event) => {
   }
   await clearDailyStats(deleteAllDailyLogs);
   // object for the previous total input fields
+  //@obj @previous total obj
   let previous_total_inputs_obj = {
     [DATE]: previousDate.value,
     [TOTAL_FOCUS]: totalFocus.value || "00:00:00",
@@ -675,55 +806,80 @@ previousTotalsForm.addEventListener("submit", async (event) => {
 // function to add previous totals input and daily logs sum
 function add_dailyStatsTotal_and_PreviousInput() {
   let dailyLogsSum = fetchDailyLogsSum();
-  let previousTotal = fetchPreviousInput();
+  let previousInput = fetchPreviousInput();
 
-  if (!previousTotal || Object.keys(previousTotal).length === 0) {
-    previousTotal = {
+  // if previous input is empty set default values
+  if (!previousInput || Object.keys(previousInput).length === 0) {
+    previousInput = {
       [TOTAL_FOCUS]: "00:00:00",
       [TOTAL_CODE_TIME]: "00:00:00",
       [TOTAL_ACTIVE_CODE_TIME]: "00:00:00",
-      [TOTAL_HTML]: 0,
-      [TOTAL_CSS]: 0,
-      [TOTAL_JS]: 0,
-      [TOTAL_REACT]: 0,
-      [ALL_TIME_TOTAL]: 0,
     };
     localStorage.setItem(
       storage_key_previous_total_input,
-      JSON.stringify(previousTotal)
+      JSON.stringify(previousInput)
     );
   }
+  // if previous input or daily sum dosent contain the added languages add and set them to 0
+  const userLanguages = getUserLanguages();
+  userLanguages.forEach(({ key }) => {
+    if (!(key in previousInput)) previousInput[key] = 0;
+    if (!(key in dailyLogsSum)) dailyLogsSum[key] = 0;
+  });
 
+  // calculating totals perlanguage
+  let languagesTotals = {};
+  userLanguages.forEach(({ key }) => {
+    languagesTotals[key] =
+      (Number(previousInput[key]) || 0) + (Number(dailyLogsSum[key]) || 0);
+  });
+
+  // now finding the totals of all languages
+  const allTimeTotal =
+    // totals of static languages + user entered languages
+
+    (previousInput[TOTAL_HTML] || 0) +
+    (dailyLogsSum[HTML] || 0) +
+    (previousInput[TOTAL_CSS] || 0) +
+    (dailyLogsSum[KEY_CSS] || 0) +
+    (previousInput[TOTAL_JS] || 0) +
+    (dailyLogsSum[JAVASCRIPT] || 0) +
+    (previousInput[TOTAL_REACT] || 0) +
+    (dailyLogsSum[REACT] || 0) +
+    //user entered languages
+    Object.values(languagesTotals).reduce((a, b) => a + b, 0);
+
+  // @obj @previousplusdaily
   let previous_plus_daily_obj = {
     [DATE]: dailyLogsSum[LATEST_DATE] || previousDate.value,
     [TOTAL_FOCUS]: secondsToHMS(
-      time2Seconds(previousTotal[TOTAL_FOCUS]) +
+      time2Seconds(previousInput[TOTAL_FOCUS]) +
         time2Seconds(dailyLogsSum[FOCUS_TIME])
     ),
     [TOTAL_CODE_TIME]: secondsToHMS(
-      time2Seconds(previousTotal[TOTAL_CODE_TIME]) +
+      time2Seconds(previousInput[TOTAL_CODE_TIME]) +
         time2Seconds(dailyLogsSum[CODE_TIME])
     ),
     [TOTAL_ACTIVE_CODE_TIME]: secondsToHMS(
-      time2Seconds(previousTotal[TOTAL_ACTIVE_CODE_TIME]) +
+      time2Seconds(previousInput[TOTAL_ACTIVE_CODE_TIME]) +
         time2Seconds(dailyLogsSum[ACTIVE_CODE_TIME])
     ),
-    [TOTAL_HTML]: previousTotal[TOTAL_HTML] + dailyLogsSum[HTML],
-    [TOTAL_CSS]: previousTotal[TOTAL_CSS] + dailyLogsSum[KEY_CSS],
-    [TOTAL_JS]: previousTotal[TOTAL_JS] + dailyLogsSum[JAVASCRIPT],
-    [TOTAL_REACT]: previousTotal[TOTAL_REACT] + dailyLogsSum[REACT],
-    [ALL_TIME_TOTAL]:
-      previousTotal[TOTAL_HTML] +
-      dailyLogsSum[HTML] +
-      (previousTotal[TOTAL_CSS] + dailyLogsSum[KEY_CSS]) +
-      (previousTotal[TOTAL_JS] + dailyLogsSum[JAVASCRIPT]) +
-      (previousTotal[TOTAL_REACT] + dailyLogsSum[REACT]),
+    [TOTAL_HTML]: (previousInput[TOTAL_HTML] || 0) + (dailyLogsSum[HTML] || 0),
+    [TOTAL_CSS]: (previousInput[TOTAL_CSS] || 0) + (dailyLogsSum[KEY_CSS] || 0),
+    [TOTAL_JS]:
+      (previousInput[TOTAL_JS] || 0) + (dailyLogsSum[JAVASCRIPT] || 0),
+    [TOTAL_REACT]:
+      (previousInput[TOTAL_REACT] || 0) + (dailyLogsSum[REACT] || 0),
+
+    ...languagesTotals,
+    [ALL_TIME_TOTAL]: allTimeTotal,
   };
+
   localStorage.setItem(
     storage_key_previous_plus_daily,
     JSON.stringify(previous_plus_daily_obj)
   );
-
+  ALL_TIME_TOTAL;
   //show final previous total in output box
   showPreviousPlusDaily();
   // set final previous total in previous total input box
@@ -741,15 +897,32 @@ function setPreviousInputsValues() {
   totalCodeTime.value = previousPlusDaily[TOTAL_CODE_TIME] || "00:00:00";
   totalActiveCodeTime.value =
     previousPlusDaily[TOTAL_ACTIVE_CODE_TIME] || "00:00:00";
+  //defaulst languages
   totalHtml.value = previousPlusDaily[TOTAL_HTML] || 0;
   totalCss.value = previousPlusDaily[TOTAL_CSS] || 0;
   totalJS.value = previousPlusDaily[TOTAL_JS] || 0;
   totalReact.value = previousPlusDaily[TOTAL_REACT] || 0;
-  totalLOCAllTime.textContent =
+  // for static languages total
+  let allTimeTotal =
     previousPlusDaily[TOTAL_HTML] +
     previousPlusDaily[TOTAL_CSS] +
     previousPlusDaily[TOTAL_JS] +
     previousPlusDaily[TOTAL_REACT];
+
+  //dynamically add user added languages
+  const userLanguages = getUserLanguages();
+  userLanguages.forEach(({ key }) => {
+    const input = document.getElementById(`${previousPrefix}-${key}`);
+    if (!input) {
+      console.error(
+        `input field dosent exists for previous total : ${previousPrefix}-${key}`
+      );
+    } else {
+      input.value = previousPlusDaily[key] || 0;
+      allTimeTotal += previousPlusDaily[key] || 0;
+    }
+  });
+  totalLOCAllTime.textContent = allTimeTotal;
 }
 // function to retrieve the sum of daily logs plus previous total input values
 function fetchPreviousPlusDaily() {
@@ -980,7 +1153,7 @@ copyStatsDate.addEventListener("input", () => {
 
   showDataClipboard.textContent = JSON.stringify(data, null, 2);
 });
-/* Copying the data in the format of the slack */
+/*@copy Copying the data in the format of the slack */
 copyStatsBtn.addEventListener("click", () => {
   {
     // we need to add previous total input values and daily logs till date as the total value
@@ -1001,7 +1174,6 @@ copyStatsBtn.addEventListener("click", () => {
       return;
     } else {
       let totalTillDate = previousTotalsTillDate(copyStatsDate.value);
-
       let logsTillDate = totalTillDate;
       // format time hr , min and sec
       const formatOutputTime = (hms) => {
@@ -1150,6 +1322,7 @@ removeLogDateBtn.addEventListener("click", async () => {
 downloadCsv.addEventListener("click", () => {
   const currentDateTime = getCurrentTime();
   const dailyLogs = fetchDailyLogs();
+  const userLanguages = getUserLanguages();
   const dailyLogsSum = fetchDailyLogsSum();
   // if we have not stored any daily logs yet
   if (!dailyLogs.length) {
@@ -1162,6 +1335,11 @@ downloadCsv.addEventListener("click", () => {
 
   // fetchig daily logs sum and pushing it into the end row.
   if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
+    // making key,value array of language and values and then converting it to an object of key: value
+    const languageValues = Object.fromEntries(
+      userLanguages.map(({ key }) => [key, dailyLogsSum[key] ?? ""])
+    );
+
     logsForCsv.push({
       [TOTAL_COLUMN]: TOTAL_COLUMN,
       [DATE]: dailyLogsSum[LATEST_DATE],
@@ -1172,11 +1350,16 @@ downloadCsv.addEventListener("click", () => {
       [KEY_CSS]: dailyLogsSum[KEY_CSS],
       [JAVASCRIPT]: dailyLogsSum[JAVASCRIPT],
       [REACT]: dailyLogsSum[REACT],
+      ...languageValues,
       [DAILY_TOTAL]: dailyLogsSum[DAILY_TOTAL],
     });
   }
   const previousTotals = fetchPreviousPlusDaily();
   if (previousTotals && Object.keys(previousTotals).length > 0) {
+    const languageValues = Object.fromEntries(
+      userLanguages.map(({ key }) => [key, previousTotals[key] ?? ""])
+    );
+
     logsForCsv.push({
       [TOTAL_COLUMN]: ALL_TIME_TOTAL_COLUMN,
       [DATE]: previousTotals[DATE],
@@ -1187,6 +1370,7 @@ downloadCsv.addEventListener("click", () => {
       [KEY_CSS]: previousTotals[TOTAL_CSS],
       [JAVASCRIPT]: previousTotals[TOTAL_JS],
       [REACT]: previousTotals[TOTAL_REACT],
+      ...languageValues,
       [DAILY_TOTAL]: previousTotals[ALL_TIME_TOTAL],
     });
   }
@@ -1201,6 +1385,7 @@ downloadCsv.addEventListener("click", () => {
     "CSS",
     "JS",
     "React",
+    ...userLanguages.map(({ key }) => String(key)),
     "DailyTotal",
     "Typing Speed",
     "Typing Accuracy",
@@ -1215,6 +1400,9 @@ downloadCsv.addEventListener("click", () => {
       serialOrLabel = obj[SL_NO];
     }
 
+    // receiving the values for each user langugaes
+    const languageValues = userLanguages.map(({ key }) => obj[key] ?? "");
+    //[NOTE] make sure the header order and the language values are in order
     return [
       serialOrLabel,
       obj[DATE],
@@ -1225,6 +1413,7 @@ downloadCsv.addEventListener("click", () => {
       obj[KEY_CSS],
       obj[JAVASCRIPT],
       obj[REACT],
+      ...languageValues,
       obj[DAILY_TOTAL],
       obj[TYPING_SPEED] ? obj[TYPING_SPEED] + " wpm" : "",
       obj[TYPING_ACCURACY] ? obj[TYPING_ACCURACY] + "%" : "",
@@ -1248,6 +1437,7 @@ downloadExcel.addEventListener("click", () => {
   const currentDateTime = getCurrentTime();
   const dailyLogs = fetchDailyLogs();
   const dailyLogsSum = fetchDailyLogsSum();
+  const userLanguages = getUserLanguages();
 
   if (!dailyLogs.length) {
     showSnackBar("No daily Logs found to download", true);
@@ -1259,6 +1449,9 @@ downloadExcel.addEventListener("click", () => {
 
   // Add total row at the end
   if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
+    const languageTotals = Object.fromEntries(
+      userLanguages.map(({ key }) => [key, dailyLogsSum[key] ?? ""])
+    );
     logsForExcel.push({
       [TOTAL_COLUMN]: TOTAL_COLUMN, // first column
       [DATE]: dailyLogsSum[LATEST_DATE],
@@ -1269,11 +1462,15 @@ downloadExcel.addEventListener("click", () => {
       [KEY_CSS]: dailyLogsSum[KEY_CSS],
       [JAVASCRIPT]: dailyLogsSum[JAVASCRIPT],
       [REACT]: dailyLogsSum[REACT],
+      ...languageTotals,
       [DAILY_TOTAL]: dailyLogsSum[DAILY_TOTAL],
     });
   }
   const previousTotals = fetchPreviousPlusDaily();
   if (previousTotals || previousTotals.length != 0) {
+    const languageTotals = Object.fromEntries(
+      userLanguages.map(({ key }) => [key, previousTotals[key] ?? ""])
+    );
     logsForExcel.push({
       [TOTAL_COLUMN]: ALL_TIME_TOTAL_COLUMN,
       [DATE]: previousTotals[DATE],
@@ -1284,12 +1481,28 @@ downloadExcel.addEventListener("click", () => {
       [KEY_CSS]: previousTotals[TOTAL_CSS],
       [JAVASCRIPT]: previousTotals[TOTAL_JS],
       [REACT]: previousTotals[TOTAL_REACT],
+      ...languageTotals,
       [DAILY_TOTAL]: previousTotals[ALL_TIME_TOTAL],
     });
   }
   // Adding headers so that i can add total column at the beginning
   // const headers = [String([TOTAL_COLUMN]), String([[DATE]]), String([FOCUS_TIME]), String([CODE_TIME]), String([ACTIVE_CODE_TIME]), String([HTML]), String([KEY_CSS]), String([JAVASCRIPT]), String([REACT]), String([DAILY_TOTAL])];
-  const headers = [TOTAL_COLUMN];
+  // const headers = [TOTAL_COLUMN];
+  const headers = [
+    TOTAL_COLUMN,
+    DATE,
+    FOCUS_TIME,
+    CODE_TIME,
+    ACTIVE_CODE_TIME,
+    HTML,
+    KEY_CSS,
+    JAVASCRIPT,
+    REACT,
+    ...userLanguages.map(({ key }) => key),
+    DAILY_TOTAL,
+    TYPING_SPEED,
+    TYPING_ACCURACY,
+  ];
 
   const worksheet = XLSX.utils.json_to_sheet(logsForExcel, { header: headers });
   // console.log(worksheet);
