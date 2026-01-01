@@ -122,28 +122,43 @@ if (debug) {
 }
 
 // @flat picker
-
+// function to get all the dates of the daily logs
 function getHighlightedDates() {
   const dailyLogs = fetchDailyLogs();
-  return dailyLogs.map((item) => item[DATE]);
+  const highlightedDates = dailyLogs.map((item) => item[DATE]);
+  console.log("highlighted dates :", highlightedDates);
+
+  return highlightedDates;
 }
 document.addEventListener("DOMContentLoaded", () => {
   const highlightedDates = getHighlightedDates();
 
   flatpickr(todaysDate, {
     dateFormat: "Y-m-d",
-    altInput: true,
     altFormat: "d-m-Y",
-    defaultDate: "today",
-    maxDate: "today",
-    onChange: function (selectedDates, dateStr) {
-      partiallyUpdateTodaysEntry(dateStr);
+    // altInput: true,
+    // defaultDate: "2025.12.31",
+    defaultDate: new Date(),
+
+    // maxDate: "today",
+    onChange: function (selectedDates, dateStr, fp) {
+      partiallyUpdateTodaysEntry(dateStr).then(() => fp.close());
     },
-    onDayCreate: function (dObj, dStr, fpDayElem) {
+
+    onDayCreate: function (dObj, dStr, fp, fpDayElem) {
       const date = fpDayElem.dateObj; // not dObj
-      const ymd = this.formatDate(date, "Y-m-d");
+      const ymd = fp.formatDate(date, "Y-m-d");
+
+      // for highlighting submited days
       if (highlightedDates.includes(ymd)) {
         fpDayElem.classList.add("highlighted-day");
+      } else {
+        console.log("ymd:", ymd);
+        console.log("dosent incude the dates");
+      }
+
+      if (fpDayElem.dateObj.getDay() === 0) {
+        fpDayElem.classList.add("sunday");
       }
     },
   });

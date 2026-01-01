@@ -33,7 +33,7 @@ SOLVED
 14. added user languages for exporting in csv , xlsx.
 15. Added User langugaes with langugae normalization for keys and labels for ui with tracking.
 16. Added deleting language functionality if data does not exists in the stats.
-
+17. Added flatpickr and highliting for dates the user has submitted daily logs for.
 
 ====================
 FEATURES

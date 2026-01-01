@@ -3,15 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="assets/png/dailyLog512.png" />
     <!-- for flatpicker date picker -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
     />
-
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="assets/png/dailyLog512.png" />
     <title>Daily Log Vonnue</title>
   </head>
 
@@ -191,14 +190,20 @@
           <div class="section-title">
             <h3 class="section-title-heading">Todays Entry:</h3>
             <span class="form-date">
-              <label for="todays-entry-date" class="form-date-label"
-                >Date:
+              <label for="todays-entry-date" class="form-date-label">
+                Date:
               </label>
-              <input
+              <!-- <input
                 type="text"
                 id="todays-entry-date"
                 form="todays-data-form"
                 name="todays-entry-date"
+                required
+              /> -->
+              <input
+                type="text"
+                id="todays-entry-date"
+                name="todays-stats-date"
                 required
               />
             </span>
@@ -531,10 +536,11 @@
         </div>
       </section>
     </main>
+    <!-- for date picker -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <!-- excel export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- flat date picker -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- js files -->
     <script src="javascript/debug.js"></script>
     <script src="javascript/add_new_language.js"></script>
     <script src="javascript/main-js.js"></script>

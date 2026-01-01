@@ -91,6 +91,7 @@ header {
 }
 
 .form-date-label {
+  padding-right: 5px;
   font-size: 12px;
 }
 
@@ -168,18 +169,34 @@ header {
   border-width: 1px;
   z-index: 10;
 }
+/* @flat picker*/
 
-.flatpickr-day.highlighted-day:not(.selected):not(.today) {
-  background-color: #ffd700 !important; /* gold */
-  color: #000 !important;
-  border-radius: 50%;
+.flatpickr-day.highlighted-day {
+  background-color: #bef36f !important;
+  color: #000000 !important;
+  /* border-radius: 10%; */
   font-weight: bold;
 }
-
-.flatpickr-day.highlighted-day.today {
-  background-color: #000000 !important; /* slightly different for today */
+/* .flatpickr-calendar {
+} */
+/* .flatpickr-day {
+  height: 32px;
+  line-height: 32px;
+  max-width: 32px;
+} */
+.flatpickr-day.sunday {
+  color: red;
 }
+/* .flatpickr-current-month {
+  
+} */
+/* scope it tightly */
 
+/* Make sure your todays-date input is visible */
+#todays-entry-date {
+  max-width: 114px;
+  padding: 0px 2px;
+}
 .delete-lang svg {
   pointer-events: none;
 }
