@@ -10,6 +10,7 @@ ISSUES
 #. Add a remarks field (if required)
 
 #. Backup and fetch logs from a backend service
+# BUG - todays daily_total getting stored as "" while submitting causing alltimetotal to be a long string of numbers.
 
 
 

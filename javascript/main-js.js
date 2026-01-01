@@ -109,7 +109,10 @@ const snackBar = document.getElementById("snack-bar");
 const snackBarData = document.getElementById("snack-bar-data");
 /* INITIAL loading functions  */
 showStats();
-calculateTotalLinesOfCode();
+// calculateTotalLinesOfCode();
+//separated the calculating totallines and updating the ui
+//[NOTE] updating ui also calculates the totals first
+updateTotalLocUI();
 
 if (debug) {
   outputItemsVisibility.forEach((outputItem) => {
@@ -166,10 +169,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // adding event listners to static and dynamic lines of code
 programmingLanguages.forEach((section) => {
-  section.addEventListener("input", calculateTotalLinesOfCode);
+  section.addEventListener("input", updateTotalLocUI);
 });
 
 // function to add and set todays total lines of code for todays entry and previous total
+//@lines of code calculation
 function calculateTotalLinesOfCode() {
   let todaysTotal = 0;
   let previousTotal = 0;
@@ -201,11 +205,19 @@ function calculateTotalLinesOfCode() {
       previousTotal += Number(previousInput.value) || 0;
     }
   });
+  // todaysTotalLoc.textContent = todaysTotal;
+  // totalLOCAllTime.textContent = previousTotal;
 
+  return { todaysTotal, previousTotal };
+}
+
+//function to calculate and update the totla lines of code
+function updateTotalLocUI() {
+  const { todaysTotal, previousTotal } = calculateTotalLinesOfCode();
   todaysTotalLoc.textContent = todaysTotal;
-
   totalLOCAllTime.textContent = previousTotal;
 }
+
 // event listner for todays entry date
 // todaysDate.addEventListener("change", partiallyUpdateTodaysEntry);
 /* [NOTE]: using flat date picker now */
@@ -248,13 +260,15 @@ async function partiallyUpdateTodaysEntry(submitDate) {
         }
         input.value = item[key] || 0;
       });
-      calculateTotalLinesOfCode();
+      updateTotalLocUI();
     }
   }
 }
 // function to build daily logs object for incorporating user set languages
 // @obj @dailyObj
-function buildDailyLogsObject(prefix) {
+function buildDailyLogsObject() {
+  // const { todaysTotal } = calculateTotalLinesOfCode();
+  // daily_logs_input_obj[DAILY_TOTAL] = todaysTotal;
   let daily_logs_input_obj = {
     [DATE]: todaysDate.value,
     [TYPING_SPEED]: typingSpeed.value,
@@ -272,7 +286,9 @@ function buildDailyLogsObject(prefix) {
   // adding user set languages to the object
   const userLanguages = getUserLanguages();
   userLanguages.forEach(({ key }) => {
-    const input = document.querySelector(`input[name="${prefix}-${key}"]`);
+    const input = document.querySelector(
+      `input[name="${todaysPrefix}-${key}"]`
+    );
     daily_logs_input_obj[key] = input ? Number(input.value) || 0 : 0;
   });
 
@@ -284,8 +300,12 @@ function fetchDailyLogs() {
 }
 
 // sumbit event listner on todays stats - todays submit
+// @todays form
 todaysStatsForm.addEventListener("submit", async function (event) {
   event.preventDefault();
+  // recalculate total lines of code in case not updated from dom
+  updateTotalLocUI();
+
   dailyLogs = fetchDailyLogs();
   const submit_date = todaysDate.value;
   if (!submit_date) {
@@ -313,7 +333,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
       : true;
   if (!sure2submit) return;
   // building daily logs object for static and dynamic languages
-  let daily_logs_input_obj = buildDailyLogsObject(todaysPrefix);
+  let daily_logs_input_obj = buildDailyLogsObject();
 
   // id date matches with output (prestored values)
   if (existingIndex !== -1) {
