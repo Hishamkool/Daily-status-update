@@ -106,7 +106,7 @@ const createLangKey = (lang) =>
 function renderLanguages(langName, langKey) {
   programmingLanguages.forEach((section) => {
     const formItem = document.createElement("div");
-    formItem.classList.add("form-item");
+    formItem.classList.add("form-item", "user-lang");
 
     //need to check if the element if for previous or todays stats
     const isPreviousSection =
@@ -226,4 +226,17 @@ function hasLanguageData(langKey) {
 
   // return false if data does not exists and its safe to delete.
   return false;
+}
+
+// function to delete or clear the user rendered languages from ui and storage
+function clearRenderedLanguagesUI() {
+  document
+    .querySelectorAll(".user-lang")
+    .forEach((userLang) => userLang.remove());
+  localStorage.removeItem(storage_key_user_set_language_array);
+  // debug &&
+  console.log(
+    "removed user langugaes form ui and storage:",
+    localStorage.getItem(storage_key_user_set_language_array)
+  );
 }

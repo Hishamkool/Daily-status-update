@@ -1,6 +1,6 @@
 /* variables */
 /* debug status */
-const debug = false;
+const debug = true;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = "dailyLogs";
@@ -155,9 +155,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // for highlighting submited days
       if (highlightedDates.includes(ymd)) {
         fpDayElem.classList.add("highlighted-day");
+        debug && console.log("highlighting date :", ymd);
       } else {
-        console.log("ymd:", ymd);
-        console.log("dosent incude the dates");
+        // debug && console.log("ymd:", ymd);
+        // debug && console.log("dosent incude the dates");
       }
 
       if (fpDayElem.dateObj.getDay() === 0) {
@@ -444,8 +445,10 @@ importDailyLogsBtn.addEventListener("change", function (event) {
     try {
       const jsonPlainTxt = e.target.result;
       const jsonData = JSON.parse(jsonPlainTxt);
-      const importPreviousInput = jsonData.previousInput;
-      const importDailyLogs = jsonData.dailyLogs;
+      const { dailyLogs, previousInput, userLanguages } = jsonData;
+
+      const userLangPresent =
+        Array.isArray(userLanguages) && userLanguages.length > 0;
 
       const sure2delete = await toggleConfiramtionPopup(
         "Are you sure to import the data? This will DELETE all your Data",
@@ -455,20 +458,34 @@ importDailyLogsBtn.addEventListener("change", function (event) {
 
       if (!sure2delete) return;
 
-      console.log("Read data :", jsonData);
-      showSnackBar("Successfully read items");
-      const previousInputString = JSON.stringify(importPreviousInput);
-      const dailyLogsString = JSON.stringify(importDailyLogs);
-
-      // await clearExcept_PreviousInputs(true);
+      // clearing the rendered languages
+      clearRenderedLanguagesUI();
+      // clearing the complete local storage
       await clearLocalStorage(true);
-      console.log("Storage cleared");
-      localStorage.setItem(
-        storage_key_previous_total_input,
-        previousInputString
-      );
-      localStorage.setItem(storage_key_daily_log, dailyLogsString);
 
+      debug && console.log("Read data :", jsonData);
+      showSnackBar("Successfully read items");
+
+      if (userLangPresent) {
+        debug && console.log("Storage cleared");
+        localStorage.setItem(
+          storage_key_user_set_language_array,
+          JSON.stringify(userLanguages)
+        );
+        renderLanguagesOnStartUp();
+      } else {
+        debug && console.log("no user languages present in json:");
+      }
+
+      if (dailyLogs) {
+        localStorage.setItem(storage_key_daily_log, JSON.stringify(dailyLogs));
+      }
+      if (previousInput) {
+        localStorage.setItem(
+          storage_key_previous_total_input,
+          JSON.stringify(previousInput)
+        );
+      }
       console.log(
         "successfully set json values to daily logs and previous inputs"
       );
@@ -527,7 +544,7 @@ async function clearPreviousInputAndPreviousTotals(confirmation) {
   }
 }
 
-// clear everything except previous input values from storage - used for importing json
+/* // clear everything except previous input values from storage - used for importing json
 async function clearExcept_PreviousInputs(confirmation) {
   let shouldDelete = confirmation;
   if (shouldDelete === undefined) {
@@ -543,7 +560,7 @@ async function clearExcept_PreviousInputs(confirmation) {
     debug && console.log("cleared all values except previous input");
     debug && showlocalStorageData();
   }
-}
+} */
 // function to clear all values in the local storage
 async function clearLocalStorage(confirmation) {
   let shouldClear = confirmation;
@@ -556,6 +573,8 @@ async function clearLocalStorage(confirmation) {
 
   if (shouldClear) {
     showSnackBar("Clearing LocalStorage...", undefined, 1000);
+    // to remove addd langugaes
+    clearRenderedLanguagesUI();
     localStorage.clear();
     previousTotalsForm.reset();
     showStats();
@@ -1317,8 +1336,9 @@ removeLogDateBtn.addEventListener("click", async () => {
   }
 });
 
-/* DOWNLOAD SECTION or @export section */
+/* DOWNLOAD SECTION or export section */
 // event listeners to download csv file
+//@export csv @download
 downloadCsv.addEventListener("click", () => {
   const currentDateTime = getCurrentTime();
   const dailyLogs = fetchDailyLogs();
@@ -1434,6 +1454,7 @@ downloadCsv.addEventListener("click", () => {
   link.click();
 });
 
+// @export excel
 // download excel file
 downloadExcel.addEventListener("click", () => {
   const currentDateTime = getCurrentTime();
@@ -1520,20 +1541,26 @@ downloadExcel.addEventListener("click", () => {
   );
 });
 
+// @export json
 // donwload daily Logs in json format
 downloadJson.addEventListener("click", () => {
   const currentDateTime = getCurrentTime();
   const dailylogs = fetchDailyLogs();
   const previousInput = fetchPreviousInput();
   const previousTotal = fetchPreviousPlusDaily();
+  //for user languages
+  const userLanguages = getUserLanguages();
   if (!dailylogs.length) {
     showSnackBar("No daily logs found to export", true, 2000);
     return;
   }
+
   const exportData = {
     previousTotal: previousTotal,
     previousInput: previousInput,
     dailyLogs: dailyLogs,
+    userLanguages: userLanguages,
+    exportTime: currentDateTime,
   };
   const blob = new Blob([JSON.stringify(exportData, null, 2)], {
     type: "application/json",
@@ -1542,7 +1569,7 @@ downloadJson.addEventListener("click", () => {
   const link = document.createElement("a");
   link.href = url;
   link.download = `${
-    debug ? "debug " : "" + exportFileName + " " + currentDateTime
+    debug ? "debug " + currentDateTime : exportFileName + " " + currentDateTime
   }.json`;
   link.click();
 });

@@ -10,9 +10,12 @@ ISSUES
 #. Add a remarks field (if required)
 
 #. Backup and fetch logs from a backend service
-# BUG - todays daily_total getting stored as "" while submitting causing alltimetotal to be a long string of numbers.
-
-
+#. need to update the flatpicker highlights when user updates the dailystats
+#. need to use same flatpicker for the copy to stats
+#. need to change the snackbar ui
+#. show the data in copy to stack after user submits
+#. IMPORTANT - disable the submit button on previous totals unless user enables this.
+#. while importing update flatpicker.
 
 ====================
 SOLVED
@@ -35,7 +38,9 @@ SOLVED
 15. Added User langugaes with langugae normalization for keys and labels for ui with tracking.
 16. Added deleting language functionality if data does not exists in the stats.
 17. Added flatpickr and highliting for dates the user has submitted daily logs for.
-
+18. FIXED BUG - todays daily_total getting stored as "" while submitting causing alltimetotal to be a long string of numbers.
+19. Rendered user languages when importing data because the user might not have the languagae and partial update might remove the languages .
+20. exported userlangugaes and current time as key values- for rendering userlanguages during import.
 ====================
 FEATURES
 ====================
