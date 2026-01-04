@@ -85,7 +85,7 @@ function submitLanguage(e) {
   );
   // rendering language
   renderLanguages(rawName, langKey);
-
+  generateTable();
   backdropAddLan.classList.remove("visible");
   addLanForm.reset();
 }
@@ -182,6 +182,7 @@ function deleteALanguage(langKey) {
   document.querySelectorAll(`[data-lang="${langKey}"]`).forEach((languages) => {
     languages.closest(".form-item").remove();
   });
+  generateTable();
   showSnackBar(`Successfully removed - ${langKey}`);
 }
 

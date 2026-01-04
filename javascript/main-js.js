@@ -94,8 +94,7 @@ const previousPlusDailyStats = document.querySelector(
 const importDailyLogsBtn = document.getElementById("import-daily-logs");
 // output buttons
 const resetPreviousStats = document.getElementById("reset-previous-stats");
-/* get stats */
-let dailyLogs = fetchDailyLogs();
+
 /* Popups */
 // confirmation popup
 const confirmationPopup = document.getElementById("ConfirmationBox");
@@ -307,7 +306,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
   // recalculate total lines of code in case not updated from dom
   updateTotalLocUI();
 
-  dailyLogs = fetchDailyLogs();
+  const dailyLogs = fetchDailyLogs();
   const submit_date = todaysDate.value;
   if (!submit_date) {
     showSnackBar(
@@ -355,6 +354,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
 
   // function call to calculate the dailyLogsTotal
   calculateDailyLogsTotal();
+  generateTable();
   showDailyLogsTotal();
   showSnackBar("Data Submitted", undefined, 1000);
   copyStatsDate.value = submit_date;
@@ -369,8 +369,9 @@ todaysStatsForm.addEventListener("submit", async function (event) {
 
 // function to replace todays data for a particular date
 function replaceData(existingIndex, entry) {
+  const dailyLogs = fetchDailyLogs();
   dailyLogs[existingIndex] = entry;
-  resetIndex();
+  resetIndex(dailyLogs);
   localStorage.setItem(storage_key_daily_log, JSON.stringify(dailyLogs));
   showDailyStats();
 }
@@ -386,15 +387,16 @@ function getCurrentTime() {
 
 // function to add todays data
 function addData(entry) {
+  const dailyLogs = fetchDailyLogs();
   dailyLogs.push(entry);
-  resetIndex();
+  resetIndex(dailyLogs);
   localStorage.setItem(storage_key_daily_log, JSON.stringify(dailyLogs));
 
   showDailyStats();
 }
 
 // function to reset serial number for the objects
-function resetIndex() {
+function resetIndex(dailyLogs) {
   dailyLogs.forEach((item, index) => {
     item.sl_no = index + 1;
   });
@@ -490,6 +492,7 @@ importDailyLogsBtn.addEventListener("change", function (event) {
         "successfully set json values to daily logs and previous inputs"
       );
       calculateDailyLogsTotal();
+      generateTable();
       showStats();
     } catch (error) {
       showSnackBar("Error, reading file", true);
@@ -513,13 +516,13 @@ async function clearDailyStats(confirmation) {
 
   if (shouldDelete) {
     showSnackBar("Clearing Daily Stats...", undefined, 500);
-    dailyLogs = [];
     localStorage.removeItem(storage_key_daily_log);
     localStorage.removeItem(storage_key_daily_logs_sum);
 
     debug && console.log("cleared dailyLogs : ", fetchDailyLogs());
     debug && console.log("cleared dailyLogs sum : ", fetchDailyLogsSum());
     showStats();
+    generateTable();
   } else {
     return;
   }
@@ -539,6 +542,7 @@ async function clearPreviousInputAndPreviousTotals(confirmation) {
     setPreviousInputsValues();
     debug && console.log("cleared PreviousTotalSum:", fetchPreviousPlusDaily());
     showStats();
+    generateTable();
   } else {
     return;
   }
@@ -577,6 +581,7 @@ async function clearLocalStorage(confirmation) {
     clearRenderedLanguagesUI();
     localStorage.clear();
     previousTotalsForm.reset();
+    generateTable();
     showStats();
     return `local storage cleared successfully : ${showlocalStorageData()}`;
   }
@@ -1278,7 +1283,6 @@ function showDataSerial() {
   deleteDate.value = "";
   const dailyLogs = fetchDailyLogs();
   const slNoselected = serialNumber.value;
-  const selectedDate = deleteDate.value;
   const targetObject = dailyLogs.filter(
     (logs) => Number(logs[SL_NO]) == Number(slNoselected)
   );
@@ -1287,6 +1291,7 @@ function showDataSerial() {
     targetObject.length === 0 ? "" : JSON.stringify(targetObject, null, 2);
 }
 /* remove an item based on slno or date */
+//@delete log
 removeLogDateBtn.addEventListener("click", async () => {
   const dailyLogs = fetchDailyLogs();
   const slno = serialNumber.value;
@@ -1318,18 +1323,23 @@ removeLogDateBtn.addEventListener("click", async () => {
 
     if (index !== -1) {
       const removedTarget = dailyLogs.splice(index, 1);
+      resetIndex(dailyLogs);
       console.log("Removed data from dailyLog: ", removedTarget);
       console.log("Updated daily slno: ", dailyLogs);
       localStorage.setItem(storage_key_daily_log, JSON.stringify(dailyLogs));
       showSnackBar("Deleted data.");
       calculateDailyLogsTotal();
-      if (slno) {
-        showDataSerial();
-        serialNumber.value = "";
-      } else {
-        showDataDate();
-        deleteDate.value = "";
-      }
+      generateTable();
+      serialNumber.value = "";
+      deleteDate.value = "";
+      showDataBeforeDeleting.textContent = "";
+      // if (slno) {
+      //   showDataSerial();
+      //   serialNumber.value = "";
+      // } else {
+      //   showDataDate();
+      //   deleteDate.value = "";
+      // }
     } else {
       showSnackBar("No matching entry found", true);
     }
@@ -1545,12 +1555,12 @@ downloadExcel.addEventListener("click", () => {
 // donwload daily Logs in json format
 downloadJson.addEventListener("click", () => {
   const currentDateTime = getCurrentTime();
-  const dailylogs = fetchDailyLogs();
+  const dailyLogs = fetchDailyLogs();
   const previousInput = fetchPreviousInput();
   const previousTotal = fetchPreviousPlusDaily();
   //for user languages
   const userLanguages = getUserLanguages();
-  if (!dailylogs.length) {
+  if (!dailyLogs.length) {
     showSnackBar("No daily logs found to export", true, 2000);
     return;
   }

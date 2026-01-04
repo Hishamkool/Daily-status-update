@@ -16,6 +16,16 @@ ISSUES
 #. show the data in copy to stack after user submits
 #. IMPORTANT - disable the submit button on previous totals unless user enables this.
 #. while importing update flatpicker.
+#. Add graphs for output data.
+#. logical flows in clearing daily stats and clearing previous totals - 
+    note the necessasities of this function for the user
+    when clearing the daily logs the previous input not visible in output table due to return;
+    when clearing previous totals if daily logs exit should we recalculate previous totals
+#. BUG- check why dailylogssum not including the userlanguages , which causes unrendered languages on import.
+
+
+
+
 
 ====================
 SOLVED
@@ -41,6 +51,10 @@ SOLVED
 18. FIXED BUG - todays daily_total getting stored as "" while submitting causing alltimetotal to be a long string of numbers.
 19. Rendered user languages when importing data because the user might not have the languagae and partial update might remove the languages .
 20. exported userlangugaes and current time as key values- for rendering userlanguages during import.
+21. Added html table as output file instead of json and updated table on deletion , addion , and importing of logs. 
+
+
+
 ====================
 FEATURES
 ====================

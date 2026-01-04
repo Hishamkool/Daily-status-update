@@ -364,8 +364,60 @@ header {
   }
 }
 
-/* output section */
+/* html table output section */
+/* @table output */
+.output-table-cnt {
+  height: max-content;
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #ccc;
+}
+#output-table {
+  width: 100%;
 
+  border-collapse: collapse;
+}
+/* sticky header */
+#output-table thead th {
+  position: sticky;
+  top: 0;
+  border-top: none;
+  z-index: 2;
+}
+#output-table th {
+  background-color: #13374c;
+  color: white;
+  border: 1px solid #42cefd;
+}
+/* sticky footer */
+#output-table tfoot td {
+  font-weight: bold;
+  background-color: peachpuff;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  border-bottom: none;
+}
+#output-table tfoot .table-grandTotal td {
+  bottom: 0px;
+}
+#output-table tfoot .table-previousInput td {
+  bottom: 34px;
+}
+
+.table-previousInput td {
+  background-color: rgb(248, 255, 185) !important;
+  font-weight: bold;
+}
+#output-table th,
+#output-table td {
+  border: 1px solid #999;
+  padding: 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+/* @output section */
 .output-box {
   border: 1px solid rgba(173, 216, 230, 0.5);
   border-radius: 15px;
