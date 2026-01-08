@@ -67,6 +67,7 @@
       </div>
       <!-- snackbars -->
       <div id="snack-bar"></div>
+
       <!-- container for both input sections previous and daily -->
       <div class="input-sections-cnt">
         <!-- PREVIOUS ENTRY -->
@@ -85,7 +86,7 @@
               />
             </span>
           </div>
-          <!-- debug remove no validation -->
+
           <form id="previous-total-form" class="both-forms">
             <div class="section-form-items">
               <div class="form-item">
@@ -181,7 +182,19 @@
               </div>
             </div>
             <div class="submit-btn-cnt">
-              <button type="submit" class="submit-btn">Submit</button>
+              <button type="submit" id="previous-submit-btn" class="submit-btn">
+                Submit
+              </button>
+              <!-- sliding toogle for editing previus totals -->
+              <label class="switch">
+                <input
+                  id="edit-previous-checkbox"
+                  type="checkbox"
+                  data-ignore-disable
+                />
+                <span class="slider"></span>
+                <!-- <span class="slider-title"> Edit previous</span> -->
+              </label>
             </div>
           </form>
         </section>

@@ -1,0 +1,36 @@
+{
+  "previousTotal": {
+    "date": "2026-01-01",
+    "total_focus": "634:36:23",
+    "total_code_time": "359:57:49",
+    "total_active_code_time": "283:24:42",
+    "total_html": 2061,
+    "total_css": 7705,
+    "total_js": 9063,
+    "total_react": 0,
+    "all_time_total": 18829
+  },
+  "previousInput": {
+    "date": "2025-10-26",
+    "total_focus": "429:44:21",
+    "total_code_time": "259:22:44",
+    "total_active_code_time": "200:18:17",
+    "total_html": 1732,
+    "total_css": 6697,
+    "total_js": 2645,
+    "total_react": 0,
+    "all_time_total": 11074
+  },
+  "dailyLogs": [],
+  "userLanguages": [
+    {
+      "key": "tutudu",
+      "label": "tutudu"
+    },
+    {
+      "key": "kuttapi",
+      "label": "kuttapi"
+    }
+  ],
+  "exportTime": "02/01/2026, 11:22:40"
+}

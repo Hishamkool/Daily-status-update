@@ -68,6 +68,7 @@ const totalCss = document.getElementById("previous-css");
 const totalJS = document.getElementById("previous-js");
 const totalReact = document.getElementById("previous-react");
 const totalLOCAllTime = document.getElementById("previous-total-alltimeloc");
+const editPreviousToggle = document.getElementById("edit-previous-checkbox");
 /* Copy stats to clipboard or slack*/
 let copyStatsDate = document.getElementById("copy-stats-date");
 const copyStatsBtn = document.getElementById("copy_stats");
@@ -106,43 +107,60 @@ const confirmNote = document.getElementById("confirm-note");
 /* snackbar */
 const snackBar = document.getElementById("snack-bar");
 const snackBarData = document.getElementById("snack-bar-data");
+
+/* flat picker constants */
+let highlightedDates = [];
+let todaysDatePicker = null;
+
 /* INITIAL loading functions  */
-showStats();
-// calculateTotalLinesOfCode();
-//separated the calculating totallines and updating the ui
-//[NOTE] updating ui also calculates the totals first
-updateTotalLocUI();
+document.addEventListener("DOMContentLoaded", () => {
+  showStats();
+  updateTotalLocUI();
+  //from add new langugaes
+  renderLanguagesOnStartUp();
+  setPreviousInputsValues();
+  //to enable or disable editing in previous totals
+  updateEditPreviousToggle();
+  //hiding data when production
+  if (debug) {
+    outputItemsVisibility.forEach((outputItem) => {
+      outputItem.classList.add("visible");
+    });
+  } else {
+    outputItemsVisibility.forEach((outputItem) => {
+      outputItem.classList.remove("visible");
+    });
+  }
+  getHighlightedDates();
+});
 
-if (debug) {
-  outputItemsVisibility.forEach((outputItem) => {
-    outputItem.classList.add("visible");
-  });
-} else {
-  outputItemsVisibility.forEach((outputItem) => {
-    outputItem.classList.remove("visible");
-  });
+// function to refresh the dates highlighting
+function refreshHighlightedDates() {
+  highlightedDates = getHighlightedDates();
+  if (todaysDatePicker) {
+    todaysDatePicker.redraw();
+  }
 }
-
 // function to get all the dates of the daily logs
 function getHighlightedDates() {
   const dailyLogs = fetchDailyLogs();
-  const highlightedDates = dailyLogs.map((item) => item[DATE]);
+  highlightedDates = dailyLogs.map((item) => item[DATE]);
   console.log("highlighted dates :", highlightedDates);
 
   return highlightedDates;
 }
 document.addEventListener("DOMContentLoaded", () => {
-  const highlightedDates = getHighlightedDates();
+  refreshHighlightedDates();
   // @flat picker
-  flatpickr(todaysDate, {
+  todaysDatePicker = flatpickr(todaysDate, {
     dateFormat: "Y-m-d",
     // altFormat: "d-m-Y",
     // altInput: true,
     // defaultDate: "2025.12.31",
     disableMobile: true,
     defaultDate: new Date(),
+    // maxDate: new Date(),
 
-    // maxDate: "today",
     onChange: function (selectedDates, dateStr, fp) {
       partiallyUpdateTodaysEntry(dateStr).then(() => fp.close());
     },
@@ -155,9 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (highlightedDates.includes(ymd)) {
         fpDayElem.classList.add("highlighted-day");
         debug && console.log("highlighting date :", ymd);
-      } else {
-        // debug && console.log("ymd:", ymd);
-        // debug && console.log("dosent incude the dates");
       }
 
       if (fpDayElem.dateObj.getDay() === 0) {
@@ -296,7 +311,8 @@ function buildDailyLogsObject() {
 }
 // funtion to get the stored daily log file
 function fetchDailyLogs() {
-  return JSON.parse(localStorage.getItem(storage_key_daily_log)) || [];
+  const rawData = localStorage.getItem(storage_key_daily_log);
+  return rawData ? JSON.parse(rawData) : [];
 }
 
 // sumbit event listner on todays stats - todays submit
@@ -350,11 +366,13 @@ todaysStatsForm.addEventListener("submit", async function (event) {
   } else {
     // i.e., exsisting index == -1 means(no entrt found) its a new entry then add
     addData(daily_logs_input_obj);
+    refreshHighlightedDates();
   }
 
   // function call to calculate the dailyLogsTotal
   calculateDailyLogsTotal();
   generateTable();
+  updateEditPreviousToggle();
   showDailyLogsTotal();
   showSnackBar("Data Submitted", undefined, 1000);
   copyStatsDate.value = submit_date;
@@ -482,6 +500,7 @@ importDailyLogsBtn.addEventListener("change", function (event) {
       if (dailyLogs) {
         localStorage.setItem(storage_key_daily_log, JSON.stringify(dailyLogs));
       }
+      refreshHighlightedDates();
       if (previousInput) {
         localStorage.setItem(
           storage_key_previous_total_input,
@@ -494,9 +513,13 @@ importDailyLogsBtn.addEventListener("change", function (event) {
       calculateDailyLogsTotal();
       generateTable();
       showStats();
+      updateEditPreviousToggle();
     } catch (error) {
       showSnackBar("Error, reading file", true);
       console.log("error reading file", error);
+    } finally {
+      //clearing import file so that we can import the same file again
+      importDailyLogsBtn.value = "";
     }
   };
   reader.onerror = function () {
@@ -518,11 +541,12 @@ async function clearDailyStats(confirmation) {
     showSnackBar("Clearing Daily Stats...", undefined, 500);
     localStorage.removeItem(storage_key_daily_log);
     localStorage.removeItem(storage_key_daily_logs_sum);
-
+    refreshHighlightedDates();
     debug && console.log("cleared dailyLogs : ", fetchDailyLogs());
     debug && console.log("cleared dailyLogs sum : ", fetchDailyLogsSum());
     showStats();
     generateTable();
+    updateEditPreviousToggle();
   } else {
     return;
   }
@@ -540,9 +564,11 @@ async function clearPreviousInputAndPreviousTotals(confirmation) {
     localStorage.removeItem(storage_key_previous_total_input);
     localStorage.removeItem(storage_key_previous_plus_daily);
     setPreviousInputsValues();
+    refreshHighlightedDates(); //not necessary check
     debug && console.log("cleared PreviousTotalSum:", fetchPreviousPlusDaily());
     showStats();
     generateTable();
+    updateEditPreviousToggle(); //not necessary check
   } else {
     return;
   }
@@ -580,9 +606,11 @@ async function clearLocalStorage(confirmation) {
     // to remove addd langugaes
     clearRenderedLanguagesUI();
     localStorage.clear();
+    refreshHighlightedDates();
     previousTotalsForm.reset();
     generateTable();
     showStats();
+    updateEditPreviousToggle();
     return `local storage cleared successfully : ${showlocalStorageData()}`;
   }
 }
@@ -777,7 +805,43 @@ function showDailyLogsTotal() {
   }
   debug && console.log("DailyStatsSum:", dailySum);
 }
+//update the state of toogle edit previous totals based on daily logs
+function updateEditPreviousToggle() {
+  if (!editPreviousToggle) return;
 
+  const hasLogs = hasDailyLogs();
+
+  editPreviousToggle.checked = !hasLogs;
+  enableEditPreviousTotals(!hasLogs);
+}
+
+//function to check if there is data in daily logs
+function hasDailyLogs() {
+  const dailyLogs = fetchDailyLogs();
+  return Array.isArray(dailyLogs) && dailyLogs.length > 0;
+}
+
+//@editprevious @edittoggle
+editPreviousToggle.addEventListener("change", () => {
+  console.log("toogle changed:", editPreviousToggle.checked);
+  enableEditPreviousTotals(editPreviousToggle.checked);
+});
+
+// function to enable or disable previuos form
+function enableEditPreviousTotals(enable) {
+  const previousTotalsForm = document.getElementById("previous-total-form");
+
+  if (!previousTotalsForm) return;
+
+  const inputs = previousTotalsForm.querySelectorAll(
+    "input,button, select , textarea"
+  );
+  previousDate.disabled = !enable;
+  inputs.forEach((item) => {
+    if (item.hasAttribute("data-ignore-disable")) return;
+    item.disabled = !enable;
+  });
+}
 // function to add the previous total entries into localstorage
 previousTotalsForm.addEventListener("submit", async (event) => {
   debug && console.log("previous total submit button clicked");
@@ -1294,6 +1358,7 @@ function showDataSerial() {
 //@delete log
 removeLogDateBtn.addEventListener("click", async () => {
   const dailyLogs = fetchDailyLogs();
+
   const slno = serialNumber.value;
   const selectedDate = deleteDate.value;
   if (!slno && !selectedDate) {
@@ -1327,6 +1392,8 @@ removeLogDateBtn.addEventListener("click", async () => {
       console.log("Removed data from dailyLog: ", removedTarget);
       console.log("Updated daily slno: ", dailyLogs);
       localStorage.setItem(storage_key_daily_log, JSON.stringify(dailyLogs));
+      updateEditPreviousToggle();
+      refreshHighlightedDates();
       showSnackBar("Deleted data.");
       calculateDailyLogsTotal();
       generateTable();

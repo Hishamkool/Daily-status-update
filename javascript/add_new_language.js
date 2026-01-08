@@ -85,6 +85,7 @@ function submitLanguage(e) {
   );
   // rendering language
   renderLanguages(rawName, langKey);
+  enableEditPreviousTotals(editPreviousToggle.checked);
   generateTable();
   backdropAddLan.classList.remove("visible");
   addLanForm.reset();
@@ -134,12 +135,12 @@ function renderLanguages(langName, langKey) {
   attachDeleteHandlers();
 }
 
-// for everly languages added by the user rendering it while page load
+/* // for everly languages added by the user rendering it while page load
 window.addEventListener("DOMContentLoaded", () => {
   renderLanguagesOnStartUp();
 
   setPreviousInputsValues();
-});
+}); */
 
 // create elements on refresh / page load
 function renderLanguagesOnStartUp() {
