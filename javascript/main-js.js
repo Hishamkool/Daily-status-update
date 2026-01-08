@@ -110,7 +110,7 @@ const snackBarData = document.getElementById("snack-bar-data");
 
 /* flat picker constants */
 let highlightedDates = [];
-let todaysDatePicker = null;
+let datePickers = {};
 
 /* INITIAL loading functions  */
 document.addEventListener("DOMContentLoaded", () => {
@@ -132,14 +132,58 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   getHighlightedDates();
+
+  refreshHighlightedDates();
+  // @date pickers
+  createDatePicker(todaysDate, {
+    onChange: function (selectedDates, dateStr, fp) {
+      partiallyUpdateTodaysEntry(dateStr).then(() => fp.close());
+    },
+  });
+
+  createDatePicker(copyStatsDate, {});
+  createDatePicker(deleteDate, {
+    altInput: true,
+  });
 });
 
+//function to create date picker
+function createDatePicker(dateElement, options = {}) {
+  const defaultOption = {
+    dateFormat: "Y-m-d",
+    disableMobile: true,
+    defaultDate: new Date(),
+    onDayCreate: function (dObj, dStr, fp, fpDayElem) {
+      const date = fpDayElem.dateObj;
+      const ymd = fp.formatDate(date, "Y-m-d");
+
+      // for highlighting submited days
+      if (highlightedDates.includes(ymd)) {
+        fpDayElem.classList.add("highlighted-day");
+        debug && console.log("highlighting date :", ymd);
+      }
+      //red sundays
+      if (fpDayElem.dateObj.getDay() === 0) {
+        fpDayElem.classList.add("sunday");
+      }
+    },
+  };
+
+  const mergedOptions = { ...defaultOption, ...options };
+
+  const pickerId = dateElement.id || `picker-${Date.now()}`;
+  datePickers[pickerId] = flatpickr(dateElement, mergedOptions);
+  return datePickers[pickerId];
+}
 // function to refresh the dates highlighting
 function refreshHighlightedDates() {
   highlightedDates = getHighlightedDates();
-  if (todaysDatePicker) {
-    todaysDatePicker.redraw();
-  }
+  // if (todaysDatePicker) {
+  //   todaysDatePicker.redraw();
+  // }
+  debug && console.log("date pickers obj:", datePickers);
+
+  Object.values(datePickers).forEach((picker) => picker.redraw());
 }
 // function to get all the dates of the daily logs
 function getHighlightedDates() {
@@ -149,38 +193,6 @@ function getHighlightedDates() {
 
   return highlightedDates;
 }
-document.addEventListener("DOMContentLoaded", () => {
-  refreshHighlightedDates();
-  // @flat picker
-  todaysDatePicker = flatpickr(todaysDate, {
-    dateFormat: "Y-m-d",
-    // altFormat: "d-m-Y",
-    // altInput: true,
-    // defaultDate: "2025.12.31",
-    disableMobile: true,
-    defaultDate: new Date(),
-    // maxDate: new Date(),
-
-    onChange: function (selectedDates, dateStr, fp) {
-      partiallyUpdateTodaysEntry(dateStr).then(() => fp.close());
-    },
-
-    onDayCreate: function (dObj, dStr, fp, fpDayElem) {
-      const date = fpDayElem.dateObj; // not dObj
-      const ymd = fp.formatDate(date, "Y-m-d");
-
-      // for highlighting submited days
-      if (highlightedDates.includes(ymd)) {
-        fpDayElem.classList.add("highlighted-day");
-        debug && console.log("highlighting date :", ymd);
-      }
-
-      if (fpDayElem.dateObj.getDay() === 0) {
-        fpDayElem.classList.add("sunday");
-      }
-    },
-  });
-});
 
 // adding event listners to static and dynamic lines of code
 programmingLanguages.forEach((section) => {
@@ -827,8 +839,12 @@ editPreviousToggle.addEventListener("change", () => {
   enableEditPreviousTotals(editPreviousToggle.checked);
 });
 
+let initializedPlaceholders = false;
 // function to enable or disable previuos form
 function enableEditPreviousTotals(enable) {
+  if (enable) {
+    showSnackBar("Submitting previous totals would clear logs!...", true);
+  }
   const previousTotalsForm = document.getElementById("previous-total-form");
 
   if (!previousTotalsForm) return;
@@ -836,12 +852,42 @@ function enableEditPreviousTotals(enable) {
   const inputs = previousTotalsForm.querySelectorAll(
     "input,button, select , textarea"
   );
+  const textInputs = previousTotalsForm.querySelectorAll(
+    "input[type='text'], input[type='number']"
+  );
+  // initializing placeholders
+  if (!initializedPlaceholders) {
+    textInputs.forEach((textInput) => {
+      textInput.dataset.originalPlaceholder =
+        textInput.getAttribute("placeholder");
+    });
+    initializedPlaceholders = true;
+  }
+  //toggling placeholders
+
+  textInputs.forEach((textInput) => {
+    if (enable) {
+      if (textInput.dataset.originalPlaceholder) {
+        textInput.setAttribute(
+          "placeholder",
+          textInput.dataset.originalPlaceholder
+        );
+      }
+    } else {
+      textInput.removeAttribute("placeholder");
+    }
+  });
   previousDate.disabled = !enable;
   inputs.forEach((item) => {
+    // ignoring toogle button
     if (item.hasAttribute("data-ignore-disable")) return;
+    //ignoring user langugaes
+    if (item.classList.contains("delete-lang")) return;
     item.disabled = !enable;
   });
 }
+
+// function to restore placeholders in previous totals
 // function to add the previous total entries into localstorage
 previousTotalsForm.addEventListener("submit", async (event) => {
   debug && console.log("previous total submit button clicked");
