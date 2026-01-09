@@ -822,11 +822,18 @@ function updateEditPreviousToggle() {
   if (!editPreviousToggle) return;
 
   const hasLogs = hasDailyLogs();
+  const hasPrevInput = hasPreviusInput();
 
-  editPreviousToggle.checked = !hasLogs;
-  enableEditPreviousTotals(!hasLogs);
+  const condition = !(hasPrevInput || hasLogs);
+  editPreviousToggle.checked = condition;
+
+  enableEditPreviousTotals(condition);
 }
 
+function hasPreviusInput() {
+  const previousInput = fetchPreviousInput();
+  return previousInput && Object.keys(previousInput).length > 0;
+}
 //function to check if there is data in daily logs
 function hasDailyLogs() {
   const dailyLogs = fetchDailyLogs();
@@ -842,9 +849,6 @@ editPreviousToggle.addEventListener("change", () => {
 let initializedPlaceholders = false;
 // function to enable or disable previuos form
 function enableEditPreviousTotals(enable) {
-  if (enable) {
-    showSnackBar("Submitting previous totals would clear logs!...", true);
-  }
   const previousTotalsForm = document.getElementById("previous-total-form");
 
   if (!previousTotalsForm) return;
@@ -889,6 +893,7 @@ function enableEditPreviousTotals(enable) {
 
 // function to restore placeholders in previous totals
 // function to add the previous total entries into localstorage
+// @previousentry
 previousTotalsForm.addEventListener("submit", async (event) => {
   debug && console.log("previous total submit button clicked");
 
@@ -924,6 +929,7 @@ previousTotalsForm.addEventListener("submit", async (event) => {
     storage_key_previous_total_input,
     JSON.stringify(previous_total_inputs_obj)
   );
+  updateEditPreviousToggle();
   let storedPreviousTotal = localStorage.getItem(
     storage_key_previous_total_input
   );
@@ -936,6 +942,7 @@ previousTotalsForm.addEventListener("submit", async (event) => {
   showStats();
   calculateDailyLogsTotal();
   add_dailyStatsTotal_and_PreviousInput();
+  generateTable();
 });
 // function to add previous totals input and daily logs sum
 function add_dailyStatsTotal_and_PreviousInput() {

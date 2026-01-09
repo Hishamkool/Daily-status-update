@@ -10,7 +10,6 @@ ISSUES
 #. Add a remarks field (if required)
 
 #. Backup and fetch logs from a backend service
-#. need to use same flatpicker for the copy to stats and delete stats date.
 #. need to change the snackbar ui
 #. show the data in copy to stack after user submits
 #. Add graphs for output data.
@@ -54,6 +53,9 @@ SOLVED
 24. updated the flatpicker highlights when user updates the dailystats
 25. while importing update flatpicker.
 26. Updated the previous totals edit toggle based on daily logs data.
+27. Set up same datepicker flatpicker for the copy to stats and delete stats date.
+28. disabled the toggle on submitting previous totals .
+29. show previous totals entry on output table
 
 
 ====================

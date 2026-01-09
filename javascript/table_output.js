@@ -11,6 +11,7 @@ function generateTable() {
   tableFooter.innerHTML = "";
   const dailyLogs = fetchDailyLogs();
   const previousInput = fetchPreviousInput();
+
   const previousTotals = fetchPreviousPlusDaily();
   const userLanguages = getUserLanguages();
 
@@ -39,7 +40,6 @@ function generateTable() {
     tr.appendChild(th);
   });
   tableHead.appendChild(tr);
-  //when no data
   if (!Array.isArray(dailyLogs) || dailyLogs.length === 0) {
     tableBody.innerHTML = `
     <tr>
@@ -47,7 +47,6 @@ function generateTable() {
             No data
         </td>
     </tr>`;
-    return;
   }
   //when daily logs exists
   [...dailyLogs].reverse().forEach((obj) => {
@@ -84,7 +83,7 @@ function generateTable() {
   const hasPreviousInput =
     previousInput && Object.keys(previousInput).length > 0;
   const hasPreviousTotal =
-    previousTotals || Object.keys(previousTotals).length === 0;
+    previousTotals && Object.keys(previousTotals).length > 0;
 
   //appending prevoius input
   if (hasPreviousInput) {
