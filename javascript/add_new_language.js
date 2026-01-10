@@ -18,6 +18,7 @@ let languageName = "";
 /* show popup */
 addLanButton.addEventListener("click", () => {
   backdropAddLan.classList.add("visible");
+  languageNameInput.focus();
 });
 
 /* close popup */

@@ -540,7 +540,7 @@ importDailyLogsBtn.addEventListener("change", function (event) {
   };
 });
 
-/* @Delete data buttons  _____________________________________*/
+/* @Delete data buttons @cleardaily  _____________________________________*/
 // function to delete daily stats from the local storage
 async function clearDailyStats(confirmation) {
   let shouldDelete = confirmation;
