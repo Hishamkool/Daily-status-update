@@ -1,6 +1,6 @@
 # Daily-status-update
 Track daily progress and coding productivity
-LIVE WEBSITE: https://hishamkool.github.io/Daily-status-update/
+LIVE WEBSITE: https://vonnuedailylogs.vercel.app
 
 ## ✨ Features
  
