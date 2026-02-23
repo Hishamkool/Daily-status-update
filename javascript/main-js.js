@@ -84,13 +84,13 @@ const removeLogDateBtn = document.getElementById("remove-one-day-log");
 const showDataBeforeDeleting = document.getElementById("show-data"); // to show the selected log for the date before deletion
 /* output */
 const outputItemsVisibility = document.querySelectorAll(
-  ".output-items-visibility"
+  ".output-items-visibility",
 );
 const outputFile = document.querySelector(".output-file");
 const dailyStatsSum = document.querySelector(".daily-stats-sum");
 const previousOutput = document.querySelector(".previous-output");
 const previousPlusDailyStats = document.querySelector(
-  ".previous-plus-dailystats"
+  ".previous-plus-dailystats",
 );
 const importDailyLogsBtn = document.getElementById("import-daily-logs");
 // output buttons
@@ -263,7 +263,7 @@ async function partiallyUpdateTodaysEntry(submitDate) {
     const updateValues = await toggleConfiramtionPopup(
       `Data for ${submitDate} already exists, Do you want to update?`,
       true,
-      ` This will update the input fields`
+      ` This will update the input fields`,
     );
     if (updateValues) {
       typingSpeed.value = item[TYPING_SPEED] || "";
@@ -314,7 +314,7 @@ function buildDailyLogsObject() {
   const userLanguages = getUserLanguages();
   userLanguages.forEach(({ key }) => {
     const input = document.querySelector(
-      `input[name="${todaysPrefix}-${key}"]`
+      `input[name="${todaysPrefix}-${key}"]`,
     );
     daily_logs_input_obj[key] = input ? Number(input.value) || 0 : 0;
   });
@@ -339,7 +339,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
   if (!submit_date) {
     showSnackBar(
       `Select a valid date before submitting, date is: ${submit_date}`,
-      true
+      true,
     );
     return;
   }
@@ -347,7 +347,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
     return;
   }
   const existingIndex = dailyLogs.findIndex(
-    (item) => item.date === submit_date
+    (item) => item.date === submit_date,
   );
   debug && console.log("matched :", existingIndex);
   // showing submit confirmation if its not a existing data
@@ -356,7 +356,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
       ? await toggleConfiramtionPopup(
           `Submit Data for ${submit_date}?`,
           true,
-          `Check all values before submitting..`
+          `Check all values before submitting..`,
         )
       : true;
   if (!sure2submit) return;
@@ -366,7 +366,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
   // id date matches with output (prestored values)
   if (existingIndex !== -1) {
     const replace = await toggleConfiramtionPopup(
-      `Data for ${submit_date} is already added, Do you want to replace ?`
+      `Data for ${submit_date} is already added, Do you want to replace ?`,
     );
     //    if use wants to replace the already available data
     if (replace) {
@@ -456,7 +456,7 @@ function showStats() {
 // @reset previous stats
 resetPreviousStats.addEventListener(
   "click",
-  clearPreviousInputAndPreviousTotals
+  clearPreviousInputAndPreviousTotals,
 );
 
 // function to @import daily logs in json
@@ -485,7 +485,7 @@ importDailyLogsBtn.addEventListener("change", function (event) {
       const sure2delete = await toggleConfiramtionPopup(
         "Are you sure to import the data? This will DELETE all your Data",
         true,
-        "Make sure to export you data for safety before import"
+        "Make sure to export you data for safety before import",
       );
 
       if (!sure2delete) return;
@@ -502,7 +502,7 @@ importDailyLogsBtn.addEventListener("change", function (event) {
         debug && console.log("Storage cleared");
         localStorage.setItem(
           storage_key_user_set_language_array,
-          JSON.stringify(userLanguages)
+          JSON.stringify(userLanguages),
         );
         renderLanguagesOnStartUp();
       } else {
@@ -516,11 +516,11 @@ importDailyLogsBtn.addEventListener("change", function (event) {
       if (previousInput) {
         localStorage.setItem(
           storage_key_previous_total_input,
-          JSON.stringify(previousInput)
+          JSON.stringify(previousInput),
         );
       }
       console.log(
-        "successfully set json values to daily logs and previous inputs"
+        "successfully set json values to daily logs and previous inputs",
       );
       calculateDailyLogsTotal();
       generateTable();
@@ -568,7 +568,7 @@ async function clearPreviousInputAndPreviousTotals(confirmation) {
   let shouldDelete = confirmation;
   if (shouldDelete === undefined) {
     shouldDelete = await toggleConfiramtionPopup(
-      "Do you want to delete previous totals?"
+      "Do you want to delete previous totals?",
     );
   }
   if (shouldDelete) {
@@ -609,7 +609,7 @@ async function clearLocalStorage(confirmation) {
 
   if (shouldClear === undefined) {
     shouldClear = await toggleConfiramtionPopup(
-      "Do you want to reset all the data stored in the browser? "
+      "Do you want to reset all the data stored in the browser? ",
     );
   }
 
@@ -636,7 +636,7 @@ function sortDailyLogs() {
     return;
   }
   const sortedDailyLogs = dialyLogsArray.sort(
-    (a, b) => new Date(a[DATE]) - new Date(b[DATE])
+    (a, b) => new Date(a[DATE]) - new Date(b[DATE]),
   );
   debug && console.log("daily logs sorted for based on date", sortedDailyLogs);
   return sortedDailyLogs;
@@ -668,29 +668,29 @@ function previousTotalsTillDate(ISOdate) {
     totallocTilldate = 0;
   // adding values till date
   arrayTillDate.forEach((log) => {
-    (totalFocus += time2Seconds(log[FOCUS_TIME])),
+    ((totalFocus += time2Seconds(log[FOCUS_TIME])),
       (totalCode += time2Seconds(log[CODE_TIME])),
       (totalAct += time2Seconds(log[ACTIVE_CODE_TIME])),
       (totalHtml += log[HTML]),
       (totalcss += log[KEY_CSS]),
       (totaljs += log[JAVASCRIPT]),
-      (totalreact += log[REACT]);
+      (totalreact += log[REACT]));
     // user added languages totals
     userLanguages.forEach(
-      ({ key }) => (userLanguagesTotals[key] += log[key] || 0)
+      ({ key }) => (userLanguagesTotals[key] += log[key] || 0),
     );
     totallocTilldate += log[DAILY_TOTAL];
   });
   // if previous totals were submitted by user then we need to add that to the current daily logs totals
   if (previousTotalInput) {
-    (totalFocus += time2Seconds(previousTotalInput[TOTAL_FOCUS])),
+    ((totalFocus += time2Seconds(previousTotalInput[TOTAL_FOCUS])),
       (totalCode += time2Seconds(previousTotalInput[TOTAL_CODE_TIME])),
       (totalAct += time2Seconds(previousTotalInput[TOTAL_ACTIVE_CODE_TIME])),
       (totalHtml += previousTotalInput[TOTAL_HTML]),
       (totalcss += previousTotalInput[TOTAL_CSS]),
       (totaljs += previousTotalInput[TOTAL_JS]),
       (totalreact += previousTotalInput[TOTAL_REACT]),
-      (totallocTilldate += previousTotalInput[ALL_TIME_TOTAL]);
+      (totallocTilldate += previousTotalInput[ALL_TIME_TOTAL]));
     userLanguages.forEach(({ key }) => {
       userLanguagesTotals[key] += previousTotalInput[key] || 0;
     });
@@ -750,7 +750,7 @@ function calculateDailyLogsTotal() {
       react: 0,
       previousTotal: 0,
       dynamicLanguages: {},
-    }
+    },
   );
   // @obj @dailyLogsObj
   let daily_logs_total_obj = {
@@ -769,7 +769,7 @@ function calculateDailyLogsTotal() {
   // debug && console.log("daily logs object:", dailyLogTotalObj);
   localStorage.setItem(
     storage_key_daily_logs_sum,
-    JSON.stringify(daily_logs_total_obj)
+    JSON.stringify(daily_logs_total_obj),
   );
 
   // adding dailylogs total with previous total input form values
@@ -854,10 +854,10 @@ function enableEditPreviousTotals(enable) {
   if (!previousTotalsForm) return;
 
   const inputs = previousTotalsForm.querySelectorAll(
-    "input,button, select , textarea"
+    "input,button, select , textarea",
   );
   const textInputs = previousTotalsForm.querySelectorAll(
-    "input[type='text'], input[type='number']"
+    "input[type='text'], input[type='number']",
   );
   // initializing placeholders
   if (!initializedPlaceholders) {
@@ -874,7 +874,7 @@ function enableEditPreviousTotals(enable) {
       if (textInput.dataset.originalPlaceholder) {
         textInput.setAttribute(
           "placeholder",
-          textInput.dataset.originalPlaceholder
+          textInput.dataset.originalPlaceholder,
         );
       }
     } else {
@@ -901,7 +901,7 @@ previousTotalsForm.addEventListener("submit", async (event) => {
   const deleteAllDailyLogs = await toggleConfiramtionPopup(
     "Setting previous total would clear all of the saved daily logs and start fresh, do you want to continue?",
     true,
-    `PLEASE EXPORT ALL DAILY LOGS BEFORE SUBMITING`
+    `PLEASE EXPORT ALL DAILY LOGS BEFORE SUBMITING`,
   );
   if (!deleteAllDailyLogs) {
     return;
@@ -927,15 +927,15 @@ previousTotalsForm.addEventListener("submit", async (event) => {
 
   localStorage.setItem(
     storage_key_previous_total_input,
-    JSON.stringify(previous_total_inputs_obj)
+    JSON.stringify(previous_total_inputs_obj),
   );
   updateEditPreviousToggle();
   let storedPreviousTotal = localStorage.getItem(
-    storage_key_previous_total_input
+    storage_key_previous_total_input,
   );
   /*  debug &&  */ console.log(
     "PreviousTotal Input:",
-    JSON.parse(storedPreviousTotal)
+    JSON.parse(storedPreviousTotal),
   );
 
   showSnackBar("Data Submitted", undefined, 1000);
@@ -958,7 +958,7 @@ function add_dailyStatsTotal_and_PreviousInput() {
     };
     localStorage.setItem(
       storage_key_previous_total_input,
-      JSON.stringify(previousInput)
+      JSON.stringify(previousInput),
     );
   }
   // if previous input or daily sum dosent contain the added languages add and set them to 0
@@ -995,15 +995,15 @@ function add_dailyStatsTotal_and_PreviousInput() {
     [DATE]: dailyLogsSum[LATEST_DATE] || previousDate.value,
     [TOTAL_FOCUS]: secondsToHMS(
       time2Seconds(previousInput[TOTAL_FOCUS]) +
-        time2Seconds(dailyLogsSum[FOCUS_TIME])
+        time2Seconds(dailyLogsSum[FOCUS_TIME]),
     ),
     [TOTAL_CODE_TIME]: secondsToHMS(
       time2Seconds(previousInput[TOTAL_CODE_TIME]) +
-        time2Seconds(dailyLogsSum[CODE_TIME])
+        time2Seconds(dailyLogsSum[CODE_TIME]),
     ),
     [TOTAL_ACTIVE_CODE_TIME]: secondsToHMS(
       time2Seconds(previousInput[TOTAL_ACTIVE_CODE_TIME]) +
-        time2Seconds(dailyLogsSum[ACTIVE_CODE_TIME])
+        time2Seconds(dailyLogsSum[ACTIVE_CODE_TIME]),
     ),
     [TOTAL_HTML]: (previousInput[TOTAL_HTML] || 0) + (dailyLogsSum[HTML] || 0),
     [TOTAL_CSS]: (previousInput[TOTAL_CSS] || 0) + (dailyLogsSum[KEY_CSS] || 0),
@@ -1018,7 +1018,7 @@ function add_dailyStatsTotal_and_PreviousInput() {
 
   localStorage.setItem(
     storage_key_previous_plus_daily,
-    JSON.stringify(previous_plus_daily_obj)
+    JSON.stringify(previous_plus_daily_obj),
   );
   ALL_TIME_TOTAL;
   //show final previous total in output box
@@ -1056,7 +1056,7 @@ function setPreviousInputsValues() {
     const input = document.getElementById(`${previousPrefix}-${key}`);
     if (!input) {
       console.error(
-        `input field dosent exists for previous total : ${previousPrefix}-${key}`
+        `input field dosent exists for previous total : ${previousPrefix}-${key}`,
       );
     } else {
       input.value = previousPlusDaily[key] || 0;
@@ -1126,7 +1126,7 @@ allPreviousInputs.forEach((input) => {
       return;
     } else if (/[^0-9:]/.test(value)) {
       input.setCustomValidity(
-        "only nymbers and ':' are allowed (eg 36:12:14 )"
+        "only nymbers and ':' are allowed (eg 36:12:14 )",
       );
       input.reportValidity();
     } else if (validateTime(value)) {
@@ -1169,7 +1169,7 @@ function allowPasting(event) {
   debug && console.log(`clipboard data : '${pastedWithoutSpaces}'`);
 
   const match = pastedWithoutSpaces.match(
-    /^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/
+    /^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/,
   );
   if (match) {
     event.target.setCustomValidity("");
@@ -1230,7 +1230,7 @@ async function toggleConfiramtionPopup(
   message,
   shouldDisplyNote = true,
   importantNote = "",
-  anchorElement
+  anchorElement,
 ) {
   return new Promise((resolve) => {
     confirmMessage.textContent = message;
@@ -1299,9 +1299,10 @@ copyStatsBtn.addEventListener("click", () => {
   {
     // we need to add previous total input values and daily logs till date as the total value
     const dailyLogs = fetchDailyLogs();
+    const userLanguages = getUserLanguages();
 
     const logForTheDate = dailyLogs.find(
-      (stats) => stats[DATE] === copyStatsDate.value
+      (stats) => stats[DATE] === copyStatsDate.value,
     );
     if (!dailyLogs || Object.keys(dailyLogs).length === 0) {
       debug && console.log("Daily Logs has not been added");
@@ -1332,37 +1333,52 @@ copyStatsBtn.addEventListener("click", () => {
         logForTheDate[TYPING_SPEED] && logForTheDate[TYPING_ACCURACY]
           ? true
           : false;
+
+      let dynamicLanguagesText = "";
+      if (userLanguages.length > 0) {
+        const maxLabelLength = Math.max(
+          ...userLanguages.map((lang) => lang.label.length),
+        );
+        userLanguages.forEach(({ key, label }) => {
+          const dailyValue = logForTheDate[key] ?? 0;
+          const totalValue = logsTillDate[key] ?? 0;
+          dynamicLanguagesText += `
+${label.padEnd(maxLabelLength)} : [${dailyValue}] [${totalValue}]`;
+        });
+      }
+
       const StatsForTheDay = `
-        Date     : [${logForTheDate[DATE]}]
+        Date       : [${logForTheDate[DATE]}]
         ${
           hasEnterdTypingStats
             ? `Typing   : [${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]`
             : ""
         } 
         Focus    : [${formatOutputTime(
-          logForTheDate[FOCUS_TIME]
+          logForTheDate[FOCUS_TIME],
         )}] [${formatOutputTime(logsTillDate[TOTAL_FOCUS])}]
         CT       : [${formatOutputTime(
-          logForTheDate[CODE_TIME]
+          logForTheDate[CODE_TIME],
         )}] [${formatOutputTime(logsTillDate[TOTAL_CODE_TIME])}]
         ACT      : [${formatOutputTime(
-          logForTheDate[ACTIVE_CODE_TIME]
+          logForTheDate[ACTIVE_CODE_TIME],
         )}] [${formatOutputTime(logsTillDate[TOTAL_ACTIVE_CODE_TIME])}]
         HTML     : [${logForTheDate[HTML] || 0}] [${
-        logsTillDate[TOTAL_HTML] || 0
-      }]
+          logsTillDate[TOTAL_HTML] || 0
+        }]
         CSS      : [${logForTheDate[KEY_CSS] || 0}] [${
-        logsTillDate[TOTAL_CSS] || 0
-      }]
+          logsTillDate[TOTAL_CSS] || 0
+        }]
         JS       : [${logForTheDate[JAVASCRIPT] || 0}] [${
-        logsTillDate[TOTAL_JS] || 0
-      }]
+          logsTillDate[TOTAL_JS] || 0
+        }]
         React    : [${logForTheDate[REACT] || 0}] [${
-        logsTillDate[TOTAL_REACT] || 0
-      }]
+          logsTillDate[TOTAL_REACT] || 0
+        }]
+        ${dynamicLanguagesText}
         Total    : [${logForTheDate[DAILY_TOTAL]}] [${
-        logsTillDate[ALL_TIME_TOTAL]
-      }]
+          logsTillDate[ALL_TIME_TOTAL]
+        }]
         `;
       // formating the stats to remove the spaces in the starting and ending of the line
       const statsForTheDayFormated = StatsForTheDay.split("\n")
@@ -1401,7 +1417,7 @@ function showDataSerial() {
   const dailyLogs = fetchDailyLogs();
   const slNoselected = serialNumber.value;
   const targetObject = dailyLogs.filter(
-    (logs) => Number(logs[SL_NO]) == Number(slNoselected)
+    (logs) => Number(logs[SL_NO]) == Number(slNoselected),
   );
   // console.log("Target object is", JSON.stringify(targetObject));
   showDataBeforeDeleting.textContent =
@@ -1425,7 +1441,7 @@ removeLogDateBtn.addEventListener("click", async () => {
   const idtoShow = slno || selectedDate;
   const sure2delete = await toggleConfiramtionPopup(
     `Are You sure to delete the data for ${idtoShow}`,
-    removeLogDateBtn
+    removeLogDateBtn,
   );
   if (sure2delete === false) {
     return;
@@ -1433,7 +1449,7 @@ removeLogDateBtn.addEventListener("click", async () => {
     let index = -1;
     if (slno) {
       index = dailyLogs.findIndex(
-        (logs) => Number(logs[SL_NO]) == Number(slno)
+        (logs) => Number(logs[SL_NO]) == Number(slno),
       );
     } else if (selectedDate) {
       index = dailyLogs.findIndex((logs) => logs[DATE] == selectedDate);
@@ -1487,7 +1503,7 @@ downloadCsv.addEventListener("click", () => {
   if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
     // making key,value array of language and values and then converting it to an object of key: value
     const languageValues = Object.fromEntries(
-      userLanguages.map(({ key }) => [key, dailyLogsSum[key] ?? ""])
+      userLanguages.map(({ key }) => [key, dailyLogsSum[key] ?? ""]),
     );
 
     logsForCsv.push({
@@ -1507,7 +1523,7 @@ downloadCsv.addEventListener("click", () => {
   const previousTotals = fetchPreviousPlusDaily();
   if (previousTotals && Object.keys(previousTotals).length > 0) {
     const languageValues = Object.fromEntries(
-      userLanguages.map(({ key }) => [key, previousTotals[key] ?? ""])
+      userLanguages.map(({ key }) => [key, previousTotals[key] ?? ""]),
     );
 
     logsForCsv.push({
@@ -1603,7 +1619,7 @@ downloadExcel.addEventListener("click", () => {
   // Add total row at the end
   if (dailyLogsSum && Object.keys(dailyLogsSum).length > 0) {
     const languageTotals = Object.fromEntries(
-      userLanguages.map(({ key }) => [key, dailyLogsSum[key] ?? ""])
+      userLanguages.map(({ key }) => [key, dailyLogsSum[key] ?? ""]),
     );
     logsForExcel.push({
       [TOTAL_COLUMN]: TOTAL_COLUMN, // first column
@@ -1622,7 +1638,7 @@ downloadExcel.addEventListener("click", () => {
   const previousTotals = fetchPreviousPlusDaily();
   if (previousTotals || previousTotals.length != 0) {
     const languageTotals = Object.fromEntries(
-      userLanguages.map(({ key }) => [key, previousTotals[key] ?? ""])
+      userLanguages.map(({ key }) => [key, previousTotals[key] ?? ""]),
     );
     logsForExcel.push({
       [TOTAL_COLUMN]: ALL_TIME_TOTAL_COLUMN,
@@ -1667,7 +1683,7 @@ downloadExcel.addEventListener("click", () => {
       debug
         ? "debug " + currentDateTime
         : "" + exportFileName + " " + currentDateTime
-    }.xlsx`
+    }.xlsx`,
   );
 });
 
