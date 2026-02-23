@@ -1348,7 +1348,7 @@ ${label.padEnd(maxLabelLength)} : [${dailyValue}] [${totalValue}]`;
       }
 
       const StatsForTheDay = `
-        Date       : [${logForTheDate[DATE]}]
+        Date     : [${logForTheDate[DATE]}]
         ${
           hasEnterdTypingStats
             ? `Typing   : [${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]`
