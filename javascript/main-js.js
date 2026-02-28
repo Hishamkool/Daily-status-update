@@ -1,6 +1,6 @@
 /* variables */
 /* debug status */
-const debug = false;
+const debug = true;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = "dailyLogs";
@@ -93,9 +93,11 @@ const previousPlusDailyStats = document.querySelector(
   ".previous-plus-dailystats",
 );
 const importDailyLogsBtn = document.getElementById("import-daily-logs");
+
 // output buttons
 const resetPreviousStats = document.getElementById("reset-previous-stats");
-
+const clearAllDataBtn = document.getElementById("clear-all-data-btn");
+const clearDailyStatsBtn = document.getElementById("clear-daily-logs-btn");
 /* Popups */
 // confirmation popup
 const confirmationPopup = document.getElementById("ConfirmationBox");
@@ -454,10 +456,13 @@ function showStats() {
   showPreviousPlusDaily();
 }
 // @reset previous stats
-resetPreviousStats.addEventListener(
-  "click",
-  clearPreviousInputAndPreviousTotals,
+resetPreviousStats.addEventListener("click", async () =>
+  clearPreviousInputAndPreviousTotals(),
 );
+//@clear-all-data
+clearAllDataBtn.addEventListener("click", async () => clearAllData());
+//@clear-daily-stats
+clearDailyStatsBtn.addEventListener("click", async () => clearDailyStats());
 
 // function to @import daily logs in json
 importDailyLogsBtn.addEventListener("change", function (event) {
@@ -493,7 +498,7 @@ importDailyLogsBtn.addEventListener("change", function (event) {
       // clearing the rendered languages
       clearRenderedLanguagesUI();
       // clearing the complete local storage
-      await clearLocalStorage(true);
+      await clearAllData(true);
 
       debug && console.log("Read data :", jsonData);
       showSnackBar("Successfully read items");
@@ -546,7 +551,11 @@ async function clearDailyStats(confirmation) {
   let shouldDelete = confirmation;
 
   if (shouldDelete === undefined) {
-    shouldDelete = await toggleConfiramtionPopup("Delete all daily stats?");
+    shouldDelete = await toggleConfiramtionPopup(
+      "Delete previous totals?",
+      true,
+      "Destructive action. Export to JSON first if you may need to restore it.",
+    );
   }
 
   if (shouldDelete) {
@@ -568,7 +577,9 @@ async function clearPreviousInputAndPreviousTotals(confirmation) {
   let shouldDelete = confirmation;
   if (shouldDelete === undefined) {
     shouldDelete = await toggleConfiramtionPopup(
-      "Do you want to delete previous totals?",
+      "Delete previous totals?",
+      true,
+      "Destructive action. Export to JSON first if you may need to restore it.",
     );
   }
   if (shouldDelete) {
@@ -604,12 +615,14 @@ async function clearExcept_PreviousInputs(confirmation) {
   }
 } */
 // function to clear all values in the local storage
-async function clearLocalStorage(confirmation) {
+async function clearAllData(confirmation) {
   let shouldClear = confirmation;
 
   if (shouldClear === undefined) {
     shouldClear = await toggleConfiramtionPopup(
-      "Do you want to reset all the data stored in the browser? ",
+      "Delete previous totals?",
+      true,
+      "Destructive action. Export to JSON first if you may need to restore it.",
     );
   }
 
@@ -1687,9 +1700,7 @@ downloadExcel.addEventListener("click", () => {
   );
 });
 
-// @export json
-// donwload daily Logs in json format
-downloadJson.addEventListener("click", () => {
+function exportToJson() {
   const currentDateTime = getCurrentTime();
   const dailyLogs = fetchDailyLogs();
   const previousInput = fetchPreviousInput();
@@ -1718,24 +1729,12 @@ downloadJson.addEventListener("click", () => {
     debug ? "debug " + currentDateTime : exportFileName + " " + currentDateTime
   }.json`;
   link.click();
-});
-
-/* admin items */
-// function to print all the values in the localStorage
-function showlocalStorageData() {
-  for (let index = 0; index < localStorage.length; index++) {
-    const key = localStorage.key(index);
-    const value = localStorage.getItem(key);
-
-    let parsedValue;
-    try {
-      parsedValue = JSON.parse(value);
-    } catch (e) {
-      parsedValue = value; // keep as string if not valid JSON
-    }
-    console.log(`(${key}):`, parsedValue);
-  }
 }
+// @export json
+// donwload daily Logs in json format
+downloadJson.addEventListener("click", () => {
+  exportToJson();
+});
 
 /* Conditions or work flow
     a. he dosent have previous records :

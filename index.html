@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -447,7 +447,7 @@
         <section class="manage-stats-section">
           <span class="section-title">Delete a Log</span>
           <p class="section-subtitle">
-            Choose a Serial No. Or Date to delete that particular Daily Log.
+            Enter a Serial no. or select a date to delete that particular log.
           </p>
 
           <div class="delete-selector-cnt">
@@ -498,9 +498,9 @@
               Refresh Output
             </button>
             <button
+              id="clear-daily-logs-btn"
               class="output-btns"
               title="clear all the recorded daily stats from todats stats window"
-              onclick="clearDailyStats()"
             >
               Clear Daily Stats
             </button>
@@ -512,9 +512,9 @@
               Reset Previous Stats
             </button>
             <button
+              id="clear-all-data-btn"
               class="output-btns"
               title="Clear complete local storage"
-              onclick="clearLocalStorage()"
             >
               Clear All Data
             </button>

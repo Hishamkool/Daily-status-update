@@ -20,20 +20,35 @@ function removeAParticulatLangugaeFromStorage(languageKey) {
   const originalLength = userLanugages.length;
 
   const filterdLanguages = userLanugages.filter(
-    (langObj) => langObj.key !== languageKey
+    (langObj) => langObj.key !== languageKey,
   );
   const filteredLength = filterdLanguages.length;
   if (filteredLength < originalLength) {
     localStorage.setItem(
       storage_key_user_set_language_array,
-      JSON.stringify(filterdLanguages)
+      JSON.stringify(filterdLanguages),
     );
     console.log("Deleted the langugae form local storage :", languageKey);
   } else {
     console.error("language key not found in user langugages");
   }
 }
+/* admin items */
+// function to print all the values in the localStorage
+function showlocalStorageData() {
+  for (let index = 0; index < localStorage.length; index++) {
+    const key = localStorage.key(index);
+    const value = localStorage.getItem(key);
 
+    let parsedValue;
+    try {
+      parsedValue = JSON.parse(value);
+    } catch (e) {
+      parsedValue = value; // keep as string if not valid JSON
+    }
+    console.log(`(${key}):`, parsedValue);
+  }
+}
 /* -------------------------------------------------------- */
 
 /* // if all time total is not already set
