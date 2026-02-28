@@ -162,7 +162,7 @@ header {
 
 /* add a new language button */
 .add-lang-btn {
-  background-color: white;
+  /* background-color: white;
   border: none;
   border: 1px solid grey;
   border-radius: 5px;
@@ -171,7 +171,17 @@ header {
   font-weight: 500;
   width: 100%;
   caret-color: salmon;
-  height: max-content;
+  height: max-content; */
+  background-image: var(--gradient-8);
+  border-radius: 5px;
+  border-width: 2px;
+  box-shadow: 1px 1px 0px;
+  padding: 5px 10px;
+  font-weight: bold;
+}
+.add-lang-btn:active {
+  background-image: var(--gradient-9);
+  box-shadow: none;
 }
 /* delete languages added by user */
 .delete-lang {
@@ -213,10 +223,6 @@ header {
 }
 .delete-lang svg {
   pointer-events: none;
-}
-
-.add-lang-btn:active {
-  background-color: grey;
 }
 
 /* add language popup */

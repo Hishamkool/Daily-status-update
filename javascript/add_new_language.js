@@ -52,7 +52,7 @@ function submitLanguage(e) {
   const lettesrOnly = /^[A-Za-z+# ]+$/;
   if (!lettesrOnly.test(rawName)) {
     languageNameInput.setCustomValidity(
-      "Language name can contain only letters, +, # and spaces."
+      "Language name can contain only letters, +, # and spaces.",
     );
     languageNameInput.reportValidity();
     return;
@@ -82,7 +82,7 @@ function submitLanguage(e) {
   // setting to local storage
   localStorage.setItem(
     storage_key_user_set_language_array,
-    JSON.stringify(savedLanguages)
+    JSON.stringify(savedLanguages),
   );
   // rendering language
   renderLanguages(rawName, langKey);
@@ -126,7 +126,7 @@ function renderLanguages(langName, langKey) {
       : "";
     formItem.innerHTML = `
         <label for="${inputId}">${langName}</label>
-        <input type="number" id="${inputId}" name="${inputId}" data-lang="${langKey}" placeholder="10" min="0"
+        <input type="number" id="${inputId}" name="${inputId}" data-lang="${langKey}" placeholder="500" min="0"
         title="Total lines of ${langName} code written">
         ${deleteButton}
         `;
@@ -178,7 +178,7 @@ function deleteALanguage(langKey) {
   userLanguages = userLanguages.filter((lang) => lang.key !== langKey);
   localStorage.setItem(
     storage_key_user_set_language_array,
-    JSON.stringify(userLanguages)
+    JSON.stringify(userLanguages),
   );
   // deleting the lan from ui
   document.querySelectorAll(`[data-lang="${langKey}"]`).forEach((languages) => {
@@ -240,6 +240,6 @@ function clearRenderedLanguagesUI() {
   // debug &&
   console.log(
     "removed user langugaes form ui and storage:",
-    localStorage.getItem(storage_key_user_set_language_array)
+    localStorage.getItem(storage_key_user_set_language_array),
   );
 }
