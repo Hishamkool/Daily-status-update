@@ -228,10 +228,10 @@ header {
 /* add language popup */
 .popup-backdrop {
   display: none;
-  position: absolute;
+  position: fixed;
+  inset: 0;
   background-color: transparent;
-  min-height: 100vh;
-  width: 100vw;
+  box-shadow: 10px 10px;
   z-index: 20;
   /* background-color: rgba(0, 0, 0, 0.2); */
   -webkit-backdrop-filter: blur(2px);
@@ -243,10 +243,12 @@ header {
 }
 
 .add-lan-popup {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: fixed;
+  inset: 0;
+  margin: auto;
+
+  width: fit-content;
+  height: fit-content;
   background-color: #fff;
   min-width: 270px;
   min-height: 100px;
@@ -537,13 +539,6 @@ input:focus + .slider {
 /* import button style */
 /* button container */
 .import-btn-div {
-  /* font-family: sans-serif;
-  padding: 10px;
-  margin: 10px;
-  background-image: var(--gradient-6);
-  width: fit-content;
-  border-radius: 15px;
-  border: 2px solid black; */
   border: 1px solid rgba(226, 226, 226, 0.714);
   border-radius: 15px;
   padding: 10px;
