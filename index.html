@@ -400,6 +400,40 @@
             <span>Copy Stats</span>
           </button>
         </section>
+        <!-- delete data secion -->
+        <section class="manage-stats-section">
+          <span class="section-title">Delete a Log</span>
+          <p class="section-subtitle">
+            Enter a Serial no. or select a date to delete that particular log.
+          </p>
+
+          <div class="delete-selector-cnt">
+            <label for="serial-number">
+              SL Number:
+              <input type="number" size="2" id="serial-number" />
+            </label>
+
+            <label for="delete-date">
+              Date:
+              <input type="date" size="2" id="delete-date" />
+            </label>
+          </div>
+          <pre id="show-data"></pre>
+
+          <button
+            type="submit"
+            class="delete-btn"
+            id="remove-one-day-log"
+            title="Remove the log of the selected date"
+          >
+            <img
+              class="delete-icon"
+              src="assets/png/bin.png"
+              alt="delete logs icon"
+            />
+            <span>Delete Log</span>
+          </button>
+        </section>
         <!-- section to export the daily logs to csv or excel files -->
         <section class="manage-stats-section">
           <span class="section-title">Click To Export:</span>
@@ -444,54 +478,23 @@
           </div>
         </section>
         <!-- import daily logs -->
-        <div class="import-btn-div">
-          <label for="import-daily-logs">
-            <div class="Import-title">Import Daily Logs:</div>
-            <p class="import-subtitle">
-              Import a daily logs json file which you exported.
-            </p>
-            <input
-              type="file"
-              accept=".json"
-              id="import-daily-logs"
-              title="Import Daily"
-              placeholder="Import DailyLogs"
-            />
-          </label>
-        </div>
-        <!-- delete data secion -->
         <section class="manage-stats-section">
-          <span class="section-title">Delete a Log</span>
-          <p class="section-subtitle">
-            Enter a Serial no. or select a date to delete that particular log.
-          </p>
+          <div class="import-btn-div">
+            <label for="import-daily-logs">
+              <div class="section-title">Import Daily Logs:</div>
+              <p class="section-subtitle">
+                Import a daily logs json file which you exported.
+              </p>
 
-          <div class="delete-selector-cnt">
-            <label for="serial-number">
-              Serial Number
-              <input type="number" size="2" id="serial-number" />
-            </label>
-            <span>or</span>
-            <label for="delete-date">
-              Date:
-              <input type="date" size="2" id="delete-date" />
+              <input
+                type="file"
+                accept=".json"
+                id="import-daily-logs"
+                title="Import Daily"
+                placeholder="Import DailyLogs"
+              />
             </label>
           </div>
-          <pre id="show-data"></pre>
-
-          <button
-            type="submit"
-            class="delete-btn"
-            id="remove-one-day-log"
-            title="Remove the log of the selected date"
-          >
-            <img
-              class="delete-icon"
-              src="assets/png/bin.png"
-              alt="delete logs icon"
-            />
-            <span>Delete Log</span>
-          </button>
         </section>
       </div>
 

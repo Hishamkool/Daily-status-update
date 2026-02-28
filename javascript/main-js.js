@@ -469,9 +469,12 @@ resetPreviousStats.addEventListener("click", async () =>
 clearAllDataBtn.addEventListener("click", async () => clearAllData());
 
 // function to @import daily logs in json
+importDailyLogsBtn.addEventListener("click", () => {
+  showSnackBar("Choose a JSON file to import", undefined, 1200);
+});
 importDailyLogsBtn.addEventListener("change", function (event) {
-  console.log("fle input button clicked");
   const file = event.target.files[0];
+
   if (!file) {
     showSnackBar("No file selected..");
     return;
@@ -1715,6 +1718,7 @@ function exportToJson() {
     showSnackBar("No daily logs found to export", true, 2000);
     return;
   }
+  showSnackBar("file downloading...", undefined, 1200);
 
   const exportData = {
     previousTotal: previousTotal,
