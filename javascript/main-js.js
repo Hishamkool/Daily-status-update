@@ -95,9 +95,10 @@ const previousPlusDailyStats = document.querySelector(
 const importDailyLogsBtn = document.getElementById("import-daily-logs");
 
 // output buttons
+const refreshOutputBtn = document.getElementById("refresh-output-btn");
+const clearDailyStatsBtn = document.getElementById("clear-daily-logs-btn");
 const resetPreviousStats = document.getElementById("reset-previous-stats");
 const clearAllDataBtn = document.getElementById("clear-all-data-btn");
-const clearDailyStatsBtn = document.getElementById("clear-daily-logs-btn");
 /* Popups */
 // confirmation popup
 const confirmationPopup = document.getElementById("ConfirmationBox");
@@ -455,14 +456,17 @@ function showStats() {
   showPreviousInput();
   showPreviousPlusDaily();
 }
-// @reset previous stats
+
+//@refresh-output
+refreshOutputBtn.addEventListener("click", () => showStats());
+//@clear-daily-stats
+clearDailyStatsBtn.addEventListener("click", async () => clearDailyStats());
+// @reset-previous-stats
 resetPreviousStats.addEventListener("click", async () =>
   clearPreviousInputAndPreviousTotals(),
 );
 //@clear-all-data
 clearAllDataBtn.addEventListener("click", async () => clearAllData());
-//@clear-daily-stats
-clearDailyStatsBtn.addEventListener("click", async () => clearDailyStats());
 
 // function to @import daily logs in json
 importDailyLogsBtn.addEventListener("change", function (event) {

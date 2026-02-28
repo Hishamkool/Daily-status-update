@@ -48,7 +48,7 @@
                   <span>Language:</span>
                   <input
                     type="text"
-                    placeholder="eg., Json"
+                    placeholder="eg., TypeScript"
                     name="language-name"
                     id="language-name"
                 /></label>
@@ -443,6 +443,22 @@
             </button>
           </div>
         </section>
+        <!-- import daily logs -->
+        <div class="import-btn-div">
+          <label for="import-daily-logs">
+            <div class="Import-title">Import Daily Logs:</div>
+            <p class="import-subtitle">
+              Import a daily logs json file which you exported.
+            </p>
+            <input
+              type="file"
+              accept=".json"
+              id="import-daily-logs"
+              title="Import Daily"
+              placeholder="Import DailyLogs"
+            />
+          </label>
+        </div>
         <!-- delete data secion -->
         <section class="manage-stats-section">
           <span class="section-title">Delete a Log</span>
@@ -478,21 +494,16 @@
           </button>
         </section>
       </div>
-      <div class="output-table-cnt">
-        <table id="output-table">
-          <thead></thead>
-          <tbody></tbody>
-          <tfoot></tfoot>
-        </table>
-      </div>
+
       <!-- show output section -->
       <section id="output">
         <span class="section-title">Output:</span>
         <div class="output-box">
+          <!-- output functionality buttons -->
           <div class="output-btns-cnt">
             <button
+              id="refresh-output-btn"
               class="output-btns"
-              onclick="showStats()"
               title="show all output"
             >
               Refresh Output
@@ -520,38 +531,34 @@
             </button>
           </div>
 
-          <div class="import-btn-div">
-            <label for="import-daily-logs">
-              <div class="Import-title">Import Daily Logs:</div>
-              <p class="import-subtitle">
-                Import a daily logs json file which you exported.
-              </p>
-              <input
-                type="file"
-                accept=".json"
-                id="import-daily-logs"
-                title="Import Daily"
-                placeholder="Import DailyLogs"
-              />
-            </label>
+          <!-- output table -dont delete -->
+          <div class="output-table-cnt">
+            <table id="output-table">
+              <thead></thead>
+              <tbody></tbody>
+              <tfoot></tfoot>
+            </table>
           </div>
-          <div>
-            <h5 class="output-title">Previous total:</h5>
-            <pre class="previous-plus-dailystats output-file-style"></pre>
-          </div>
-          <!-- too debug previous input values -->
+          <!-- DEBUG JSON VALUES -------------------------------------------------------------------------------->
           <div class="output-items-visibility">
+            <!-- visible when debug ===true -->
+            <div>
+              <h5 class="output-title">Previous total:</h5>
+              <pre class="previous-plus-dailystats output-file-style"></pre>
+            </div>
             <h5 class="output-title">Previous Input:</h5>
             <pre class="previous-output output-file-style"></pre>
-          </div>
-          <div class="output-items-visibility">
+
+            <!-- <div class="output-items-visibility"> -->
             <h5 class="output-title">Daily Status Sum:</h5>
             <pre class="daily-stats-sum output-file-style"></pre>
+            <!-- </div> -->
+            <div>
+              <h5 class="output-title">Daily Stats:</h5>
+              <pre class="output-file output-file-style"></pre>
+            </div>
           </div>
-          <div>
-            <h5 class="output-title">Daily Stats:</h5>
-            <pre class="output-file output-file-style"></pre>
-          </div>
+          <!--/ DEBUG JSON VALUES -------------------------------------------------------------------------------->
         </div>
       </section>
     </main>

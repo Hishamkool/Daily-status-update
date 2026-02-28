@@ -180,7 +180,7 @@ header {
   font-weight: bold;
 }
 .add-lang-btn:active {
-  background-image: var(--gradient-9);
+  background-image: var(--gradient-6);
   box-shadow: none;
 }
 /* delete languages added by user */
@@ -537,13 +537,16 @@ input:focus + .slider {
 /* import button style */
 /* button container */
 .import-btn-div {
-  font-family: sans-serif;
+  /* font-family: sans-serif;
   padding: 10px;
   margin: 10px;
   background-image: var(--gradient-6);
   width: fit-content;
   border-radius: 15px;
-  border: 2px solid black;
+  border: 2px solid black; */
+  border: 1px solid rgba(226, 226, 226, 0.714);
+  border-radius: 15px;
+  padding: 10px;
 }
 
 .import-btn-div * {
