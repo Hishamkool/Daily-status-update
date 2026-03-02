@@ -358,9 +358,7 @@ input:focus + .slider {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   padding-block: 20px;
   padding-inline: 20px;
-  align-items: start;
   row-gap: 20px;
-
   column-gap: 20px;
 }
 @media screen and (min-width: 768px) {
@@ -549,7 +547,7 @@ input:focus + .slider {
 
 .output-btns {
   background-image: var(--gradient-6);
-  border-radius: 25px;
+  border-radius: 7px;
   padding: 5px 10px;
   margin: 5px 2.5px 2.5px 2.5px;
 }
