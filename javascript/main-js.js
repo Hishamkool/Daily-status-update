@@ -1433,24 +1433,30 @@ serialNumber.addEventListener("input", () => showDataSerial());
 
 /* show data for the required date */
 function showDataDate() {
-  serialNumber.value = "";
-  const dailyLogs = fetchDailyLogs();
+  serialNumber.value = ""; //resetting serial
   const selectedDate = deleteDate.value;
-  const targetObject = dailyLogs.filter((logs) => logs[DATE] == selectedDate);
-  showDataBeforeDeleting.textContent =
-    targetObject.length === 0 ? "" : JSON.stringify(targetObject, null, 2);
+
+  const formattedStats = generateFormattedStats(selectedDate);
+
+  showDataBeforeDeleting.textContent = formattedStats ?? "";
 }
 /* Show data for the requied serial number */
 function showDataSerial() {
   deleteDate.value = "";
   const dailyLogs = fetchDailyLogs();
   const slNoselected = serialNumber.value;
-  const targetObject = dailyLogs.filter(
-    (logs) => Number(logs[SL_NO]) == Number(slNoselected),
+
+  const targeObj = dailyLogs.find(
+    (log) => Number(log[SL_NO]) === Number(slNoselected),
   );
-  // console.log("Target object is", JSON.stringify(targetObject));
-  showDataBeforeDeleting.textContent =
-    targetObject.length === 0 ? "" : JSON.stringify(targetObject, null, 2);
+  if (!targeObj) {
+    showDataBeforeDeleting.textContent = "";
+    return;
+  }
+
+  const formattedStats = generateFormattedStats(targeObj[DATE]);
+  console.log({ targetObjDate: targeObj[DATE] });
+  showDataBeforeDeleting.textContent = formattedStats ?? "";
 }
 /* remove an item based on slno or date */
 //@delete log
