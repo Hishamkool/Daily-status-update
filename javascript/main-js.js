@@ -1422,7 +1422,9 @@ copyStatsBtn.addEventListener("click", () => {
 
   navigator.clipboard
     .writeText(formattedText)
-    .then(() => showSnackBar(`stats for ${copyStatsDate.value} copied`))
+    .then(() =>
+      showSnackBar(`Stats for ${copyStatsDate.value} copied to clipboard!`),
+    )
     .catch((err) => console.log(`error copying data ${err}`));
 });
 
