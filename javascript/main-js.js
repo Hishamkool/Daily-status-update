@@ -1304,117 +1304,126 @@ function showSnackBar(message, isError = false, duration = 3000) {
     snackBar.classList.remove("showSnack");
   }, duration);
 }
-/* Manage Data Section */
 
+/* Manage Data Section */
+// function to format the daily stats for slack like format clipboard @slack
+function generateFormattedStats(date) {
+  // we need to add previous total input values and daily logs till date as the total value
+  const dailyLogs = fetchDailyLogs();
+  const userLanguages = getUserLanguages();
+
+  if (!dailyLogs || Object.keys(dailyLogs).length === 0) return null;
+  const logForTheDate = dailyLogs.find((stats) => stats[DATE] === date);
+  if (!date || !logForTheDate) return null;
+
+  let totalTillDate = previousTotalsTillDate(date);
+  let logsTillDate = totalTillDate;
+  // format time hr , min and sec
+  const formatOutputTime = (hms) => {
+    if (!hms) {
+      return "0hr 0min";
+    } else {
+      const parts = hms.split(":").map(Number);
+      const [h = 0, m = 0, s = 0] = parts;
+      if (s == 0) return `${h}hr ${m}min`;
+      return `${h}hr ${m}min ${s}sec`;
+    }
+  };
+  const LABEL_WIDTH = 10; //minimum spacing required or padding
+  let hasEnterdTypingStats =
+    logForTheDate[TYPING_SPEED] && logForTheDate[TYPING_ACCURACY]
+      ? true
+      : false;
+  const outputRows = [
+    ["Date", `[${logForTheDate[DATE]}]`],
+    //only show typing if there is typing values - spreadingit else it will be array inside array
+    ...(hasEnterdTypingStats
+      ? [
+          [
+            "Typing",
+            `[${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]`,
+          ],
+        ]
+      : []),
+    [
+      "Focus",
+      `[${formatOutputTime(logForTheDate[FOCUS_TIME])}] [${formatOutputTime(
+        logsTillDate[TOTAL_FOCUS],
+      )}]`,
+    ],
+    [
+      "CT",
+      `[${formatOutputTime(logForTheDate[CODE_TIME])}] [${formatOutputTime(
+        logsTillDate[TOTAL_CODE_TIME],
+      )}]`,
+    ],
+    [
+      "ACT",
+      `[${formatOutputTime(logForTheDate[ACTIVE_CODE_TIME])}] [${formatOutputTime(
+        logsTillDate[TOTAL_ACTIVE_CODE_TIME],
+      )}]`,
+    ],
+    [
+      "HTML",
+      `[${logForTheDate[HTML] || 0}] [${logsTillDate[TOTAL_HTML] || 0}]`,
+    ],
+    [
+      "CSS",
+      `[${logForTheDate[KEY_CSS] || 0}] [${logsTillDate[TOTAL_CSS] || 0}]`,
+    ],
+    [
+      "JS",
+      `[${logForTheDate[JAVASCRIPT] || 0}] [${logsTillDate[TOTAL_JS] || 0}]`,
+    ],
+    [
+      "React",
+      `[${logForTheDate[REACT] || 0}] [${logsTillDate[TOTAL_REACT] || 0}]`,
+    ],
+  ];
+
+  // adding user added langugaes to the output
+  for (const lang of userLanguages) {
+    outputRows.push([
+      lang.label,
+      `[${logForTheDate[lang.key] ?? 0}] [${logsTillDate[lang.key] ?? 0}]`,
+    ]);
+  }
+  //total values
+  outputRows.push([
+    "Total",
+    `[${logForTheDate[DAILY_TOTAL]}] [${logsTillDate[ALL_TIME_TOTAL]}]`,
+  ]);
+
+  //formating the output with proper spacing
+  const statsForTheDay = outputRows
+    .map(([key, value]) => `${key.padEnd(LABEL_WIDTH)} : ${value}`)
+    .join("\n");
+
+  return statsForTheDay;
+}
 /* copy date even listner */
 copyStatsDate.addEventListener("input", () => {
-  const dailyLogs = fetchDailyLogs();
-  const date = copyStatsDate.value;
-  const data = dailyLogs.filter((logs) => logs[DATE] == date);
+  const formattedText = generateFormattedStats(copyStatsDate.value);
+  if (!formattedText) {
+    showDataClipboard.textContent = "No data avalilable for selected date";
+    return;
+  }
 
-  showDataClipboard.textContent = JSON.stringify(data, null, 2);
+  showDataClipboard.textContent = formattedText;
 });
 /*@copy Copying the data in the format of the slack */
 copyStatsBtn.addEventListener("click", () => {
-  {
-    // we need to add previous total input values and daily logs till date as the total value
-    const dailyLogs = fetchDailyLogs();
-    const userLanguages = getUserLanguages();
+  const formattedText = generateFormattedStats(copyStatsDate.value);
 
-    const logForTheDate = dailyLogs.find(
-      (stats) => stats[DATE] === copyStatsDate.value,
-    );
-    if (!dailyLogs || Object.keys(dailyLogs).length === 0) {
-      debug && console.log("Daily Logs has not been added");
-      showSnackBar("Daily Logs not found", true);
-      return;
-    } else if (!copyStatsDate.value) {
-      showSnackBar("Select a date", true);
-    } else if (!logForTheDate) {
-      debug && console.log("Logs for the selected date is missing");
-      showSnackBar("logs for selected date is missing", true);
-      return;
-    } else {
-      let totalTillDate = previousTotalsTillDate(copyStatsDate.value);
-      let logsTillDate = totalTillDate;
-      // format time hr , min and sec
-      const formatOutputTime = (hms) => {
-        if (!hms) {
-          return "0hr 0min";
-        } else {
-          const parts = hms.split(":").map(Number);
-          const [h = 0, m = 0, s = 0] = parts;
-          if (s == 0) return `${h}hr ${m}min`;
-          return `${h}hr ${m}min ${s}sec`;
-        }
-      };
-
-      let hasEnterdTypingStats =
-        logForTheDate[TYPING_SPEED] && logForTheDate[TYPING_ACCURACY]
-          ? true
-          : false;
-
-      let dynamicLanguagesText = "";
-      if (userLanguages.length > 0) {
-        const maxLabelLength = Math.max(
-          ...userLanguages.map((lang) => lang.label.length),
-        );
-        userLanguages.forEach(({ key, label }) => {
-          const dailyValue = logForTheDate[key] ?? 0;
-          const totalValue = logsTillDate[key] ?? 0;
-          dynamicLanguagesText += `
-${label.padEnd(maxLabelLength)} : [${dailyValue}] [${totalValue}]`;
-        });
-      }
-
-      const StatsForTheDay = `
-        Date     : [${logForTheDate[DATE]}]
-        ${
-          hasEnterdTypingStats
-            ? `Typing   : [${logForTheDate[TYPING_SPEED]} wpm] [${logForTheDate[TYPING_ACCURACY]}%]`
-            : ""
-        } 
-        Focus    : [${formatOutputTime(
-          logForTheDate[FOCUS_TIME],
-        )}] [${formatOutputTime(logsTillDate[TOTAL_FOCUS])}]
-        CT       : [${formatOutputTime(
-          logForTheDate[CODE_TIME],
-        )}] [${formatOutputTime(logsTillDate[TOTAL_CODE_TIME])}]
-        ACT      : [${formatOutputTime(
-          logForTheDate[ACTIVE_CODE_TIME],
-        )}] [${formatOutputTime(logsTillDate[TOTAL_ACTIVE_CODE_TIME])}]
-        HTML     : [${logForTheDate[HTML] || 0}] [${
-          logsTillDate[TOTAL_HTML] || 0
-        }]
-        CSS      : [${logForTheDate[KEY_CSS] || 0}] [${
-          logsTillDate[TOTAL_CSS] || 0
-        }]
-        JS       : [${logForTheDate[JAVASCRIPT] || 0}] [${
-          logsTillDate[TOTAL_JS] || 0
-        }]
-        React    : [${logForTheDate[REACT] || 0}] [${
-          logsTillDate[TOTAL_REACT] || 0
-        }]
-        ${dynamicLanguagesText}
-        Total    : [${logForTheDate[DAILY_TOTAL]}] [${
-          logsTillDate[ALL_TIME_TOTAL]
-        }]
-        `;
-      // formating the stats to remove the spaces in the starting and ending of the line
-      const statsForTheDayFormated = StatsForTheDay.split("\n")
-        .map((eachLine) => eachLine.trim())
-        .filter((eachLine) => eachLine)
-        .join("\n");
-      console.log("Clipboard Data : ", StatsForTheDay);
-      console.log("Clipboard Data : ", statsForTheDayFormated);
-      navigator.clipboard
-        .writeText(statsForTheDayFormated)
-        .then(() => console.log(`stats for ${copyStatsDate.value} copied`))
-        .catch((err) => console.log(`error copying data ${err}`));
-
-      showSnackBar(`Stats for ${copyStatsDate.value} copied`);
-    }
+  if (!formattedText) {
+    showSnackBar("Invalid date or logs not found!", true);
+    return;
   }
+
+  navigator.clipboard
+    .writeText(formattedText)
+    .then(() => showSnackBar(`stats for ${copyStatsDate.value} copied`))
+    .catch((err) => console.log(`error copying data ${err}`));
 });
 
 /* delete buton  */

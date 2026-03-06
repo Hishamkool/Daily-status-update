@@ -366,7 +366,15 @@ input:focus + .slider {
     padding-block: 40px;
   }
 }
-
+#show-data-clipboard {
+  font-family: monospace;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-block: 15px;
+}
+#show-data-clipboard::-webkit-scrollbar {
+  display: none;
+}
 /* copy stats secion */
 .manage-stats-section {
   border: 1px solid rgba(226, 226, 226, 0.714);
