@@ -70,7 +70,40 @@
 
       <!-- container for both input sections previous and daily -->
       <div class="input-sections-cnt">
-        <!-- PREVIOUS ENTRY -->
+        <!-- streaks , leaves container -->
+        <div class="stats-side-container left-stats">
+          <div class="stats-card streak-card" id="push-streak-cnt">
+            <div class="streak-lottie-count-cnt">
+              <lottie-player
+                id="lottie-fire"
+                src="assets/lottie/Fire.json"
+                background="transparent"
+                speed="1"
+                style="width: 50px"
+                autoplay
+              >
+              </lottie-player>
+              <h1 id="streakCount"></h1>
+            </div>
+            <h3>Day Streak!</h3>
+            <button id="pushTodayBtn">Log today's push</button>
+          </div>
+          <div class="stats-card" id="leave-count-cnt">
+            <lottie-player
+              id="lottie-beach"
+              src="assets/lottie/Enjoy Beach Vacation.json"
+              background="transparent"
+              speed="1"
+              loop
+              style="width: 200px"
+              autoplay
+            >
+            </lottie-player>
+            <h1 id="leave-count">0</h1>
+            <h3>Leave Count</h3>
+          </div>
+        </div>
+        <!-- CENTER: Previous Entry Section -->
         <section class="input-section">
           <div class="section-title">
             <h3 class="section-title-heading">Previous Total:</h3>
@@ -198,7 +231,7 @@
             </div>
           </form>
         </section>
-        <!-- TODAYS ENTRY -->
+        <!-- CENTER: Todays Entry Section -->
         <section class="input-section">
           <div class="section-title">
             <h3 class="section-title-heading">Todays Entry:</h3>
@@ -361,6 +394,22 @@
             </div>
           </form>
         </section>
+        <!-- RIGHT SIDE: Floating Genie -->
+        <div class="genie-container right-stats">
+          <lottie-player
+            id="lottie-genie"
+            src="assets/lottie/Live chatbot.json"
+            background="transparent"
+            speed="1"
+            loop
+            style="width: 150px; cursor: pointer"
+            autoplay
+            class="floating-genie"
+          ></lottie-player>
+          <div class="genie-tooltip" id="genie-tooltip">
+            <!-- Tooltip content will be shown by Tippy.js -->
+          </div>
+        </div>
       </div>
 
       <div class="copy-export-section-container">
@@ -565,6 +614,11 @@
         </div>
       </section>
     </main>
+    <!-- for tippy tooltip -->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <!-- for lottie -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <!-- for date picker -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <!-- excel export -->

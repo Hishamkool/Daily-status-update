@@ -1,6 +1,6 @@
 /* variables */
 /* debug status */
-const debug = false;
+const debug = true;
 // make sure to remove novalidate from forms in the html
 /* storage keys for local storage */
 const storage_key_daily_log = "dailyLogs";
@@ -8,7 +8,8 @@ const storage_key_daily_logs_sum = "dailyLogsSum";
 const storage_key_previous_total_input = "previousTotalObj";
 const storage_key_previous_plus_daily = "previousPlusDaily";
 const storage_key_user_set_language_array = "userSetLanguages";
-
+const storage_key_daily_streak = "dailyStreakCount";
+const storage_key_last_pushed_date = "last_git_pushed_date";
 /* CONSTANT KEY NAMES FOR OBJECTS */
 // ====== DAILY STATS KEYS ======
 const DATE = "date";
@@ -82,6 +83,13 @@ const deleteDate = document.getElementById("delete-date");
 const serialNumber = document.getElementById("serial-number");
 const removeLogDateBtn = document.getElementById("remove-one-day-log");
 const showDataBeforeDeleting = document.getElementById("show-data"); // to show the selected log for the date before deletion
+/* Streaks */
+const streakCount = document.getElementById("streakCount");
+const streakContainer = document.getElementById("push-streak-cnt");
+const leaveCountSpan = document.getElementById("leave-count");
+const pushedTodayBtn = document.getElementById("pushTodayBtn");
+const lottieFire = document.getElementById("lottie-fire");
+const lottieBeach = document.getElementById("lottie-beach");
 /* output */
 const outputItemsVisibility = document.querySelectorAll(
   ".output-items-visibility",
@@ -124,6 +132,10 @@ document.addEventListener("DOMContentLoaded", () => {
   setPreviousInputsValues();
   //to enable or disable editing in previous totals
   updateEditPreviousToggle();
+
+  setStreakValue();
+  setLeaveCount();
+
   //hiding data when production
   if (debug) {
     outputItemsVisibility.forEach((outputItem) => {
@@ -149,6 +161,42 @@ document.addEventListener("DOMContentLoaded", () => {
     altInput: true,
   });
 });
+//function to setLeaveCount @leave
+function setLeaveCount() {
+  const { leaveCount, noOfWorkingDays } = calculateLeaveAndWorkingDays();
+
+  leaveCountSpan.textContent = leaveCount;
+}
+
+// function to set streakCount initially
+function setStreakValue() {
+  let streak = Number(localStorage.getItem(storage_key_daily_streak) ?? 0);
+  const today = new Date().toISOString().split("T")[0];
+  const lastPushedDate = localStorage.getItem(storage_key_last_pushed_date);
+
+  streakCount.textContent = streak;
+  //initial state
+  if (!lastPushedDate) {
+    pushedTodayBtn.disabled = false;
+    return;
+  }
+
+  const diff = Math.floor(
+    (new Date(today) - new Date(lastPushedDate)) / (1000 * 60 * 60 * 24),
+  );
+  //diff 0 saeme day so use already pushed button disabled and textcontent pushed
+  if (diff === 0) {
+    pushedTodayBtn.disabled = true;
+    pushedTodayBtn.textContent = "Pushed";
+  } else if (diff === 1) {
+    pushedTodayBtn.disabled = false;
+  } else if (diff > 1) {
+    streak = 0;
+    localStorage.setItem(storage_key_daily_streak, 0);
+    streakCount.textContent = 0;
+    pushedTodayBtn.disabled = false;
+  }
+}
 
 //function to create date picker
 function createDatePicker(dateElement, options = {}) {
@@ -192,7 +240,7 @@ function refreshHighlightedDates() {
 function getHighlightedDates() {
   const dailyLogs = fetchDailyLogs();
   highlightedDates = dailyLogs.map((item) => item[DATE]);
-  console.log("highlighted dates :", highlightedDates);
+  debug && console.log("highlighted dates :", highlightedDates);
 
   return highlightedDates;
 }
@@ -387,6 +435,7 @@ todaysStatsForm.addEventListener("submit", async function (event) {
   // function call to calculate the dailyLogsTotal
   calculateDailyLogsTotal();
   generateTable();
+  setLeaveCount();
   updateEditPreviousToggle();
   showDailyLogsTotal();
   showSnackBar("Data Submitted", undefined, 1000);
@@ -446,6 +495,73 @@ function showDailyStats() {
   }
   debug && console.log("DailyStats:", logs);
 }
+
+/* @Streaks */
+pushedTodayBtn.addEventListener("click", () => {
+  let count = Number(localStorage.getItem(storage_key_daily_streak) ?? 0);
+  count++;
+  streakCount.textContent = count;
+  localStorage.setItem(storage_key_daily_streak, count);
+  const today = new Date().toISOString().split("T")[0];
+  localStorage.setItem(storage_key_last_pushed_date, today);
+  playLottie(lottieFire);
+  pushedTodayBtn.textContent = "Pushed";
+  pushedTodayBtn.disabled = true;
+});
+lottieFire.addEventListener("click", (e) => {
+  //e.currentTarget is the lottieFire
+  playLottie(lottieFire);
+});
+function playLottie(lottie) {
+  lottie.stop();
+  lottie.play();
+}
+// @leavecount
+function calculateLeaveAndWorkingDays() {
+  const sortedDailyLogs = sortDailyLogs();
+  if (!sortedDailyLogs.length) return { leaveCount: 0, noOfWorkingDays: 0 };
+  const workingDays = sortedDailyLogs.map((log) => log[DATE]);
+  const noOfWorkingDays = workingDays.length;
+
+  const startDate = new Date(sortedDailyLogs[0][DATE]);
+  const endDate = new Date(sortedDailyLogs[sortedDailyLogs.length - 1][DATE]);
+
+  let current = new Date(startDate);
+  let leaveCount = 0;
+
+  function isSunday(date) {
+    return date.getDay() === 0;
+  }
+  function isSecondSaturday(date) {
+    return date.getDay() === 6 && Math.ceil(date.getDate() / 7) === 2;
+  }
+
+  while (current <= endDate) {
+    const ymdString = current.toISOString().split("T")[0];
+    if (
+      !isSunday(current) &&
+      !isSecondSaturday(current) &&
+      !workingDays.includes(ymdString)
+    ) {
+      leaveCount++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+
+  debug && console.log({ leaveCount, noOfWorkingDays });
+
+  return { leaveCount, noOfWorkingDays };
+}
+tippy("#leave-count-cnt", {
+  content: "<strong>Excludes:</strong> Sun & 2nd Sat",
+  allowHTML: true,
+  // theme: "light",
+  theme: "retro",
+  placement: "bottom",
+  animation: "scale",
+  touch: true,
+  hideOnClick: true,
+});
 
 /* @OUTPUT FIELD BUTTONS */
 // function to display Output
@@ -531,16 +647,18 @@ importDailyLogsBtn.addEventListener("change", function (event) {
           JSON.stringify(previousInput),
         );
       }
-      console.log(
-        "successfully set json values to daily logs and previous inputs",
-      );
+      debug &&
+        console.log(
+          "successfully set json values to daily logs and previous inputs",
+        );
       calculateDailyLogsTotal();
       generateTable();
+      setLeaveCount();
       showStats();
       updateEditPreviousToggle();
     } catch (error) {
       showSnackBar("Error, reading file", true);
-      console.log("error reading file", error);
+      debug && console.log("error reading file", error);
     } finally {
       //clearing import file so that we can import the same file again
       importDailyLogsBtn.value = "";
@@ -574,6 +692,7 @@ async function clearDailyStats(confirmation) {
     debug && console.log("cleared dailyLogs sum : ", fetchDailyLogsSum());
     showStats();
     generateTable();
+    setLeaveCount();
     updateEditPreviousToggle();
   } else {
     return;
@@ -598,6 +717,7 @@ async function clearPreviousInputAndPreviousTotals(confirmation) {
     debug && console.log("cleared PreviousTotalSum:", fetchPreviousPlusDaily());
     showStats();
     generateTable();
+    setLeaveCount();
     updateEditPreviousToggle(); //not necessary check
   } else {
     return;
@@ -641,6 +761,7 @@ async function clearAllData(confirmation) {
     refreshHighlightedDates();
     previousTotalsForm.reset();
     generateTable();
+    setLeaveCount();
     showStats();
     updateEditPreviousToggle();
     return `local storage cleared successfully : ${showlocalStorageData()}`;
@@ -653,7 +774,7 @@ function sortDailyLogs() {
   const dialyLogsArray = fetchDailyLogs();
   if (!dialyLogsArray || dialyLogsArray.length == 0) {
     showSnackBar("Previous Totals is empty");
-    return;
+    return [];
   }
   const sortedDailyLogs = dialyLogsArray.sort(
     (a, b) => new Date(a[DATE]) - new Date(b[DATE]),
@@ -668,10 +789,10 @@ function previousTotalsTillDate(ISOdate) {
   const sortedDailyLogs = sortDailyLogs();
   const previousTotalInput = fetchPreviousInput();
   const arrayTillDate = sortedDailyLogs.filter((log) => log[DATE] <= ISOdate);
-  console.log({ sortedDailyLogs });
+  debug && console.log({ sortedDailyLogs });
 
   const userLanguages = getUserLanguages();
-  console.log(userLanguages);
+  debug && console.log(userLanguages);
   // adding thouse user languages to languages object and setting them to 0
   let userLanguagesTotals = {};
   userLanguages.forEach(({ key }) => {
@@ -800,7 +921,8 @@ function calculateDailyLogsTotal() {
 // funciton to convert time to seconds
 function time2Seconds(curr) {
   if (!curr || typeof curr !== "string") {
-    console.log("The value for time conversion is undefined or not a string");
+    debug &&
+      console.log("The value for time conversion is undefined or not a string");
     return 0;
   }
   const [h = 0, m = 0, s = 0] = curr.split(":").map(Number);
@@ -862,7 +984,7 @@ function hasDailyLogs() {
 
 //@editprevious @edittoggle
 editPreviousToggle.addEventListener("change", () => {
-  console.log("toogle changed:", editPreviousToggle.checked);
+  debug && console.log("toogle changed:", editPreviousToggle.checked);
   enableEditPreviousTotals(editPreviousToggle.checked);
 });
 
@@ -953,10 +1075,7 @@ previousTotalsForm.addEventListener("submit", async (event) => {
   let storedPreviousTotal = localStorage.getItem(
     storage_key_previous_total_input,
   );
-  /*  debug &&  */ console.log(
-    "PreviousTotal Input:",
-    JSON.parse(storedPreviousTotal),
-  );
+  debug && console.log("PreviousTotal Input:", JSON.parse(storedPreviousTotal));
 
   showSnackBar("Data Submitted", undefined, 1000);
   showStats();
@@ -1179,13 +1298,16 @@ function allowPasting(event) {
   event.preventDefault();
   event.target.value = "";
   const paste = (event.clipboardData || window.clipboardData).getData("text");
-  let pastedWithoutSpaces = paste.replace(/\s/g, "");
-  // still not able to paste text from input field have to check why :10:10:10
-  pastedWithoutSpaces = pastedWithoutSpaces
-    .replace(/\uFF1A/g, ":") // replace fullwidth colon with normal colon
+  let pastedWithoutSpaces = paste
+    .toLowerCase() // H and M to h m
+    .replace(/\s/g, "") // white spaces removed globally
+    .replace(/h/, ":") // removes one h and replaces with semicolon
+    .replace(/m(?=\d)/, "") // ?= is forward lookup and \d is digits 0 to 9 and if there is such a m that follows digits then replace it with :
+    .replace(/m$/, "") // if m is at end then remove m dont replace
+    .replace(/s/, "") // remove second
+    .replace(/\uFF1A/g, ":") // replace fullwidth colon with normal colon  ( ：to :)
     .replace(/\u200B|\u200F/g, ""); // remove invisible unicode chars
 
-  debug && console.log("clipboard data :", pastedWithoutSpaces);
   debug && console.log(`clipboard data : '${pastedWithoutSpaces}'`);
 
   const match = pastedWithoutSpaces.match(
@@ -1425,7 +1547,7 @@ copyStatsBtn.addEventListener("click", () => {
     .then(() =>
       showSnackBar(`Stats for ${copyStatsDate.value} copied to clipboard!`),
     )
-    .catch((err) => console.log(`error copying data ${err}`));
+    .catch((err) => debug && console.log(`error copying data ${err}`));
 });
 
 /* delete buton  */
@@ -1457,7 +1579,7 @@ function showDataSerial() {
   }
 
   const formattedStats = generateFormattedStats(targeObj[DATE]);
-  console.log({ targetObjDate: targeObj[DATE] });
+  debug && console.log({ targetObjDate: targeObj[DATE] });
   showDataBeforeDeleting.textContent = formattedStats ?? "";
 }
 /* remove an item based on slno or date */
@@ -1495,14 +1617,15 @@ removeLogDateBtn.addEventListener("click", async () => {
     if (index !== -1) {
       const removedTarget = dailyLogs.splice(index, 1);
       resetIndex(dailyLogs);
-      console.log("Removed data from dailyLog: ", removedTarget);
-      console.log("Updated daily slno: ", dailyLogs);
+      debug && console.log("Removed data from dailyLog: ", removedTarget);
+      debug && console.log("Updated daily slno: ", dailyLogs);
       localStorage.setItem(storage_key_daily_log, JSON.stringify(dailyLogs));
       updateEditPreviousToggle();
       refreshHighlightedDates();
       showSnackBar("Deleted data.");
       calculateDailyLogsTotal();
       generateTable();
+      setLeaveCount();
       serialNumber.value = "";
       deleteDate.value = "";
       showDataBeforeDeleting.textContent = "";
@@ -1624,7 +1747,7 @@ downloadCsv.addEventListener("click", () => {
   });
 
   const csvData = headers.join(",") + "\n" + rows.join("\n");
-  debug && console.log("csv file :", csvData);
+  debug && debug && console.log("csv file :", csvData);
 
   const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
   const link = document.createElement("a");
@@ -1711,7 +1834,7 @@ downloadExcel.addEventListener("click", () => {
   ];
 
   const worksheet = XLSX.utils.json_to_sheet(logsForExcel, { header: headers });
-  // console.log(worksheet);
+  //  debug && console.log(worksheet);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "All daily logs");
   XLSX.writeFile(

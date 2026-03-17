@@ -563,9 +563,6 @@ input:focus + .slider {
   margin: 5px 2.5px 2.5px 2.5px;
 }
 
-/* import button style */
-/* button container */
-
 .import-btn-div * {
   cursor: pointer;
 }
@@ -580,6 +577,42 @@ input:focus + .slider {
   cursor: pointer;
   color: white;
   font-family: var(--font-alegreya);
+}
+
+/* streak section */
+.stats-card {
+  /* border: 1px solid rgba(226, 226, 226, 0.714); */
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+}
+.stats-card:hover {
+  box-shadow: rgb(129, 129, 129, 0.2) 4px 4px 17px;
+}
+.streak-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 220px;
+}
+.streak-lottie-count-cnt {
+  display: flex;
+  align-items: end;
+  gap: 5px;
+  width: 100%;
+  justify-content: center;
+}
+#pushTodayBtn {
+  padding: 10px;
+  border-radius: 10px;
+  width: 100%;
+  font-weight: bold;
+}
+#pushTodayBtn:active {
+  background-color: lightgreen;
 }
 
 /* .Import-title {
@@ -746,11 +779,46 @@ input:focus + .slider {
     justify-content: center;
     align-items: stretch;
     gap: 20px;
+    flex-wrap: wrap;
+    position: relative;
   }
 
   .input-section {
     display: flex;
     flex-direction: column;
+    flex: 1 1 350;
+    max-width: 450px;
+  }
+  .input-section:nth-child(2) {
+    order: 1;
+  }
+  .input-sections-cnt:nth-child(1) {
+    order: 2; /* Previous entry second */
+  }
+
+  .left-stats {
+    order: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 250px;
+    margin-right: auto;
+  }
+  .genie-container {
+    order: 3;
+    position: relative;
+    width: 150px;
+    align-self: flex-start;
+    margin-left: auto;
+  }
+  .genie-tooltip {
+    position: absolute;
+    top: -20px;
+    right: 100%;
+    max-width: 200px;
+    pointer-events: none;
   }
 
   .input-section form {
