@@ -70,41 +70,61 @@
 
       <!-- container for both input sections previous and daily -->
       <div class="input-sections-cnt">
-        <!-- streaks , leaves container -->
-        <div class="stats-side-container left-stats">
-          <div class="stats-card streak-card" id="push-streak-cnt">
-            <div class="streak-lottie-count-cnt">
+        <!-- STATS WRAPPER -->
+        <div class="stats-row">
+          <!-- LEFT SIDE:  streaks , leaves container -->
+          <div class="left-stats">
+            <div class="stats-card streak-card" id="push-streak-cnt">
+              <div class="streak-lottie-count-cnt">
+                <lottie-player
+                  id="lottie-fire"
+                  src="assets/lottie/Fire.json"
+                  background="transparent"
+                  speed="1"
+                  style="width: 50px"
+                  autoplay
+                >
+                </lottie-player>
+                <h1 id="streakCount"></h1>
+              </div>
+              <h3>Day Streak!</h3>
+              <button id="pushTodayBtn">Log today's push</button>
+            </div>
+            <div class="stats-card" id="leave-count-cnt">
               <lottie-player
-                id="lottie-fire"
-                src="assets/lottie/Fire.json"
+                id="lottie-beach"
+                src="assets/lottie/Enjoy Beach Vacation.json"
                 background="transparent"
                 speed="1"
-                style="width: 50px"
+                loop
+                style="width: 200px"
                 autoplay
               >
               </lottie-player>
-              <h1 id="streakCount"></h1>
+              <h1 id="leave-count">0</h1>
+              <h3>Leave Count</h3>
             </div>
-            <h3>Day Streak!</h3>
-            <button id="pushTodayBtn">Log today's push</button>
           </div>
-          <div class="stats-card" id="leave-count-cnt">
+
+          <!-- RIGHT SIDE: Floating Genie -->
+          <div class="genie-container right-stats">
             <lottie-player
-              id="lottie-beach"
-              src="assets/lottie/Enjoy Beach Vacation.json"
+              id="lottie-genie"
+              src="assets/lottie/Live chatbot.json"
               background="transparent"
               speed="1"
               loop
-              style="width: 200px"
+              style="width: 150px; cursor: pointer"
               autoplay
-            >
-            </lottie-player>
-            <h1 id="leave-count">0</h1>
-            <h3>Leave Count</h3>
+              class="floating-genie"
+            ></lottie-player>
+            <div class="genie-tooltip" id="genie-tooltip">
+              <!-- Tooltip content will be shown by Tippy.js -->
+            </div>
           </div>
         </div>
         <!-- CENTER: Previous Entry Section -->
-        <section class="input-section">
+        <section class="input-section previous-section">
           <div class="section-title">
             <h3 class="section-title-heading">Previous Total:</h3>
             <span class="form-date">
@@ -232,7 +252,7 @@
           </form>
         </section>
         <!-- CENTER: Todays Entry Section -->
-        <section class="input-section">
+        <section class="input-section today-section">
           <div class="section-title">
             <h3 class="section-title-heading">Todays Entry:</h3>
             <span class="form-date">
@@ -394,22 +414,6 @@
             </div>
           </form>
         </section>
-        <!-- RIGHT SIDE: Floating Genie -->
-        <div class="genie-container right-stats">
-          <lottie-player
-            id="lottie-genie"
-            src="assets/lottie/Live chatbot.json"
-            background="transparent"
-            speed="1"
-            loop
-            style="width: 150px; cursor: pointer"
-            autoplay
-            class="floating-genie"
-          ></lottie-player>
-          <div class="genie-tooltip" id="genie-tooltip">
-            <!-- Tooltip content will be shown by Tippy.js -->
-          </div>
-        </div>
       </div>
 
       <div class="copy-export-section-container">

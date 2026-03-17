@@ -83,6 +83,25 @@ header {
 .input-sections-cnt input:focus {
   outline-color: rgb(172, 117, 40);
 }
+.stats-row {
+  display: contents;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+/* SETTING ORDER OF ITEMS IN FOR MOBILE */
+.today-section {
+  order: 1;
+}
+.previous-section {
+  order: 2;
+}
+.left-stats {
+  order: 3;
+}
+.right-stats {
+  order: 4;
+}
 .section-title {
   display: flex;
   align-items: center;
@@ -364,11 +383,7 @@ input:focus + .slider {
   row-gap: 20px;
   column-gap: 20px;
 }
-@media screen and (min-width: 768px) {
-  .copy-export-section-container {
-    padding-block: 40px;
-  }
-}
+
 .show-pre-text {
   font-family: monospace;
   overflow-x: auto;
@@ -765,53 +780,48 @@ input:focus + .slider {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
+@media (min-width: 500px) {
+  .stats-row {
+    order: 3;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: start;
+    gap: 20px;
+  }
+}
 
-@media screen and (min-width: 736px) {
+@media (min-width: 768px) {
   /* header */
   .header-title {
     padding-left: 25px;
   }
-
-  /* previous and total secions */
-
   .input-sections-cnt {
     flex-direction: row;
     justify-content: center;
     align-items: stretch;
     gap: 20px;
-    flex-wrap: wrap;
     position: relative;
   }
 
   .input-section {
     display: flex;
     flex-direction: column;
-    flex: 1 1 350;
     max-width: 450px;
-  }
-  .input-section:nth-child(2) {
-    order: 1;
-  }
-  .input-sections-cnt:nth-child(1) {
-    order: 2; /* Previous entry second */
   }
 
   .left-stats {
-    order: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 20px;
     width: 250px;
-    margin-right: auto;
   }
   .genie-container {
-    order: 3;
     position: relative;
     width: 150px;
     align-self: flex-start;
-    margin-left: auto;
   }
   .genie-tooltip {
     position: absolute;
@@ -820,7 +830,23 @@ input:focus + .slider {
     max-width: 200px;
     pointer-events: none;
   }
-
+  .stats-row {
+    display: contents;
+    width: auto;
+  }
+  /* SETTING ORDER OF ITEMS IN FOR DESKTOP */
+  .today-section {
+    order: 2;
+  }
+  .previous-section {
+    order: 3;
+  }
+  .left-stats {
+    order: 1;
+  }
+  .right-stats {
+    order: 4;
+  }
   .input-section form {
     display: flex;
     flex-direction: column;
@@ -842,7 +868,7 @@ input:focus + .slider {
     gap: 20px;
   }
 
-  .input-sections-cnt section:nth-child(1) {
-    order: 2;
+  .copy-export-section-container {
+    padding-block: 40px;
   }
 }
