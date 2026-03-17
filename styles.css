@@ -85,6 +85,7 @@ header {
 }
 .stats-row {
   display: contents;
+
   flex-direction: column;
   align-items: center;
   width: 100%;
@@ -801,7 +802,7 @@ input:focus + .slider {
     justify-content: center;
     align-items: stretch;
     gap: 20px;
-    position: relative;
+    flex-wrap: wrap;
   }
 
   .input-section {
@@ -830,23 +831,7 @@ input:focus + .slider {
     max-width: 200px;
     pointer-events: none;
   }
-  .stats-row {
-    display: contents;
-    width: auto;
-  }
-  /* SETTING ORDER OF ITEMS IN FOR DESKTOP */
-  .today-section {
-    order: 2;
-  }
-  .previous-section {
-    order: 3;
-  }
-  .left-stats {
-    order: 1;
-  }
-  .right-stats {
-    order: 4;
-  }
+
   .input-section form {
     display: flex;
     flex-direction: column;
@@ -870,5 +855,25 @@ input:focus + .slider {
 
   .copy-export-section-container {
     padding-block: 40px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .stats-row {
+    display: contents;
+    width: auto;
+  }
+  /* SETTING ORDER OF ITEMS IN FOR DESKTOP */
+  .today-section {
+    order: 2;
+  }
+  .previous-section {
+    order: 3;
+  }
+  .left-stats {
+    order: 1;
+  }
+  .right-stats {
+    order: 4;
   }
 }
