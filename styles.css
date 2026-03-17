@@ -158,7 +158,7 @@ header {
   justify-content: center;
   column-gap: 10px;
   row-gap: 10px;
-  width: 89vw;
+  width: min(350px, 89vw);
   background-image: var(--gradient-9);
   padding: 10px;
   border-radius: 10px;
