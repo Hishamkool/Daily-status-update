@@ -5,34 +5,82 @@ const genieTooltip = document.getElementById("genie-tooltip");
 const genieText = document.getElementById("genie-text"); // tips
 const previousTipBtn = document.getElementById("previous-tip");
 const nextTipBTn = document.getElementById("next-tip");
+const pauseIcon = document.getElementById("pause-button");
 
 const tips = [
-  `Hi Im Genie 😄👋🏻,\nWelcome to Daily Logs!`,
+  `Hi Im Genie 😄👋🏻,\nWelcome to Vonnue Daily Logs!`,
   "Click on me to toggle tips! ↖️",
+  "In today's entry, you can paste time in formats like: 03h 05m, 12h 12m 52s, 12:14:15 or 10:20",
+
+  "If you already have totals, enter them in 'Previous Totals' like: 100:14:15 (hours can be any length, minutes & seconds must be below 59)",
+
+  "After submitting today's entry, stats are updated in the copy section — just click copy and paste it into Slack",
+
+  "Once previous stats exist, the toggle button turns OFF. Turn it ON to edit, but note: this will reset all logs",
+
+  "Before clearing data or editing totals, export a backup using JSON so you can restore later",
+
+  "Your submitted days are highlighted in the date picker so you can track logged entries easily",
+
+  "Leave counter shows absent days from your first logged entry up to your latest entry",
+  "Export your logs to JSON regularly for backup",
   "Day Streaks is currently under development. ⚠️ ",
   "Click 'Push Today' to update your streak",
-  "Track your leaves to avoid streak breaks",
-  "Export your logs to JSON regularly for backup",
   "Stay consistent to build streak momentum 🔥",
 ];
 
-let isVisible = true;
-let tipIndex = 0;
-let intervalID = null;
-let textAnimationSpeed = 35;
-let typingTimeout = null;
-tippy(genieContainer, {
+let isVisible = true; // show or hide tooltip
+let tipIndex = 0; // tip number 3, 4 ,5
+let tipsTimeout = null; // timer to move to the next tip
+let textAnimationSpeed = 35; // ms of text animation
+let typingTimeout = null; // timer for adding characters - typing speed
+/* state */
+let isPaused = false; //tip paused ?
+let isTyping = false; // animating text ?
+let currentTip = "";
+let currentChar = 0;
+
+tippy(genie, {
   content: "Click to toggle tips!",
   theme: "light",
   placement: "top",
   animation: "scale",
+  touch: true,
+  hideOnClick: true,
+  trigger: "mouseenter",
 });
 
 /* even listners */
 // document.addEventListener("click", handleOutsideClick); //if you need to close tips when clicking outside
 genie.addEventListener("click", toggleTooltip);
-genieTooltip.addEventListener("mouseenter", stopAutoRotation);
-genieTooltip.addEventListener("mouseleave", startAutoRotation);
+genieTooltip.addEventListener("mouseenter", () => {
+  if (isTyping) {
+    clearTimeout(typingTimeout);
+    typingTimeout = null;
+    genieText.textContent = currentTip;
+    isTyping = false;
+  }
+  isPaused = true;
+  pauseIcon.style.opacity = "1";
+  if (tipsTimeout) {
+    clearTimeout(tipsTimeout);
+    tipsTimeout = null;
+  }
+});
+genieTooltip.addEventListener("mouseleave", () => {
+  isPaused = false;
+  pauseIcon.style.opacity = "0";
+  if (!isTyping) {
+    // startAutoRotation();
+    if (tipsTimeout) {
+      clearTimeout(tipsTimeout);
+    }
+
+    tipsTimeout = setTimeout(() => {
+      nextTip();
+    }, 600);
+  }
+});
 previousTipBtn?.addEventListener("click", previousTip);
 nextTipBTn?.addEventListener("click", nextTip);
 
@@ -42,7 +90,6 @@ function initGenieTips() {
   tipIndex = 0;
   renderTip();
   showTooltip();
-  startAutoRotation();
 }
 
 // handles the active and inactive state of tooltip
@@ -86,27 +133,35 @@ function handleOutsideClick(e) {
 }
 
 function nextTip() {
+  stopAutoRotation();
   tipIndex = (tipIndex + 1) % tips.length;
   renderTip();
-  restartAuto();
 }
 
 function previousTip() {
+  stopAutoRotation();
   tipIndex = (tipIndex - 1 + tips.length) % tips.length;
   renderTip();
-  restartAuto();
 }
 
 function stopAutoRotation() {
-  if (intervalID) {
-    clearInterval(intervalID);
-    intervalID = null;
+  if (tipsTimeout) {
+    clearTimeout(tipsTimeout);
+    tipsTimeout = null;
+  }
+  if (typingTimeout) {
+    clearTimeout(typingTimeout);
+    typingTimeout = null;
   }
 }
 function startAutoRotation() {
-  stopAutoRotation();
+  if (isPaused) return;
+  if (tipsTimeout) {
+    clearTimeout(tipsTimeout);
+  }
+
   const duration = generateTypingDuration(tips[tipIndex]);
-  intervalID = setTimeout(() => {
+  tipsTimeout = setTimeout(() => {
     nextTip();
   }, duration);
 }
@@ -134,14 +189,16 @@ function textAnimate(tip) {
     clearTimeout(typingTimeout);
     typingTimeout = null;
   }
+  currentTip = tip;
+  currentChar = 0;
   genieText.textContent = "";
-
+  isTyping = true;
   stopAutoRotation();
-  let char = 0;
+
   function type() {
-    if (char < tip.length) {
-      genieText.textContent += tip[char];
-      char++;
+    if (currentChar < currentTip.length) {
+      genieText.textContent += currentTip[currentChar];
+      currentChar++;
       typingTimeout = setTimeout(type, textAnimationSpeed);
     } else {
       typingTimeout = null;

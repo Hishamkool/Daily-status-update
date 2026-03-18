@@ -158,6 +158,10 @@ header {
     opacity: 0;
   }
 }
+#pause-button {
+  opacity: 0;
+  font-size: 20px;
+}
 .genie-btns {
   display: flex;
   justify-content: center;
