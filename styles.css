@@ -159,7 +159,7 @@ header {
   }
 }
 #pause-button {
-  opacity: 0;
+  opacity: 1;
   font-size: 20px;
 }
 .genie-btns {

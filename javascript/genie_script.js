@@ -53,33 +53,19 @@ tippy(genie, {
 /* even listners */
 // document.addEventListener("click", handleOutsideClick); //if you need to close tips when clicking outside
 genie.addEventListener("click", toggleTooltip);
-genieTooltip.addEventListener("mouseenter", () => {
-  if (isTyping) {
-    clearTimeout(typingTimeout);
-    typingTimeout = null;
-    genieText.textContent = currentTip;
-    isTyping = false;
-  }
-  isPaused = true;
-  pauseIcon.style.opacity = "1";
-  if (tipsTimeout) {
-    clearTimeout(tipsTimeout);
-    tipsTimeout = null;
-  }
+genieTooltip.addEventListener("mouseenter", handleTooltipEnter);
+genieTooltip.addEventListener("mouseleave", handleTooltipLeave);
+genieTooltip.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  handleTooltipLeave();
 });
-genieTooltip.addEventListener("mouseleave", () => {
-  isPaused = false;
-  pauseIcon.style.opacity = "0";
-  if (!isTyping) {
-    // startAutoRotation();
-    if (tipsTimeout) {
-      clearTimeout(tipsTimeout);
-    }
-
-    tipsTimeout = setTimeout(() => {
-      nextTip();
-    }, 600);
-  }
+genieTooltip.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  handleTooltipLeave();
+});
+genieTooltip.addEventListener("touchcancel", (e) => {
+  e.preventDefault();
+  handleTooltipLeave();
 });
 previousTipBtn?.addEventListener("click", previousTip);
 nextTipBTn?.addEventListener("click", nextTip);
@@ -90,6 +76,37 @@ function initGenieTips() {
   tipIndex = 0;
   renderTip();
   showTooltip();
+}
+
+function handleTooltipEnter() {
+  if (isTyping) {
+    clearTimeout(typingTimeout);
+    typingTimeout = null;
+    genieText.textContent = currentTip;
+    isTyping = false;
+  }
+  isPaused = true;
+  //   pauseIcon.style.opacity = "1";
+  pauseIcon.textContent = "⏸️";
+  if (tipsTimeout) {
+    clearTimeout(tipsTimeout);
+    tipsTimeout = null;
+  }
+}
+function handleTooltipLeave() {
+  isPaused = false;
+  //   pauseIcon.style.opacity = "0";
+  pauseIcon.textContent = "▶️";
+  if (!isTyping) {
+    // startAutoRotation();
+    if (tipsTimeout) {
+      clearTimeout(tipsTimeout);
+    }
+    /* custom duration for faster tip when mouse leaves */
+    tipsTimeout = setTimeout(() => {
+      nextTip();
+    }, 400);
+  }
 }
 
 // handles the active and inactive state of tooltip
