@@ -170,12 +170,14 @@ function restartAuto() {
   stopAutoRotation();
   startAutoRotation();
 }
-
+//since height changes as text animates
+const resizeObserver = new ResizeObserver(() => {
+  applyDynamicSpacing();
+});
+resizeObserver.observe(genieTooltip);
 // adding margin to geneicontainer for placing the tooltip
 function applyDynamicSpacing() {
-  resetSpacing();
   const tooltipRect = genieTooltip.getBoundingClientRect();
-
   genieContainer.style.marginBottom = tooltipRect.height + "px";
 }
 
