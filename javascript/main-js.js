@@ -513,6 +513,7 @@ lottieFire.addEventListener("click", (e) => {
   //e.currentTarget is the lottieFire
   playLottie(lottieFire);
 });
+streakContainer.addEventListener("click", () => playLottie(lottieFire));
 function playLottie(lottie) {
   lottie.stop();
   lottie.play();

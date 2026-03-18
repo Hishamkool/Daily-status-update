@@ -8,8 +8,8 @@ const nextTipBTn = document.getElementById("next-tip");
 
 const tips = [
   `Hi Im Genie 😄👋🏻,\nWelcome to Daily Logs!`,
-  "Click on me to open or close tips! ↖️",
-  "Daily Streaks is currently under development. ⚠️ ",
+  "Click on me to toggle tips! ↖️",
+  "Day Streaks is currently under development. ⚠️ ",
   "Click 'Push Today' to update your streak",
   "Track your leaves to avoid streak breaks",
   "Export your logs to JSON regularly for backup",
@@ -19,8 +19,17 @@ const tips = [
 let isVisible = true;
 let tipIndex = 0;
 let intervalID = null;
+let textAnimationSpeed = 35;
+let typingTimeout = null;
+tippy(genieContainer, {
+  content: "Click to toggle tips!",
+  theme: "light",
+  placement: "top",
+  animation: "scale",
+});
 
 /* even listners */
+// document.addEventListener("click", handleOutsideClick); //if you need to close tips when clicking outside
 genie.addEventListener("click", toggleTooltip);
 genieTooltip.addEventListener("mouseenter", stopAutoRotation);
 genieTooltip.addEventListener("mouseleave", startAutoRotation);
@@ -38,9 +47,10 @@ function initGenieTips() {
 
 // handles the active and inactive state of tooltip
 function showTooltip() {
+  genie.setAttribute("loop", true);
+  genie.play();
   genieContainer.classList.add("active");
   isVisible = true;
-  startAutoRotation();
   requestAnimationFrame(() => {
     applyDynamicSpacing();
   });
@@ -54,7 +64,8 @@ function toggleTooltip() {
   }
 }
 function renderTip() {
-  genieText.textContent = /* tipIndex + 1 + ") " + */ tips[tipIndex];
+  //   genieText.textContent = /* tipIndex + 1 + ") " + */ tips[tipIndex];
+  textAnimate(tips[tipIndex]);
   // re-calculate spacing after DOM updates
   requestAnimationFrame(() => {
     if (isVisible) applyDynamicSpacing();
@@ -62,10 +73,16 @@ function renderTip() {
 }
 
 function hideTooltip() {
+  genie.removeAttribute("loop");
   genieContainer.classList.remove("active");
   isVisible = false;
   stopAutoRotation();
   resetSpacing();
+}
+function handleOutsideClick(e) {
+  if (!genieContainer.contains(e.target)) {
+    hideTooltip();
+  }
 }
 
 function nextTip() {
@@ -88,9 +105,10 @@ function stopAutoRotation() {
 }
 function startAutoRotation() {
   stopAutoRotation();
-  intervalID = setInterval(() => {
+  const duration = generateTypingDuration(tips[tipIndex]);
+  intervalID = setTimeout(() => {
     nextTip();
-  }, 3000);
+  }, duration);
 }
 // after manual next or previous
 function restartAuto() {
@@ -102,9 +120,37 @@ function restartAuto() {
 function applyDynamicSpacing() {
   resetSpacing();
   const tooltipRect = genieTooltip.getBoundingClientRect();
+
   genieContainer.style.marginBottom = tooltipRect.height + "px";
 }
 
 function resetSpacing() {
   genieContainer.style.margin = "";
+}
+
+// functionality for typing animation
+function textAnimate(tip) {
+  if (typingTimeout) {
+    clearTimeout(typingTimeout);
+    typingTimeout = null;
+  }
+  genieText.textContent = "";
+
+  stopAutoRotation();
+  let char = 0;
+  function type() {
+    if (char < tip.length) {
+      genieText.textContent += tip[char];
+      char++;
+      typingTimeout = setTimeout(type, textAnimationSpeed);
+    } else {
+      typingTimeout = null;
+      startAutoRotation();
+    }
+  }
+  type();
+}
+
+function generateTypingDuration(tip) {
+  return tip.length * textAnimationSpeed + 500;
 }
