@@ -90,6 +90,7 @@ const leaveCountSpan = document.getElementById("leave-count");
 const pushedTodayBtn = document.getElementById("pushTodayBtn");
 const lottieFire = document.getElementById("lottie-fire");
 const lottieBeach = document.getElementById("lottie-beach");
+
 /* output */
 const outputItemsVisibility = document.querySelectorAll(
   ".output-items-visibility",
