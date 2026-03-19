@@ -172,31 +172,61 @@ function setLeaveCount() {
 // function to set streakCount initially
 function setStreakValue() {
   let streak = Number(localStorage.getItem(storage_key_daily_streak) ?? 0);
-  const today = new Date().toISOString().split("T")[0];
+  const today = getToday();
   const lastPushedDate = localStorage.getItem(storage_key_last_pushed_date);
 
-  streakCount.textContent = streak;
+  streakCount.textContent = String(streak);
   //initial state
   if (!lastPushedDate) {
     pushedTodayBtn.disabled = false;
     return;
   }
+  // const lastDate = new Date(lastPushedDate);
+  const [y, m, d] = lastPushedDate.split("-").map(Number);
+  const lastDate = new Date(y, m - 1, d);
 
-  const diff = Math.floor(
-    (new Date(today) - new Date(lastPushedDate)) / (1000 * 60 * 60 * 24),
-  );
   //diff 0 saeme day so use already pushed button disabled and textcontent pushed
-  if (diff === 0) {
+  if (isSameDay(today, lastDate)) {
     pushedTodayBtn.disabled = true;
     pushedTodayBtn.textContent = "Pushed";
-  } else if (diff === 1) {
-    pushedTodayBtn.disabled = false;
-  } else if (diff > 1) {
+  } else if (hasMissedWorkingDays(lastDate, today)) {
     streak = 0;
     localStorage.setItem(storage_key_daily_streak, 0);
     streakCount.textContent = 0;
     pushedTodayBtn.disabled = false;
+  } else {
+    pushedTodayBtn.disabled = false;
+    pushedTodayBtn.textContent = "Log today's push";
   }
+}
+//function to check if two date objects are smae
+function isSameDay(today, lastDay) {
+  return (
+    today.getFullYear() === lastDay.getFullYear() &&
+    today.getMonth() === lastDay.getMonth() &&
+    today.getDate() === lastDay.getDate()
+  );
+}
+//function to check if current day is a sunday or second saturday
+function isNonWorkingday(date) {
+  return (
+    date.getDay() === 0 ||
+    (date.getDay() === 6 && Math.ceil(date.getDate() / 7) === 2)
+  );
+}
+//function to check if user missed any working days between two day to reset streak
+function hasMissedWorkingDays(lastPushed, today) {
+  let current = new Date(lastPushed);
+  current.setDate(current.getDate() + 1);
+
+  while (current < today) {
+    //mot less thatn equal to because today is not
+    if (!isNonWorkingday(current)) {
+      return true;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return false;
 }
 
 //function to create date picker
@@ -496,18 +526,42 @@ function showDailyStats() {
   }
   debug && console.log("DailyStats:", logs);
 }
+//testing
+function getToday() {
+  return new Date();
+}
 
 /* @Streaks */
 pushedTodayBtn.addEventListener("click", () => {
   let count = Number(localStorage.getItem(storage_key_daily_streak) ?? 0);
-  count++;
-  streakCount.textContent = count;
+  const today = getToday();
+  // month +1 cause month starts with jan = 0 in getMonth()
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+  const lastPushedDate = localStorage.getItem(storage_key_last_pushed_date);
+  if (lastPushedDate) {
+    // const lastDate = new Date(lastPushedDate);
+    const [y, m, d] = lastPushedDate.split("-").map(Number);
+    const lastDate = new Date(y, m - 1, d);
+
+    if (isSameDay(today, lastDate)) return;
+
+    if (hasMissedWorkingDays(lastDate, today)) {
+      count = 1; //pushing one from 0
+    } else {
+      count++;
+    }
+  } else {
+    count = 1;
+  }
   localStorage.setItem(storage_key_daily_streak, count);
-  const today = new Date().toISOString().split("T")[0];
-  localStorage.setItem(storage_key_last_pushed_date, today);
-  playLottie(lottieFire);
+
+  localStorage.setItem(storage_key_last_pushed_date, todayStr);
+
+  streakCount.textContent = String(count);
   pushedTodayBtn.textContent = "Pushed";
   pushedTodayBtn.disabled = true;
+  playLottie(lottieFire);
 });
 lottieFire.addEventListener("click", (e) => {
   //e.currentTarget is the lottieFire

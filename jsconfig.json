@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2024",
     "checkJs": true // enable when you want to check
   },
   "exclude": ["node_modules"]
