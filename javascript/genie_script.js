@@ -8,24 +8,36 @@ const nextTipBTn = document.getElementById("next-tip");
 const pauseIcon = document.getElementById("pause-button");
 
 const tips = [
-  `Hi Im Genie 😄👋🏻,\nWelcome to Vonnue Daily Logs!`,
+  // 👋 Introduction & Getting Started
+  `Hi, I'm Genie 😄👋🏻,\nWelcome to Vonnue Daily Logs!`,
   "Click on me to toggle tips! ↖️",
-  "In today's entry, you can paste time in formats like: 03h 05m, 12h 12m 52s, 12:14:15 or 10:20",
 
-  "If you already have totals, enter them in 'Previous Totals' like: 100:14:15 (hours can be any length, minutes & seconds must be below 59)",
+  // ⏱️ Setting Up Totals
+  "If you already have totals, enter them in 'Previous Totals' like: 100:14:15 (hours can be any length; minutes & seconds must be below 59). h, m, s are separated by ':'. This creates a starting point for calculating totals.",
+  "If you don't have previous totals, just leave it blank and continue with today's entry. Previous totals will be generated automatically as you progress.",
+  "In today's entry, you can paste time in formats like: 12h 12m 52s, 03h 05m, 12:14:15, or 10:20.",
 
-  "After submitting today's entry, stats are updated in the copy section — just click copy and paste it into Slack",
+  // 📤 Submitting & Using Data
+  "After submitting today's entry, stats are updated in the copy section — just click copy and paste them into Slack.",
 
-  "Once previous stats exist, the toggle button turns OFF. Turn it ON to edit, but note: this will reset all logs",
+  // ✏️ Managing Logs
+  "You can update existing stats by selecting a date that you have already submitted from today's entry. Modify only the required fields and hit submit again.",
+  "You can delete a log from the delete log section by providing a date or the serial number of the log, which can be obtained from the output table.",
+  "Once previous stats exist, the toggle button turns OFF automatically. Turn it ON to edit, but note: this will reset all logs.",
 
-  "Before clearing data or editing totals, export a backup using JSON so you can restore later",
+  // 💾 Export & Import
+  "Your data is stored locally in your browser. Clearing browser data or switching devices may remove it, so export a JSON backup before clearing data or editing totals to restore it later using the import log feature.",
+  "You can also export your report in Excel or CSV format for easier viewing and sharing.",
+  "Note: Importing a log will clear all existing records before importing.",
 
-  "Your submitted days are highlighted in the date picker so you can track logged entries easily",
+  // 📅 Tracking & Insights
+  "Your submitted days are highlighted in the date picker so you can track logged entries easily.",
+  "The leave counter shows absent days from your first logged entry up to your latest entry.",
 
-  "Leave counter shows absent days from your first logged entry up to your latest entry",
-  "Export your logs to JSON regularly for backup",
-  "Day Streaks is currently under development. ⚠️ ",
-  "Click 'Push Today' to update your streak",
+  // 🔄 Backup & Streaks
+  "Export your logs to JSON regularly for backup.",
+  "Day streaks are currently under development. ⚠️",
+  "Click 'Push Today' to update your streak if you have pushed your code to Git or GitLab.",
   "Stay consistent to build streak momentum 🔥",
 ];
 
