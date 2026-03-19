@@ -10,7 +10,7 @@ const pauseIcon = document.getElementById("pause-button");
 const tips = [
   // 👋 Introduction & Getting Started
   `Hi, I'm Genie 😄👋🏻,\nWelcome to Vonnue Daily Logs!`,
-  "Click on me to toggle tips! ↖️",
+  "Click on Genie to show or hide tips! ↖️",
 
   // ⏱️ Setting Up Totals
   "If you already have totals, enter them in 'Previous Totals' like: 100:14:15 (hours can be any length; minutes & seconds must be below 59). h, m, s are separated by ':'. This creates a starting point for calculating totals.",
