@@ -168,10 +168,12 @@ function setLeaveCount() {
 
   leaveCountSpan.textContent = leaveCount;
 }
-
+function getStreak() {
+  return Number(localStorage.getItem(storage_key_daily_streak) ?? 0);
+}
 // function to set streakCount initially
 function setStreakValue() {
-  let streak = Number(localStorage.getItem(storage_key_daily_streak) ?? 0);
+  let streak = getStreak();
   const today = getToday();
   const lastPushedDate = localStorage.getItem(storage_key_last_pushed_date);
 
@@ -1571,6 +1573,10 @@ function generateFormattedStats(date) {
     "Total",
     `[${logForTheDate[DAILY_TOTAL]}] [${logsTillDate[ALL_TIME_TOTAL]}]`,
   ]);
+  const streak = getStreak();
+  //days
+
+  outputRows.push(["Days", `${streak}`]);
 
   //formating the output with proper spacing
   const statsForTheDay = outputRows

@@ -140,6 +140,8 @@ header {
   border-style: solid;
   border-color: transparent transparent rgb(117, 200, 239) transparent;
 }
+
+/* cursor */
 #genie-text::after {
   content: "";
   display: inline-block;

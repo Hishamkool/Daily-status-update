@@ -37,9 +37,8 @@ const tips = [
 
   // 🔄 Backup & Streaks
   "Export your logs to JSON regularly for backup.",
-  "Day streaks are currently under development. ⚠️",
-  "Click 'Push Today' to update your streak if you have pushed your code to Git or GitLab.",
-  "Daily streaks will reset if you do not push continuously on working days (weekdays).",
+  "Click 'Log today's push' after you push your code to GitHub or GitLab to continue streak",
+  "Daily streaks resets only if you miss a working day (weekends are excluded).",
   "Stay consistent to build streak momentum 🔥",
 ];
 
